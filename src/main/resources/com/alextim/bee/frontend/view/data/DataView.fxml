@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="752.0" prefWidth="1802.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alextim.bee.frontend.view.data.DataController">
+   <children>
+      <SplitPane fx:id="splitPane" dividerPositions="0.7094594594594594" layoutX="155.0" layoutY="71.0" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+        <items>
+          <AnchorPane fx:id="graphPane" minHeight="0.0" minWidth="0.0" prefHeight="647.0" prefWidth="1790.0">
+               <children>
+                  <ImageView fx:id="imageView" fitHeight="40.0" fitWidth="40.0" layoutX="1399.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+               </children>
+            </AnchorPane>
+          <AnchorPane fx:id="controlPane" minHeight="0.0" minWidth="0.0" prefHeight="162.0" prefWidth="1790.0">
+               <children>
+                  <VBox layoutX="522.0" layoutY="70.0" spacing="20.0" style="-fx-border-color: black;" AnchorPane.leftAnchor="710.0" AnchorPane.topAnchor="10.0">
+                     <children>
+                        <HBox layoutX="522.0" layoutY="70.0" prefHeight="35.0" prefWidth="300.0" spacing="10.0">
+                           <children>
+                              <Label layoutX="522.0" layoutY="70.0" prefHeight="35.0" prefWidth="145.0" text="Экспозиция:">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="currentMeasTime" layoutX="687.0" layoutY="79.0" text="-">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <HBox layoutX="557.0" layoutY="150.0" prefHeight="35.0" prefWidth="300.0" spacing="10.0">
+                           <children>
+                              <Label fx:id="measDataTitle" layoutX="557.0" layoutY="167.0" text="-">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="meadDataValue" layoutX="659.0" layoutY="150.0" text="-">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
+                        </HBox>
+                        <StackPane prefHeight="21.0" prefWidth="156.0">
+                           <children>
+                              <ProgressBar fx:id="progressBar" prefHeight="21.0" prefWidth="553.0" progress="0.0">
+                                 <StackPane.margin>
+                                    <Insets />
+                                 </StackPane.margin></ProgressBar>
+                              <Label fx:id="progressLabel" text="-" />
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" />
+                           </VBox.margin>
+                        </StackPane>
+                     </children>
+                  </VBox>
+                  <TableView fx:id="table" layoutX="372.0" layoutY="55.0" prefHeight="138.0" prefWidth="464.0" AnchorPane.leftAnchor="230.0" AnchorPane.topAnchor="10.0">
+                    <columns>
+                      <TableColumn fx:id="comment" prefWidth="150.0" />
+                        <TableColumn fx:id="count" prefWidth="100.0" text="Счет" />
+                        <TableColumn fx:id="averageCount" prefWidth="100.0" text="Средний" />
+                      <TableColumn fx:id="currentCount" prefWidth="100.0" text="Текущий" />
+                    </columns>
+                  </TableView>
+                  <AnchorPane layoutX="1273.0" layoutY="33.0" prefHeight="91.0" prefWidth="367.0" style="-fx-border-color: black;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                     <children>
+                        <HBox layoutY="52.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
+                           <children>
+                              <Button layoutX="1273.0" layoutY="85.0" mnemonicParsing="false" onAction="#onSave" prefHeight="25.0" prefWidth="100.0" text="Сохранить" />
+                              <TextField layoutX="1392.0" layoutY="85.0" prefHeight="25.0" prefWidth="250.0" promptText="Комментарий" />
+                           </children>
+                        </HBox>
+                        <HBox layoutX="6.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
+                           <children>
+                              <Button fx:id="startBtn" layoutX="1279.0" layoutY="33.0" mnemonicParsing="false" onAction="#onStart" prefHeight="25.0" prefWidth="100.0" text="Старт" />
+                              <Button fx:id="stopBtn" disable="true" layoutX="1400.0" layoutY="33.0" mnemonicParsing="false" onAction="#onStop" prefHeight="25.0" prefWidth="100.0" text="Стоп" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+                  <HBox layoutX="14.0" layoutY="21.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="10.0">
+                     <children>
+                        <Label layoutX="1123.0" layoutY="198.0" prefHeight="25.0" prefWidth="90.0" text="Экспозиция:" />
+                        <ComboBox fx:id="measTime" layoutX="1266.0" layoutY="197.0" prefHeight="25.0" prefWidth="120.0" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="status" alignment="CENTER" layoutX="14.0" layoutY="80.0" prefHeight="57.0" prefWidth="203.0" text="-" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="60.0">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
