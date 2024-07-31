@@ -1,0 +1,233 @@
+package com.alextim.bee.client.protocol;
+
+
+import lombok.AllArgsConstructor;
+
+public final class DetectorCodes {
+
+    @AllArgsConstructor
+    public enum Format {
+        SYNC(0, 1, "Байт начала пакета"),
+        ID(1, 4, "Идентификатор блока"),
+        TIME(5, 4, "Момент времени"),
+        TYPE(9, 1, "Тип пакета"),
+        EVT_ANS_CMD(10, 1, "Команда/Событие/Статус ответа на команду"),
+        LEN(11, 2, "Длина блока данных пакета"),
+        DATA_KS(13, 1, "Контрольная сумма блока данных"),
+        HEADER_KS(14, 1, "Контрольная сумма заголовка"),
+        DATA(15, null, "Данные");
+
+        public final int shift;
+        public final Integer size;
+        public final String comment;
+    }
+
+
+    @AllArgsConstructor
+    public enum MsgType {
+        EVENT_TYPE((byte) 0),
+        COMMAND_TYPE((byte) 0xFF),
+        ANSWER_COMMAND_TYPE((byte) -1);
+
+        public final byte code;
+    }
+
+
+    @AllArgsConstructor
+    public enum BDType {
+        TYPE_UNKNOWN((byte) 0, "", ""),
+        GAMMA((byte) 1, "Гамма", "БДМГ"),
+        NEUTRON((byte) 2, "Нейтронный", "БДПН");
+
+        public final byte code;
+        public final String title;
+        public final String name;
+
+        public static BDType getBDTypeByCode(byte code) {
+            for (BDType type : BDType.values()) {
+                if (type.code == code) {
+                    return type;
+                }
+            }
+            throw new RuntimeException("Unknown BDTypeCode " + code);
+        }
+
+        public static BDType getBDTypeByCode(String name) {
+            for (BDType type : BDType.values()) {
+                if (type.name.equals(name)) {
+                    return type;
+                }
+            }
+            throw new RuntimeException("Unknown BDName " + name);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum Event {
+        RESTART((byte) 0x01, "Событие запуска/перезапуска контроллера БД"),
+        STATE((byte) 0x10, "Событие текущего состояния БД"),
+        INTERNAL_DATA((byte) 0x20, "Событие внутренних данных БД");
+
+        public final byte code;
+        public final String title;
+
+        public static Event getEventByCode(byte code) {
+            for (Event event : Event.values()) {
+                if (event.code == code) {
+                    return event;
+                }
+            }
+            throw new RuntimeException("Unknown EventCode " + code);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum RestartReason {
+        RESTART_POWER((byte) 0x00, "Запуск после подачи питания"),
+        RESTART_COMMAND((byte) 0x01, "Перезапуск после команды перезапуска"),
+        RESTART_ERROR((byte) 0x02, "Перезапуск в результате неправильной работы БД");
+
+        public final byte code;
+        public final String title;
+
+
+        public static RestartReason getRestartReasonByCode(byte code) {
+            for (RestartReason reason : RestartReason.values()) {
+                if (reason.code == code) {
+                    return reason;
+                }
+            }
+            throw new RuntimeException("Unknown RestartReasonCode " + code);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum RestartParam {
+        UNKNOWN((byte) 0),
+        WATCHDOG((byte) 1),
+        HARDFAULT((byte) 2),
+        LOWPOWER((byte) 3);
+
+        public final byte code;
+
+        public static RestartParam getRestartParamByCode(byte code) {
+            for (RestartParam param : RestartParam.values()) {
+                if (param.code == code) {
+                    return param;
+                }
+            }
+            throw new RuntimeException("Unknown RestartParamCode " + code);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum State {
+        UNKNOWN((byte) 0x00, "Состояние неизвестно"),
+        INITIALIZATION((byte) 0x01, "Начальная инициализация БД"),
+        ERROR((byte) 0x02, "БД не работает и находится в состоянии ошибки"),
+        ACCUMULATION((byte) 0x03, "БД находится в режиме накопления данных"),
+        MEASUREMENT((byte) 0x04, "БД находится в режиме измерения");
+
+        public final byte code;
+        public final String title;
+
+        public static State getStateByCode(byte code) {
+            for (State param : State.values()) {
+                if (param.code == code) {
+                    return param;
+                }
+            }
+            throw new RuntimeException("Unknown StateCode " + code);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum Command {
+        RESTART((byte) 0x10, "Команда перезапуска контроллера БД"),
+        GET_VERSION((byte) 0x11, "Команда чтения версии прошивки БД"),
+        SET_MEAS_TIME((byte) 0x20, "Команда установки времени экспозиции"),
+        SET_GEO_DATA((byte) 0x40, "Команда задания геоданных"),
+        SET_SENSITIVITY((byte) 0x80, "Команда задания коэффициента чувствительности"),
+        SET_CORRECT_COFF((byte) 0x81, "Команда задания корректирующего коэффициента счетчика"),
+        SET_DEAD_TIME((byte) 0x82, "Команда задания мертвого времени"),
+        GET_SENSITIVITY((byte) 0xA0, "Команда чтения коэффициента чувствительности"),
+        GET_CORRECT_COFF((byte) 0xA1, "Команда чтения корректирующего коэффициента счетчика"),
+        GET_DEAD_TIME((byte) 0xA2, "Команда чтения мертвого времени"),
+        SET_IP_ADDR((byte) 0xC0, "Команда смены IP адреса БД");
+
+        public final byte code;
+        public final String title;
+
+        public static Command getCommandByCode(byte code) {
+            for (Command command : Command.values())
+                if (command.code == code)
+                    return command;
+            throw new RuntimeException("Unknown CommandCode " + code);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum CommandStatus {
+
+        SUCCESS((byte) 0x00, "Команда выполнена успешно"),
+        ERROR((byte) 0x01, "Ошибка выполнения команды"),
+        PROCCESSING((byte) 0x02, "Команда принята к выполнению");
+
+        public final byte code;
+        public final String title;
+
+        public static CommandStatus getCommandStatusByCode(byte code) {
+            for (CommandStatus commandStatus : CommandStatus.values())
+                if (commandStatus.code == code)
+                    return commandStatus;
+            throw new RuntimeException("Unknown CommandStatusCode " + code);
+        }
+    }
+
+    @AllArgsConstructor
+    public enum Error {
+        NO_ERROR((byte) 0, "Нет ошибок (выполнено успешно)"),
+        NO_MEMORY((byte) 1, "Нет свободной памяти"),
+        ERROR_OF_SIZE((byte) 2, "Ошибка в размере"),
+        ERROR_OF_PARAM((byte) 3, "Ошибка в параметре"),
+        NOT_CONNECTED((byte) 4, "Не подсоединен"),
+        OVERFLOW((byte) 5, "Ошибка переполнения"),
+        TIMEOUT((byte) 6, "Таймаут"),
+        NO_INIT((byte) 7, "Не инициализирован"),
+        NAME_ERROR((byte) 8, "Ошибка формата имени"),
+        ANSWER_ERROR((byte) 9, "Ошибка в ответе"),
+        ALREADY_EXISTS((byte) 10, "Уже существует"),
+        IT_IS_ABSENT((byte) 11, "Отсутствует"),
+        INVALID_DATA((byte) 12, "Ошибка в данных"),
+        WRITE_ERROR((byte) 13, "Ошибка записи"),
+        READ_ERROR((byte) 14, "Ошибка чтения"),
+        FALSE_KS((byte) 15, "Ошибка контрольной суммы"),
+        ALIEN((byte) 16, "Серийные номера не совпадают"),
+        UNKNOWN((byte) -1, "Неизвестная ошибка");
+
+        public final byte code;
+        public final String title;
+
+        public static Error getErrorByCode(byte code) {
+            for (Error error : Error.values()) {
+                if (error.code == code) {
+                    return error;
+                }
+            }
+            throw new RuntimeException("Unknown ErrorCode " + code);
+        }
+    }
+
+
+    @AllArgsConstructor
+    public enum BDParam {
+        SENSITIVITY("Чувствительность"),
+        DEAD_TIME("Мертвое время"),
+        COR_COEF("Корректирующие коэффициенты счетчиков"),
+        IP_ADDRESS_PORT("IP адрес, IP порт и IP порт внешних устройств"),
+        VER_HARDWARE("Версия прошивки"),
+        GEO_DATA("Геоданные");
+
+        public final String title;
+    }
+}
