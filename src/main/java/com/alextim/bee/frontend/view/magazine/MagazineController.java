@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -20,7 +21,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MagazineController extends NodeController {
-
 
     @FXML
     private AnchorPane pane;
@@ -39,7 +39,6 @@ public class MagazineController extends NodeController {
     private TableColumn<DetectorMsg, String> message;
     @FXML
     private TableColumn<DetectorMsg, String> data;
-
 
     @Override
     protected String getName() {
@@ -141,7 +140,7 @@ public class MagazineController extends NodeController {
                 str.append(String.format("%02x ", datum));
             return new ReadOnlyObjectWrapper<>(str.toString());
         });
-
+        table.setPlaceholder(new Label(""));
         table.setItems(FXCollections.observableArrayList());
     }
 
@@ -152,7 +151,6 @@ public class MagazineController extends NodeController {
     public void clear() {
         table.getItems().clear();
     }
-
 
     @FXML
     void onSave(ActionEvent event) {

@@ -2,6 +2,7 @@ package com.alextim.bee;
 
 
 import com.alextim.bee.client.DetectorClientAbstract;
+import com.alextim.bee.client.messages.DetectorCommands;
 import com.alextim.bee.client.messages.DetectorCommands.*;
 import com.alextim.bee.client.messages.DetectorEvents.AccumulationDetectorState;
 import com.alextim.bee.client.messages.DetectorEvents.InitializationDetectorState;
@@ -40,6 +41,7 @@ import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus.SUCCESS;
 import static com.alextim.bee.client.protocol.DetectorCodes.Error.getErrorByCode;
 import static com.alextim.bee.client.transfer.DetectorParser.parse;
+import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 import static com.alextim.bee.service.StatisticMeasService.StatisticMeasurement;
 
 @Slf4j
@@ -235,6 +237,7 @@ public class RootController extends RootControllerInitializer {
     public void startMeasurement(long measTime) {
         statisticMeasService.clearSumCounts();
 
+        sendDetectorCommand(new DetectorCommands.SetMeasTimeCommand(TRANSFER_TO_DETECTOR_ID, measTime));
     }
 
     public void stopMeasurement() {

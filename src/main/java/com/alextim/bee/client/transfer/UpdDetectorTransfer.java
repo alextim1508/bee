@@ -78,7 +78,7 @@ public class UpdDetectorTransfer {
             int size = 0;
             int start = 0;
 
-            if(Thread.currentThread().isInterrupted()) {
+            if (Thread.currentThread().isInterrupted()) {
                 return;
             }
 
@@ -140,7 +140,7 @@ public class UpdDetectorTransfer {
                     log.info("rcv index after shift: {}", rcvInd);
 
                     int len = Short.toUnsignedInt(
-                            ByteBuffer.wrap(new byte[]{rcvBuf[LEN.shift+ 1], rcvBuf[LEN.shift ]}).getShort());
+                            ByteBuffer.wrap(new byte[]{rcvBuf[LEN.shift + 1], rcvBuf[LEN.shift]}).getShort());
                     log.info("len: {}", len);
 
 //                    System.out.println("rcvInd = " + rcvInd);
@@ -157,13 +157,13 @@ public class UpdDetectorTransfer {
                     System.out.println();
 
                     try {
-                        controlHeaderCheck();
+                        controlHeaderCheck(rcvBuf,0, HEADER_KS.shift, HEADER_KS.shift);
                     } catch (Exception e) {
                         log.error("", e);
                     }
 
                     try {
-                        controlBodyCheck(len);
+                        controlBodyCheck(rcvBuf, DATA.shift, DATA.shift + len + 1, DATA_KS.shift);
                     } catch (Exception e) {
                         log.error("", e);
                     }
@@ -193,46 +193,40 @@ public class UpdDetectorTransfer {
         }
     }
 
-    protected void controlBodyCheck(int len) {
-        System.out.println("controlBodyCheck");
-        byte ks = CONTROL_SUM_BASE;
-        for (int j = DATA.shift; j < DATA.shift + len + 1; j++) {
-            System.out.printf("%x ", rcvBuf[j]);
-            ks += rcvBuf[j];
-        }
-        System.out.println();
-        System.out.printf("ks = %x\n", ks);
+    static void controlBodyCheck(byte[] arr, int i1, int i2, int indexKs) {
+        int ks = CONTROL_SUM_BASE;
+        for (int j = i1; j < i2; j++)
+            ks += Byte.toUnsignedInt(arr[j]);
+        ks = ks & 0xFF;
 
-        if (ks != rcvBuf[DATA_KS.shift]) {
-            throw new RuntimeException(rcvBuf[DATA_KS.shift] + " " + ks + " InvalidDataKS");
+        if (ks != Byte.toUnsignedInt(arr[indexKs])) {
+            throw new RuntimeException(String.format("InvalidDataKS: %x != calculated %x ",
+                    Byte.toUnsignedInt(arr[indexKs]), ks));
         }
     }
 
-    protected void controlHeaderCheck() {
-        System.out.println("controlHeaderCheck");
-        byte ks = CONTROL_SUM_BASE;
-        for (int j = 0; j < HEADER_KS.shift; j++) {
-            System.out.printf("%x ", rcvBuf[j]);
-            ks += rcvBuf[j];
-        }
-        System.out.println();
-        System.out.printf("ks = %x\n", ks);
+    static void controlHeaderCheck(byte[] arr, int i1, int i2, int indexKs) {
+        int ks = CONTROL_SUM_BASE;
+        for (int j = i1; j < i2; j++)
+            ks += Byte.toUnsignedInt(arr[j]);
+        ks = ks & 0xFF;
 
-        if (ks != rcvBuf[HEADER_KS.shift]) {
-            throw new RuntimeException(rcvBuf[HEADER_KS.shift] + " " + ks + " InvalidHeaderKS");
+        if (ks != Byte.toUnsignedInt(arr[indexKs])) {
+            throw new RuntimeException(String.format("InvalidHeaderKS: %x != calculated %x ",
+                    Byte.toUnsignedInt(arr[indexKs]), ks));
         }
     }
 
-    protected static void setControlSum(byte[] byteArray) {
-        byte ks = CONTROL_SUM_BASE;
+    static void setControlSum(byte[] byteArray) {
+        int ks = CONTROL_SUM_BASE;
         for (int i = DATA.shift; i < byteArray.length; i++)
-            ks += byteArray[i];
-        byteArray[DATA_KS.shift] = ks;
+            ks += Byte.toUnsignedInt(byteArray[i]);
+        byteArray[DATA_KS.shift] = (byte) (ks & 0xFF);
 
         ks = CONTROL_SUM_BASE;
         for (int i = 0; i < HEADER_KS.shift; i++)
-            ks += byteArray[i];
-        byteArray[HEADER_KS.shift] = ks;
+            ks += Byte.toUnsignedInt(byteArray[i]);
+        byteArray[HEADER_KS.shift] = (byte) (ks & 0xFF);
     }
 
     public static byte[] wrapToPackage(int detectorId, int time, Command commandCode, byte[] data) {
@@ -277,7 +271,7 @@ public class UpdDetectorTransfer {
     }
 
     public void shutdown() {
-        if(socketListener != null) {
+        if (socketListener != null) {
             socketListener.interrupt();
             log.info("socketListener is interrupted");
         }
