@@ -1,20 +1,38 @@
 package com.alextim.bee.client.messages;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import static com.alextim.bee.client.protocol.DetectorCodes.Command;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus;
+import static com.alextim.bee.client.transfer.UpdDetectorTransfer.wrapToPackage;
 
 public class DetectorCommands {
 
     public static class RestartDetectorCommand extends SomeCommand {
-        public RestartDetectorCommand(SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+
+        public RestartDetectorCommand(int detectorID) {
+            super(detectorID, 0, Command.RESTART,
+                    wrapToPackage(detectorID, 0, Command.RESTART, new byte[0]));
+        }
+
+        @Override
+        public String toString() {
+            return Command.RESTART.title;
         }
     }
 
 
     public static class GetVersionCommand extends SomeCommand {
-        public GetVersionCommand(SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+
+        public GetVersionCommand(int detectorID) {
+            super(detectorID, 0, Command.GET_VERSION,
+                    wrapToPackage(detectorID, 0, Command.GET_VERSION, new byte[0]));
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_VERSION.title;
         }
     }
 
@@ -22,9 +40,14 @@ public class DetectorCommands {
 
         public byte[] version;
 
-        public GetVersionAnswer(byte[] version, SomeCommandAnswer commandAnswer) {
-            super(commandAnswer.detectorID, commandAnswer.time, commandAnswer.commandCode, commandAnswer.commandStatusCode, commandAnswer.data);
+        public GetVersionAnswer(byte[] version, SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.version = version;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. Версия: %s", Command.GET_VERSION.title, Arrays.toString(version));
         }
     }
 
@@ -33,15 +56,35 @@ public class DetectorCommands {
 
         public long measTime;
 
-        public SetMeasTimeCommand(long measTime, SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public SetMeasTimeCommand(int detectorID, long measTime) {
+            super(detectorID, 0, Command.SET_MEAS_TIME,
+                    wrapToPackage(detectorID, 0, Command.SET_MEAS_TIME, getData(measTime)));
+
             this.measTime = measTime;
+        }
+
+        private static byte[] getData(long measTime) {
+            int unsignedMeasTime = (int) measTime;
+            byte[] array = ByteBuffer.allocate(4).putInt(unsignedMeasTime).array();
+            return new byte[]{
+                    array[3], array[2], array[1], array[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. Времени экспозиции: %d", Command.SET_MEAS_TIME.title, measTime);
         }
     }
 
     public static class SetMeasTimeAnswer extends SomeCommandAnswer {
-        public SetMeasTimeAnswer(SomeCommandAnswer commandAnswer) {
-            super(commandAnswer.detectorID, commandAnswer.time, commandAnswer.commandCode, commandAnswer.commandStatusCode, commandAnswer.data);
+        public SetMeasTimeAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_MEAS_TIME.title;
         }
     }
 
@@ -50,23 +93,48 @@ public class DetectorCommands {
 
         public float sensitivity;
 
-        public SetSensitivityCommand(float sensitivity, SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public SetSensitivityCommand(int detectorID, float sensitivity) {
+            super(detectorID, 0, Command.SET_SENSITIVITY,
+                    wrapToPackage(detectorID, 0, Command.SET_SENSITIVITY, getData(sensitivity)));
+
             this.sensitivity = sensitivity;
+        }
+
+        private static byte[] getData(float sensitivity) {
+            byte[] array = ByteBuffer.allocate(4).putFloat(sensitivity).array();
+            return new byte[]{
+                    array[3], array[2], array[1], array[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. Чувствительность: %f", Command.SET_SENSITIVITY.title, sensitivity);
         }
     }
 
     public static class SetSensitivityAnswer extends SomeCommandAnswer {
 
-        public SetSensitivityAnswer(SomeCommandAnswer commandAnswer) {
-            super(commandAnswer.detectorID, commandAnswer.time, commandAnswer.commandCode, commandAnswer.commandStatusCode, commandAnswer.data);
+        public SetSensitivityAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_SENSITIVITY.title;
         }
     }
 
 
     public static class GetSensitivityCommand extends SomeCommand {
-        public GetSensitivityCommand(SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public GetSensitivityCommand(int detectorID) {
+            super(detectorID, 0, Command.GET_SENSITIVITY,
+                    wrapToPackage(detectorID, 0, Command.GET_SENSITIVITY, new byte[0]));
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_SENSITIVITY.title;
         }
     }
 
@@ -74,9 +142,14 @@ public class DetectorCommands {
 
         public float sensitivity;
 
-        public GetSensitivityAnswer(float sensitivity, SomeCommandAnswer command) {
-            super(command.detectorID, command.time, command.commandCode, command.commandStatusCode, command.data);
+        public GetSensitivityAnswer(float sensitivity, SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.sensitivity = sensitivity;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. Чувствительность: %f", Command.GET_SENSITIVITY.title, sensitivity);
         }
     }
 
@@ -84,22 +157,47 @@ public class DetectorCommands {
     public static class SetDeadTimeCommand extends SomeCommand {
         public float deadTime;
 
-        public SetDeadTimeCommand(float deadTime, SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public SetDeadTimeCommand(int detectorID, float deadTime) {
+            super(detectorID, 0, Command.SET_DEAD_TIME,
+                    wrapToPackage(detectorID, 0, Command.SET_DEAD_TIME, getData(deadTime)));
+
             this.deadTime = deadTime;
+        }
+
+        private static byte[] getData(float deadTime) {
+            byte[] array = ByteBuffer.allocate(4).putFloat(deadTime).array();
+            return new byte[]{
+                    array[3], array[2], array[1], array[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. Мертвое время: %f", Command.SET_DEAD_TIME.title, deadTime);
         }
     }
 
     public static class SetDeadTimeAnswer extends SomeCommandAnswer {
-        public SetDeadTimeAnswer(SomeCommandAnswer command) {
-            super(command.detectorID, command.time, command.commandCode, command.commandStatusCode, command.data);
+        public SetDeadTimeAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_DEAD_TIME.title;
         }
     }
 
 
     public static class GetDeadTimeCommand extends SomeCommand {
-        public GetDeadTimeCommand(SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public GetDeadTimeCommand(int detectorID) {
+            super(detectorID, 0, Command.GET_SENSITIVITY,
+                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, new byte[0]));
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_DEAD_TIME.title;
         }
     }
 
@@ -107,9 +205,14 @@ public class DetectorCommands {
 
         public float deadTime;
 
-        public GetDeadTimeAnswer(float deadTime, SomeCommandAnswer command) {
-            super(command.detectorID, command.time, command.commandCode, command.commandStatusCode, command.data);
+        public GetDeadTimeAnswer(float deadTime, SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.deadTime = deadTime;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. Мертвое время: %f", Command.GET_DEAD_TIME.title, deadTime);
         }
     }
 
@@ -118,16 +221,39 @@ public class DetectorCommands {
         public long counterIndex;
         public float counterCorrectCoeff;
 
-        public SetCounterCorrectCoeffCommand(long counterIndex, float counterCorrectCoeff, SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public SetCounterCorrectCoeffCommand(int detectorID, long counterIndex, float counterCorrectCoeff) {
+            super(detectorID, 0, Command.SET_CORRECT_COFF,
+                    wrapToPackage(detectorID, 0, Command.SET_CORRECT_COFF, getData(counterIndex, counterCorrectCoeff)));
+
             this.counterIndex = counterIndex;
             this.counterCorrectCoeff = counterCorrectCoeff;
+        }
+
+        private static byte[] getData(long counterIndex, float counterCorrectCoeff) {
+            int unsignedCounterIndex = (int) counterIndex;
+            byte[] array1 = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
+            byte[] array2 = ByteBuffer.allocate(4).putFloat(counterCorrectCoeff).array();
+            return new byte[]{
+                    array1[3], array1[2], array1[1], array1[0],
+                    array2[3], array2[2], array2[1], array2[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s %d, Корректирующий коэффициент: %f",
+                    Command.SET_CORRECT_COFF.title, counterIndex, counterCorrectCoeff);
         }
     }
 
     public static class SetCounterCorrectCoeffAnswer extends SomeCommandAnswer {
-        public SetCounterCorrectCoeffAnswer(SomeCommandAnswer command) {
-            super(command.detectorID, command.time, command.commandCode, command.commandStatusCode, command.data);
+        public SetCounterCorrectCoeffAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_CORRECT_COFF.title;
         }
     }
 
@@ -135,9 +261,23 @@ public class DetectorCommands {
     public static class GetCounterCorrectCoeffCommand extends SomeCommand {
         public final long counterIndex;
 
-        public GetCounterCorrectCoeffCommand(long counterIndex, SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public GetCounterCorrectCoeffCommand(int detectorID, long counterIndex) {
+            super(detectorID, 0, Command.GET_CORRECT_COFF,
+                    wrapToPackage(detectorID, 0, Command.GET_CORRECT_COFF, getData(counterIndex)));
             this.counterIndex = counterIndex;
+        }
+
+        private static byte[] getData(long counterIndex) {
+            int unsignedCounterIndex = (int) counterIndex;
+            byte[] array = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
+            return new byte[]{
+                    array[3], array[2], array[1], array[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s %d", Command.GET_CORRECT_COFF.title, counterIndex);
         }
     }
 
@@ -147,44 +287,79 @@ public class DetectorCommands {
 
         public GetCounterCorrectCoeffAnswer(long counterIndex,
                                             float counterCorrectCoeff,
-                                            SomeCommandAnswer command) {
-            super(command.detectorID, command.time, command.commandCode, command.commandStatusCode, command.data);
+                                            SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.counterIndex = counterIndex;
             this.counterCorrectCoeff = counterCorrectCoeff;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s %d, Корректирующий коэффициент: %f",
+                    Command.GET_CORRECT_COFF.title, counterIndex, counterCorrectCoeff);
         }
     }
 
 
     public static class SetGeoDataCommand extends SomeCommand {
-        public final long geoData;
 
-        public SetGeoDataCommand(long geoData, SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
-            this.geoData = geoData;
+        public SetGeoDataCommand(int detectorID) {
+            super(detectorID, 0, Command.SET_GEO_DATA,
+                    wrapToPackage(detectorID, 0, Command.SET_GEO_DATA, new byte[0]));
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_GEO_DATA.title;
         }
     }
 
     public static class SetGeoDataAnswer extends SomeCommandAnswer {
 
-        public SetGeoDataAnswer(SomeCommandAnswer command) {
-            super(command.detectorID, command.time, command.commandCode, command.commandStatusCode, command.data);
+        public SetGeoDataAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_GEO_DATA.title;
         }
     }
 
 
     public static class ChangeIpCommand extends SomeCommand {
-        public final short[] ipAddr;
+        public final int[] ipAddr;
         public final int ipPort;
         public final int externalDeviceIpPort;
 
-        public ChangeIpCommand(short[] ipAddr,
-                               int ipPort,
-                               int externalDeviceIpPort,
-                               SomeCommand command) {
-            super(command.detectorID, command.time, command.commandCode, command.data);
+        public ChangeIpCommand(int detectorID, int[] ipAddr, int ipPort, int externalDeviceIpPort) {
+            super(detectorID, 0, Command.SET_IP_ADDR,
+                    wrapToPackage(detectorID, 0, Command.SET_IP_ADDR, getData(ipAddr, ipPort, externalDeviceIpPort)));
+
             this.ipAddr = ipAddr;
             this.ipPort = ipPort;
             this.externalDeviceIpPort = externalDeviceIpPort;
+        }
+
+
+        private static byte[] getData(int[] ipAddr, int ipPort, int externalDeviceIpPort) {
+            short unsignedIpPort = (short) ipPort;
+            byte[] array1 = ByteBuffer.allocate(2).putShort(unsignedIpPort).array();
+
+            short unsignedExternalDeviceIpPort = (short) externalDeviceIpPort;
+            byte[] array2 = ByteBuffer.allocate(2).putShort(unsignedExternalDeviceIpPort).array();
+
+            return new byte[]{
+                    (byte) ipAddr[3], (byte) ipAddr[2], (byte) ipAddr[1], (byte) ipAddr[0],
+                    array1[1], array1[0],
+                    array2[1], array2[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s. IP адрес: %s, IP порт: %d, IP порт внешних устройств: %d",
+                    Command.SET_IP_ADDR.title, Arrays.toString(ipAddr), ipPort, externalDeviceIpPort);
         }
     }
 

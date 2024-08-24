@@ -84,6 +84,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -92,6 +93,7 @@
                     <mainClass>${main.class}</mainClass>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
@@ -99,16 +101,9 @@
                 <configuration>
                     <target>${gluonfx.target}</target>
                     <mainClass>${main.class}</mainClass>
-                    <enableSWRendering>true</enableSWRendering>
-                    <nativeImageArgs>
-                        <arg>
-                            -Dorg.sqlite.lib.exportPath=/home/alex/IdeaProjects/
-                        </arg>
-                    </nativeImageArgs>
                     <linkerArgs>
-                        <arg>
-                            /usr/lib/jvm/graalvm-svm-java17-linux-gluon-22.1.0.1-Final/lib/static/linux-amd64/glibc/libjaas.a
-                        </arg>
+                        <arg>management_ext.lib</arg>
+                        <arg>psapi.lib</arg>
                     </linkerArgs>
                 </configuration>
             </plugin>

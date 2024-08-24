@@ -123,7 +123,7 @@ public class MagazineController extends NodeController {
                 return new ReadOnlyObjectWrapper<>(event.eventCode.title);
 
             } else if (param.getValue() instanceof DetectorCommands.SomeCommandAnswer answer) {
-                return new ReadOnlyObjectWrapper<>(answer.commandCode.title + "/" + answer.commandStatusCode.title);
+                return new ReadOnlyObjectWrapper<>(answer.commandCode.title + ". " + answer.commandStatusCode.title);
 
             } else if (param.getValue() instanceof DetectorCommands.SomeCommand command) {
                 return new ReadOnlyObjectWrapper<>(command.commandCode.title);

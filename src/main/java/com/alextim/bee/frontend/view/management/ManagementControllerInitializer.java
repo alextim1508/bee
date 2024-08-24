@@ -3,6 +3,7 @@ package com.alextim.bee.frontend.view.management;
 import com.alextim.bee.client.protocol.DetectorCodes;
 import com.alextim.bee.client.protocol.DetectorCodes.BDParam;
 import com.alextim.bee.frontend.view.NodeController;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -12,10 +13,11 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.BDType.GAMMA;
-import static com.alextim.bee.context.Context.DETECTOR_NAME;
+import static com.alextim.bee.context.Property.FRONTEND_FOR_DETECTOR;
 import static javafx.scene.control.Alert.AlertType.*;
 
 public abstract class ManagementControllerInitializer extends NodeController {
@@ -39,6 +41,8 @@ public abstract class ManagementControllerInitializer extends NodeController {
     @FXML
     protected TextField deadTime;
 
+    @FXML
+    protected TextField measTime;
 
     @FXML
     private GridPane counterCoefPane;
@@ -50,7 +54,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
     @FXML
     protected TextField ipPort;
     @FXML
-    protected TextField ipPortExternal;
+    protected TextField externalDeviceIpPort;
 
     @FXML
     protected TextField versionHardware;
@@ -81,24 +85,28 @@ public abstract class ManagementControllerInitializer extends NodeController {
     }
 
     private void initByDetectorName() {
-        if(DetectorCodes.BDType.getBDTypeByCode(DETECTOR_NAME) == GAMMA) {
+        if (DetectorCodes.BDType.getBDTypeByCode(FRONTEND_FOR_DETECTOR) == GAMMA) {
             counterCoefPane.getChildren().removeAll(counter3, counter4);
         }
     }
 
     public void showDialogParamIsSet(BDParam bdParam) {
-        mainWindow.showDialog(INFORMATION, "Информация",
-                HEADER,
-                String.format(PARAM_IS_SET, bdParam.title));
+        Platform.runLater(() -> {
+            mainWindow.showDialog(INFORMATION, "Информация",
+                    HEADER,
+                    String.format(PARAM_IS_SET, bdParam.title));
+        });
     }
 
     public void showDialogParamIsGot(BDParam bdParam) {
-        mainWindow.showDialog(INFORMATION, "Информация",
-                HEADER,
-                String.format(PARAM_IS_GOT, bdParam.title));
+        Platform.runLater(() -> {
+            mainWindow.showDialog(INFORMATION, "Информация",
+                    HEADER,
+                    String.format(PARAM_IS_GOT, bdParam.title));
+        });
     }
 
-    protected boolean areYouSure (BDParam bdParam) {
+    protected boolean areYouSure(BDParam bdParam) {
         return mainWindow.showDialog(WARNING, "Внимание",
                 HEADER,
                 String.format(ARE_YOU_SURE, bdParam.title));
@@ -116,19 +124,56 @@ public abstract class ManagementControllerInitializer extends NodeController {
                 String.format(ERROR_ANSWER, bdParam.title, error.title));
     }
 
-    protected boolean areYouSureDetectorRestart () {
+    protected boolean areYouSureDetectorRestart() {
         return mainWindow.showDialog(WARNING, "Внимание",
                 HEADER,
                 ARE_YOU_SURE_TO_RESTART);
     }
 
     public void showDialogDetectorIsRestarted() {
-        mainWindow.showDialog(INFORMATION, "Информация",
-                HEADER,
-                DETECTOR_IS_RESTARTED);
+        Platform.runLater(() -> {
+            mainWindow.showDialog(INFORMATION, "Информация",
+                    HEADER,
+                    DETECTOR_IS_RESTARTED);
+        });
     }
 
     public void setSoftwareVersion(String text) {
         softwareVersion.setText(text);
+    }
+
+    public void setSensitivity(float sensitivity) {
+        this.sensitivity.setText(String.valueOf(sensitivity));
+    }
+
+    public void setDeadTime(float deadTime) {
+        this.deadTime.setText(String.valueOf(deadTime));
+    }
+
+    public void setHardwareVersion(byte[] version) {
+        this.versionHardware.setText(Arrays.toString(version));
+    }
+
+    public void setCounterCorrectCoeff(long counterIndex, float counterCorrectCoeff) {
+        if (counterIndex == 1) {
+            this.counter1.setText(String.valueOf(counterCorrectCoeff));
+        } else if (counterIndex == 2) {
+            this.counter2.setText(String.valueOf(counterCorrectCoeff));
+        } else if (counterIndex == 3) {
+            this.counter3.setText(String.valueOf(counterCorrectCoeff));
+        } else if (counterIndex == 4) {
+            this.counter4.setText(String.valueOf(counterCorrectCoeff));
+        }
+    }
+
+    public void setIpInfo(int[] ipAddr, int ipPort, int externalDeviceIpPort) {
+        this.ipAddress1.setText(String.valueOf(ipAddr[0]));
+        this.ipAddress2.setText(String.valueOf(ipAddr[1]));
+        this.ipAddress3.setText(String.valueOf(ipAddr[2]));
+        this.ipAddress4.setText(String.valueOf(ipAddr[3]));
+
+        this.ipPort.setText(String.valueOf(ipPort));
+
+        this.externalDeviceIpPort.setText(String.valueOf(externalDeviceIpPort));
     }
 }

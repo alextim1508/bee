@@ -1,12 +1,16 @@
 package com.alextim.bee.frontend.view.data;
 
-import com.alextim.bee.service.ValueFormatter;
+import com.alextim.bee.client.messages.DetectorCommands.SetMeasTimeCommand;
 import com.alextim.bee.service.StatisticMeasService.StatisticMeasurement;
+import com.alextim.bee.service.ValueFormatter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.URL;
+import java.time.ZoneId;
 import java.util.ResourceBundle;
+
+import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 
 
 @Slf4j
@@ -29,7 +33,7 @@ public class DataController extends DataControllerInitializer {
     public void showStatisticMeas(StatisticMeasurement meas) {
         log.info("ShowStatisticMeas: {}", meas);
 
-        long timestamp = meas.getTimestamp();
+        long timestamp = meas.getLocalDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         countGraph.addPoint(index, timestamp, meas.getCountSum());
         averageCountGraph.addPoint(index, timestamp, meas.getAverageCountSum());
         currentCountGraph.addPoint(index, timestamp, meas.getCurrentCountSum());
@@ -67,7 +71,7 @@ public class DataController extends DataControllerInitializer {
 
     @Override
     void setNewMeasTime(MeasTime measTime) {
-        rootController.setNewMeasTime(measTime.seconds);
+        rootController.sendDetectorCommand(new SetMeasTimeCommand(TRANSFER_TO_DETECTOR_ID, measTime.seconds));
     }
 
     @Override

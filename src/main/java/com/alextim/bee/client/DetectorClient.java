@@ -1,79 +1,93 @@
 package com.alextim.bee.client;
 
-import com.alextim.bee.client.messages.DetectorCommands.*;
+import com.alextim.bee.client.messages.DetectorCommands.SomeCommand;
+import com.alextim.bee.client.messages.DetectorCommands.SomeCommandAnswer;
 import com.alextim.bee.client.messages.DetectorMsg;
-import com.alextim.bee.client.protocol.DetectorCodes;
+import com.alextim.bee.client.protocol.DetectorCodes.Command;
+import com.alextim.bee.client.protocol.DetectorCodes.CommandStatus;
+import com.alextim.bee.client.protocol.DetectorCodes.Event;
+import com.alextim.bee.client.transfer.UpdDetectorTransfer;
+import lombok.extern.slf4j.Slf4j;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class DetectorClient extends DetectorClientInitializer {
-    public DetectorClient(String IP, int port, LinkedBlockingQueue<DetectorMsg> queue, int rcvBufSize) {
-        super(IP, port, rcvBufSize, queue);
+import static com.alextim.bee.client.messages.DetectorEvents.SomeEvent;
+import static com.alextim.bee.client.protocol.DetectorCodes.Format.*;
+import static com.alextim.bee.client.protocol.DetectorCodes.MsgType.EVENT_TYPE;
+
+@Slf4j
+public class DetectorClient extends DetectorClientAbstract {
+
+    private final String IP;
+    private final int port;
+    private final int rcvBufSize;
+    private UpdDetectorTransfer transfer;
+
+    public DetectorClient(String ip,
+                          int port,
+                          int rcvBufSize,
+                          LinkedBlockingQueue<DetectorMsg> queue ) {
+        super(queue);
+        this.IP = ip;
+        this.port = port;
+        this.rcvBufSize = rcvBufSize;
+
+        createTransfer();
     }
 
-    public void restart(RestartDetectorCommand restartDetectorCommand) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.RESTART, 0);
-        }
+    public void createTransfer() {
+        transfer = new UpdDetectorTransfer((bytes) -> {
+            log.info("========New some detector message========");
+
+            int detectorID = ByteBuffer.wrap(new byte[]{
+                            bytes[ID.shift + 3],
+                            bytes[ID.shift + 2],
+                            bytes[ID.shift + 1],
+                            bytes[ID.shift]})
+                    .getInt();
+            log.info("DetectorID: {}", detectorID);
+
+            long time = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
+                            bytes[TIME.shift + 3],
+                            bytes[TIME.shift + 2],
+                            bytes[TIME.shift + 1],
+                            bytes[TIME.shift]})
+                    .getInt());
+            log.info("Time: {}", time);
+
+            if (bytes[TYPE.shift] == EVENT_TYPE.code) {
+                Event eventByCode = Event.getEventByCode(bytes[EVT_ANS_CMD.shift]);
+                log.info("Event: {}", eventByCode.title);
+
+                queue.add(new SomeEvent(detectorID, time, eventByCode, bytes));
+            } else {
+                Command commandByCode = Command.getCommandByCode(bytes[TYPE.shift]);
+                log.info("Command: {}", commandByCode.title);
+
+                CommandStatus statusByCode = CommandStatus.getCommandStatusByCode(bytes[EVT_ANS_CMD.shift]);
+                log.info("Status: {}", statusByCode.title);
+
+                queue.add(new SomeCommandAnswer(detectorID, time, commandByCode, statusByCode, bytes));
+            }
+        }, rcvBufSize);
     }
 
-    public void getVersion(GetVersionCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.GET_VERSION, 0);
-        }
+    @Override
+    public void connect() {
+        transfer.open(IP, port, () -> {
+            log.info("Connect to bdServer");
+        });
     }
 
-    public void setMeasTime(SetMeasTimeCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.SET_MEAS_TIME, 0);
-        }
+    @Override
+    public void sendCommand(SomeCommand command) {
+        transfer.sendData(command);
     }
 
-    public void setSensitivity(SetSensitivityCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.SET_SENSITIVITY, 0);
-        }
-    }
-
-    public void getSensitivity(GetSensitivityCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.GET_SENSITIVITY, 0);
-        }
-    }
-
-    public void setDeadTime(SetDeadTimeCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.SET_DEAD_TIME, 0);
-        }
-    }
-
-    public void getDeadTime(GetDeadTimeCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.GET_DEAD_TIME, 0);
-        }
-    }
-
-    public void setCounterCorrectCoeff(SetCounterCorrectCoeffCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.SET_CORRECT_COFF, 0);
-        }
-    }
-
-    public void getCounterCorrectCoeff(GetCounterCorrectCoeffCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.GET_CORRECT_COFF, 0);
-        }
-    }
-
-    public void setGeoDataCommand(SetGeoDataCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.SET_GEO_DATA, 0);
-        }
-    }
-
-    public void changeIpCommand(ChangeIpCommand command) {
-        if (isConnected.get()) {
-            transfer.writeCommand(DetectorCodes.Command.SET_IP_ADDR, 0);
-        }
+    @Override
+    public void shutdown() {
+        log.info("transfer shutdown");
+        transfer.shutdown();
     }
 }

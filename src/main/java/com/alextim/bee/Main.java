@@ -10,6 +10,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.alextim.bee.context.Property.TITLE_APP;
+
 @Slf4j
 public class Main extends Application {
     private static String[] args;
@@ -31,11 +33,16 @@ public class Main extends Application {
         Thread thread = new Thread(() -> {
             RootController rootController = null;
             try {
-                startController.addLog("Создание контекста");
+                Platform.runLater(() -> {
+                    startController.addLog("Создание контекста" + System.lineSeparator());
+                });
                 rootController = new Context(mainWindow, args).getRootController();
             } catch (Exception e) {
-                startController.setHeader("Ошибка инициализации");
-                startController.addLog(e.getMessage());
+                log.error("", e);
+                Platform.runLater(() -> {
+                    startController.setHeader("Ошибка инициализации");
+                    startController.addLog(e.getMessage());
+                });
             }
 
             if (rootController == null)
@@ -43,7 +50,7 @@ public class Main extends Application {
 
             RootController finalRootController = rootController;
             Platform.runLater(() -> {
-                startController.addLog("Создание графического окна");
+                startController.addLog("Создание графического окна" + System.lineSeparator());
                 AnchorPane mainWindowPane = mainWindow.createMainWindow(finalRootController);
                 startController.addLog("OK");
 
@@ -71,7 +78,7 @@ public class Main extends Application {
         stage.hide();
         stage.setMaximized(true);
         stage.setScene(new Scene(rootPane));
-        stage.setTitle(Context.TITLE_APP);
+        stage.setTitle(TITLE_APP);
         stage.getIcons().add(icon);
 
         stage.setOnShowing(event -> {

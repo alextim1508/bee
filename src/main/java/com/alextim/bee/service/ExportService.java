@@ -30,9 +30,8 @@ public class ExportService {
             StatisticMeasurement next = iterator.next();
 
             fileWriter
-                    .append(next.toString()).append("\t");
-
-            fileWriter.append(System.lineSeparator());
+                    .append(next.toString()).append("\t")
+                    .append(System.lineSeparator());
         }
 
         fileWriter.flush();
@@ -54,16 +53,21 @@ public class ExportService {
 
             DetectorMsg next = iterator.next();
 
-            fileWriter
-                    .append(next.toString()).append("\t");
+            StringBuilder hexData = new StringBuilder();
+            for (byte datum : next.data) {
+                hexData.append(String.format("%x ", datum));
+            }
 
-            fileWriter.append(System.lineSeparator());
+            fileWriter
+                    .append(Integer.toString(next.detectorID)).append("\t")
+                    .append(Long.toString(next.time)).append("\t")
+                    .append(next.toString()).append("\t")
+                    .append(hexData)
+                    .append(System.lineSeparator());
         }
 
         fileWriter.flush();
 
         log.info("export to file OK");
     }
-
-
 }

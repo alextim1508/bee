@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 
 public final class DetectorCodes {
 
+    public static final byte START_PACKAGE_BYTE = (byte) 0x79;
+    public static final byte CONTROL_SUM_BASE = (byte) 0x57;
+
     @AllArgsConstructor
     public enum Format {
         SYNC(0, 1, "Байт начала пакета"),
@@ -26,8 +29,7 @@ public final class DetectorCodes {
     @AllArgsConstructor
     public enum MsgType {
         EVENT_TYPE((byte) 0),
-        COMMAND_TYPE((byte) 0xFF),
-        ANSWER_COMMAND_TYPE((byte) -1);
+        COMMAND_TYPE((byte) 0xFF);
 
         public final byte code;
     }
@@ -221,13 +223,33 @@ public final class DetectorCodes {
 
     @AllArgsConstructor
     public enum BDParam {
+        MEAS_TIME("Время экспозиции"),
         SENSITIVITY("Чувствительность"),
         DEAD_TIME("Мертвое время"),
-        COR_COEF("Корректирующие коэффициенты счетчиков"),
+        COR_COEF("Корректирующий коэффициент счетчика"),
         IP_ADDRESS_PORT("IP адрес, IP порт и IP порт внешних устройств"),
         VER_HARDWARE("Версия прошивки"),
         GEO_DATA("Геоданные");
 
         public final String title;
+    }
+
+    @AllArgsConstructor
+    public enum BDInternalMode {
+        BD_MODE_CONTINUOUS_HIGH_SENS((byte) 0, "непрер-ый (выс. чувств-ть)"),
+        BD_MODE_CONTINUOUS_LOW_SENS((byte) 1, "непрер-ый (низк. чувств-ть)"),
+        BD_MODE_PULSE((byte) 2, "импульсный");
+
+        public final byte code;
+        public final String title;
+
+        public static BDInternalMode getBDInternalModeByCode(byte code) {
+            for (BDInternalMode mode : BDInternalMode.values()) {
+                if (mode.code == code) {
+                    return mode;
+                }
+            }
+            throw new RuntimeException("Unknown BDTypeCode " + code);
+        }
     }
 }

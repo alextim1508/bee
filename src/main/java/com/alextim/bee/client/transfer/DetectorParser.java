@@ -3,7 +3,6 @@ package com.alextim.bee.client.transfer;
 import com.alextim.bee.client.dto.*;
 import com.alextim.bee.client.messages.DetectorMsg;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
@@ -35,23 +34,24 @@ public class DetectorParser {
             return getRestartDetector(event);
 
         } else if (event.eventCode.code == Event.STATE.code) {
-            log.info("STATE EVENT: {}", event.data);
+            log.info("STATE EVENT: {}", getHexString(event));
 
             State state = State.getStateByCode(event.data[DATA.shift]);
             log.info("State: {}", state);
 
             switch (state) {
                 case UNKNOWN -> {
-                    return new UnknownStateDetector(event);
+                    return new UnknownDetectorState(event);
                 }
                 case INITIALIZATION -> {
-                    return new InitializationStateDetector(event);
+                    log.info("INITIALIZATION EVENT: {}", getHexString(event));
+                    return new InitializationDetectorState(event);
                 }
                 case ERROR -> {
-                    return getErrorStateDetector(event);
+                    return getErrorDetectorState(event);
                 }
                 case ACCUMULATION -> {
-                    return getAccumulationStateDetector(event);
+                    return getAccumulationDetectorState(event);
                 }
                 case MEASUREMENT -> {
                     return getMeasurementStateDetector(event);
@@ -66,7 +66,7 @@ public class DetectorParser {
     }
 
     private static DetectorMsg parseCommand(SomeCommandAnswer answer) {
-        log.info("CommandCode: {} {}", answer.commandCode.code, answer.commandStatusCode.title);
+        log.info("CommandCode: {} {}", answer.commandCode.title, answer.commandStatusCode.title);
 
         if (answer.commandCode.code == Command.GET_VERSION.code) {
             log.info("GET_VERSION: {}", answer.data);
@@ -88,21 +88,9 @@ public class DetectorParser {
             log.info("SET_MEAS_TIME: {}", answer.data);
             return new SetMeasTimeAnswer(answer);
 
-        } else if (answer.commandCode.code == Command.SET_GEO_DATA.code) {
-            log.info("SET_GEO_DATA: {}", answer.data);
-            return new SetGeoDataAnswer(answer);
-
         } else if (answer.commandCode.code == Command.SET_SENSITIVITY.code) {
             log.info("SET_SENSITIVITY: {}", answer.data);
             return new SetSensitivityAnswer(answer);
-
-        } else if (answer.commandCode.code == Command.SET_DEAD_TIME.code) {
-            log.info("SET_DEAD_TIME: {}", answer.data);
-            return new SetDeadTimeAnswer(answer);
-
-        } else if (answer.commandCode.code == Command.SET_CORRECT_COFF.code) {
-            log.info("SET_CORRECT_COFF: {}", answer.data);
-            return new SetCounterCorrectCoeffAnswer(answer);
 
         } else if (answer.commandCode.code == Command.GET_SENSITIVITY.code) {
             log.info("GET_SENSITIVITY: {}", answer.data);
@@ -116,6 +104,10 @@ public class DetectorParser {
             log.info("Sensitivity: {}", sensitivity);
             return new GetSensitivityAnswer(sensitivity, answer);
 
+        } else if (answer.commandCode.code == Command.SET_DEAD_TIME.code) {
+            log.info("SET_DEAD_TIME: {}", answer.data);
+            return new SetDeadTimeAnswer(answer);
+
         } else if (answer.commandCode.code == Command.GET_DEAD_TIME.code) {
             log.info("GET_DEAD_TIME: {}", answer.data);
 
@@ -128,6 +120,10 @@ public class DetectorParser {
             log.info("DeadTime: {}", deadTime);
 
             return new GetDeadTimeAnswer(deadTime, answer);
+
+        } else if (answer.commandCode.code == Command.SET_CORRECT_COFF.code) {
+            log.info("SET_CORRECT_COFF: {}", answer.data);
+            return new SetCounterCorrectCoeffAnswer(answer);
 
         } else if (answer.commandCode.code == Command.GET_CORRECT_COFF.code) {
             log.info("GET_CORRECT_COFF: {}", answer.data);
@@ -149,20 +145,26 @@ public class DetectorParser {
             log.info("CounterCorrectCoff: {}", counterCorrectCoff);
 
             return new GetCounterCorrectCoeffAnswer(counterIndex, counterCorrectCoff, answer);
+
+        } else if (answer.commandCode.code == Command.SET_GEO_DATA.code) {
+            log.info("SET_GEO_DATA: {}", answer.data);
+            return new SetGeoDataAnswer(answer);
         }
 
         throw new RuntimeException("Unknown detectorCommandAnswerCode: " + answer.commandCode.code);
     }
 
-    @NotNull
-    private static ErrorStateDetector getErrorStateDetector(SomeEvent event) {
+    private static ErrorDetectorState getErrorDetectorState(SomeEvent event) {
+        log.info("ERROR EVENT: {}", getHexString(event));
+
         Error error = Error.getErrorByCode(event.data[DATA.shift + 1]);
         log.info("Error: {}", error);
-        return new ErrorStateDetector(error, event);
+        return new ErrorDetectorState(error, event);
     }
 
-    @NotNull
-    private static AccumulationStateDetector getAccumulationStateDetector(SomeEvent event) {
+    private static AccumulationDetectorState getAccumulationDetectorState(SomeEvent event) {
+        log.info("ACCUMULATION EVENT: {}", getHexString(event));
+
         long curTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 4],
                         event.data[DATA.shift + 3],
@@ -179,12 +181,11 @@ public class DetectorParser {
                 .getInt());
         log.info("MeasTime: {}", measTime);
 
-        return new AccumulationStateDetector(curTime, measTime, event);
+        return new AccumulationDetectorState(curTime, measTime, event);
     }
 
-    @NotNull
     private static RestartDetector getRestartDetector(SomeEvent event) {
-        log.info("RESTART EVENT: {}", event.data);
+        log.info("RESTART EVENT: {}", getHexString(event));
 
         RestartReason reason = RestartReason.getRestartReasonByCode(event.data[DATA.shift]);
         log.info("Reason: {}", reason);
@@ -192,11 +193,11 @@ public class DetectorParser {
         RestartParam param = RestartParam.getRestartParamByCode(event.data[DATA.shift + 4]);
         log.info("Param: {}", param);
 
-        short[] ipAddr = new short[]{
-                event.data[DATA.shift + 8],
-                event.data[DATA.shift + 9],
-                event.data[DATA.shift + 10],
-                event.data[DATA.shift + 11]
+        int[] ipAddr = new int[]{
+                Byte.toUnsignedInt(event.data[DATA.shift + 8]),
+                Byte.toUnsignedInt(event.data[DATA.shift + 9]),
+                Byte.toUnsignedInt(event.data[DATA.shift + 10]),
+                Byte.toUnsignedInt(event.data[DATA.shift + 11])
         };
         log.info("IpAddr: {}", ipAddr);
 
@@ -215,9 +216,8 @@ public class DetectorParser {
         return new RestartDetector(reason, param, ipAddr, ipPort, ipPortExtDevice, event);
     }
 
-    @NotNull
     private static InternalEvent getInternalEvent(SomeEvent event) {
-        log.info("INTERNAL_DATA EVENT: {}", event.data);
+        log.info("INTERNAL_DATA EVENT : {}", getHexString(event));
 
         int structVersion = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 1],
@@ -290,7 +290,7 @@ public class DetectorParser {
                 .getFloat();
         log.info("Temperature: {}", temperature);
 
-        if(bdType == BDType.GAMMA) {
+        if (bdType == BDType.GAMMA) {
             float voltage400V = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 35],
                             event.data[DATA.shift + 34],
@@ -342,12 +342,11 @@ public class DetectorParser {
                     .build();
             return new InternalEvent(bdpnInternalData, event);
         }
-
-
     }
 
-    @NotNull
-    private static MeasurementStateDetector getMeasurementStateDetector(SomeEvent event) {
+    private static MeasurementDetectorState getMeasurementStateDetector(SomeEvent event) {
+        log.info("MEASUREMENT EVENT : {}", getHexString(event));
+
         int structVersion = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 2],
                         event.data[DATA.shift + 1]})
@@ -430,6 +429,13 @@ public class DetectorParser {
                 .bdData(bdData)
                 .build();
 
-        return new MeasurementStateDetector(measurement, event);
+        return new MeasurementDetectorState(measurement, event);
+    }
+
+    private static StringBuilder getHexString(SomeEvent event) {
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < event.data.length; i++)
+            s.append(String.format("%x ", event.data[i]));
+        return s;
     }
 }

@@ -15,13 +15,13 @@ public class DetectorEvents {
 
         public final RestartReason reason;
         public final RestartParam param;
-        public final short[] ipAddr;
+        public final int[] ipAddr;
         public final int ipPort;
         public final int externalDeviceIpPort;
 
         public RestartDetector(RestartReason reason,
                                RestartParam param,
-                               short[] ipAddr,
+                               int[] ipAddr,
                                int ipPort,
                                int externalDeviceIpPort,
                                SomeEvent someEvent) {
@@ -40,8 +40,8 @@ public class DetectorEvents {
         }
     }
 
-    public static class UnknownStateDetector extends SomeEvent {
-        public UnknownStateDetector(SomeEvent someEvent) {
+    public static class UnknownDetectorState extends SomeEvent {
+        public UnknownDetectorState(SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
         }
 
@@ -51,8 +51,8 @@ public class DetectorEvents {
         }
     }
 
-    public static class InitializationStateDetector extends SomeEvent {
-        public InitializationStateDetector(SomeEvent someEvent) {
+    public static class InitializationDetectorState extends SomeEvent {
+        public InitializationDetectorState(SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
         }
 
@@ -62,11 +62,11 @@ public class DetectorEvents {
         }
     }
 
-    public static class ErrorStateDetector extends SomeEvent {
+    public static class ErrorDetectorState extends SomeEvent {
 
         public final Error error;
 
-        public ErrorStateDetector(Error error, SomeEvent someEvent) {
+        public ErrorDetectorState(Error error, SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
             this.error = error;
         }
@@ -77,12 +77,12 @@ public class DetectorEvents {
         }
     }
 
-    public static class AccumulationStateDetector extends SomeEvent {
+    public static class AccumulationDetectorState extends SomeEvent {
 
         public final long curTime;
         public final long measTime;
 
-        public AccumulationStateDetector(long curTime, long measTime, SomeEvent someEvent) {
+        public AccumulationDetectorState(long curTime, long measTime, SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
             this.curTime = curTime;
             this.measTime = measTime;
@@ -94,11 +94,11 @@ public class DetectorEvents {
         }
     }
 
-    public static class MeasurementStateDetector extends SomeEvent {
+    public static class MeasurementDetectorState extends SomeEvent {
 
         public final Measurement meas;
 
-        public MeasurementStateDetector(Measurement meas, SomeEvent someEvent) {
+        public MeasurementDetectorState(Measurement meas, SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
             this.meas = meas;
         }
@@ -108,7 +108,6 @@ public class DetectorEvents {
             return String.format("%s. %s", MEASUREMENT.title, meas.toString());
         }
     }
-
 
     public static class InternalEvent extends SomeEvent {
 

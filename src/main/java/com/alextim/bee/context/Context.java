@@ -2,8 +2,8 @@ package com.alextim.bee.context;
 
 
 import com.alextim.bee.RootController;
+import com.alextim.bee.client.DetectorClient;
 import com.alextim.bee.client.DetectorClientAbstract;
-import com.alextim.bee.client.DetectorClientFake;
 import com.alextim.bee.frontend.MainWindow;
 import com.alextim.bee.service.ExportService;
 import com.alextim.bee.service.StatisticMeasService;
@@ -17,16 +17,20 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.alextim.bee.context.Property.*;
+
 @Slf4j
 public class Context {
 
     @Getter
-    RootController rootController;
+    private RootController rootController;
 
     private DetectorClientAbstract detectorClient;
     private StatisticMeasService statisticMeasService;
     private ExportService exportService;
     private AppState appState;
+
+    public static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd MM yyyy HH:mm:ss");
 
     public Context(MainWindow mainWindow, String[] args) {
         readAppProperty();
@@ -35,7 +39,7 @@ public class Context {
     }
 
     @SneakyThrows
-    void readAppProperty() {
+    private void readAppProperty() {
         Properties properties = new Properties();
         try {
             @Cleanup Reader reader = new BufferedReader(new FileReader(
@@ -43,6 +47,7 @@ public class Context {
 
             log.info("File application.properties from currently dir is found!");
             properties.load(reader);
+
         } catch (Exception e) {
             log.info("There are default properties!");
 
@@ -52,33 +57,36 @@ public class Context {
             properties.load(resourceReader);
         }
 
-        appPropertiesInit(properties);
+        initAppProperties(properties);
     }
 
-    private void appPropertiesInit(Properties properties) {
+    private void initAppProperties(Properties properties) {
         TITLE_APP = (String) properties.get("app.title");
         log.info("TITLE_APP: {}", TITLE_APP);
 
-        DETECTOR_NAME = (String) properties.get("app.bdname");
-        log.info("DETECTOR_NAME: {}", DETECTOR_NAME);
+        FRONTEND_FOR_DETECTOR = (String) properties.get("app.frontendForDetector");
+        log.info("FRONTEND_FOR_DETECTOR: {}", FRONTEND_FOR_DETECTOR);
 
         SOFTWARE_VERSION = (String) properties.get("app.version");
         log.info("SOFTWARE_VERSION: {}", SOFTWARE_VERSION);
 
+        TRANSFER_TO_DETECTOR_ID = Integer.parseInt((String) properties.get("app.transfer.detectorId"));
+        log.info("TRANSFER_TO_DETECTOR_ID: {}", TRANSFER_TO_DETECTOR_ID);
+
+        TRANSFER_IP = (String) properties.get("app.transfer.ip");
+        log.info("TRANSFER_IP: {}", TRANSFER_IP);
+
+        TRANSFER_PORT = Integer.parseInt((String) properties.get("app.transfer.port"));
+        log.info("TRANSFER_PORT: {}", TRANSFER_PORT);
+
+        TRANSFER_RCV_BUFFER_SIZE = Integer.parseInt((String) properties.get("app.transfer.rcvBufferSize"));
+        log.info("TRANSFER_RCV_BUFFER_SIZE: {}", TRANSFER_RCV_BUFFER_SIZE);
     }
 
     void createBeans(MainWindow mainWindow) {
-        createServices();
         createStateApp();
+        createServices();
         createRootController(mainWindow);
-    }
-
-
-    private void createServices() {
-        detectorClient = new DetectorClientFake(new LinkedBlockingQueue<>());
-
-        statisticMeasService = new StatisticMeasService();
-        exportService = new ExportService();
     }
 
     private void createStateApp() {
@@ -90,16 +98,23 @@ public class Context {
         }
     }
 
+    private void createServices() {
+        detectorClient =
+                new DetectorClient(TRANSFER_IP, TRANSFER_PORT, TRANSFER_RCV_BUFFER_SIZE, new LinkedBlockingQueue<>());
+
+        statisticMeasService = new StatisticMeasService();
+
+        exportService = new ExportService();
+    }
+
     private void createRootController(MainWindow mainWindow) {
         log.info("Creating root controller");
 
-
-        rootController = new RootController(appState, mainWindow, detectorClient, statisticMeasService, exportService);
+        rootController = new RootController(
+                appState,
+                mainWindow,
+                detectorClient,
+                statisticMeasService,
+                exportService);
     }
-
-    public static String TITLE_APP;
-    public static String DETECTOR_NAME;
-    public static String SOFTWARE_VERSION;
-
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("H:mm:ss:SSS");
 }

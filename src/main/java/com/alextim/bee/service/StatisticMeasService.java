@@ -5,14 +5,15 @@ import com.alextim.bee.client.dto.BdpnData;
 import com.alextim.bee.client.dto.InternalData;
 import com.alextim.bee.client.dto.Measurement;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
+import static com.alextim.bee.context.Context.DATE_FORMATTER;
+
 @Slf4j
-@ToString
 public class StatisticMeasService {
 
-    @ToString
     @Getter
     public static class StatisticMeasurement {
 
@@ -28,7 +29,7 @@ public class StatisticMeasService {
 
         private long measTime;
 
-        private long timestamp;
+        private LocalDateTime localDateTime;
 
         public static void clear() {
             countSum = count1 = count2 = 0;
@@ -44,6 +45,18 @@ public class StatisticMeasService {
 
         public int getCountSum() {
             return countSum;
+        }
+
+        @Override
+        public String toString() {
+            return "Счетчик 1 =" + currentCount1 +
+                    ", Счетчик 2 =" + currentCount2 +
+                    ", Суммарное значение счетчиков =" + currentCountSum +
+                    ", Среднее значение счетчика 1 =" + averageCount1 +
+                    ", Среднее значение счетчика 2 =" + averageCount2 +
+                    ", Среднее суммарное значение счетчиков =" + averageCountSum +
+                    ", Время измерения = " + measTime +
+                    ", Дата = " + DATE_FORMATTER.format(localDateTime);
         }
     }
 
@@ -74,7 +87,7 @@ public class StatisticMeasService {
         }
 
         if (statMeas.measTime == meas.measTime) {
-            statMeas.timestamp = System.currentTimeMillis();
+            statMeas.localDateTime = LocalDateTime.now();
         } else {
             statMeas.measTime = meas.measTime;
         }
@@ -88,7 +101,7 @@ public class StatisticMeasService {
         statMeas.averageCount2 = internalData.averageScores[1];
 
         if (statMeas.measTime == internalData.measTime) {
-            statMeas.timestamp = System.currentTimeMillis();
+            statMeas.localDateTime = LocalDateTime.now();
         } else {
             statMeas.measTime = internalData.measTime;
         }
