@@ -1,5 +1,6 @@
 package com.alextim.bee.client;
 
+import com.alextim.bee.client.messages.DetectorCommands.GetVersionCommand;
 import com.alextim.bee.client.messages.DetectorCommands.SomeCommand;
 import com.alextim.bee.client.messages.DetectorCommands.SomeCommandAnswer;
 import com.alextim.bee.client.messages.DetectorMsg;
@@ -15,6 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static com.alextim.bee.client.messages.DetectorEvents.SomeEvent;
 import static com.alextim.bee.client.protocol.DetectorCodes.Format.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.MsgType.EVENT_TYPE;
+import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 
 @Slf4j
 public class DetectorClient extends DetectorClientAbstract {
@@ -76,7 +78,10 @@ public class DetectorClient extends DetectorClientAbstract {
     @Override
     public void connect() {
         transfer.open(IP, port, () -> {
-            log.info("Connect to bdServer");
+            log.info("Connect to detector");
+
+
+            sendCommand(new GetVersionCommand(TRANSFER_TO_DETECTOR_ID));
         });
     }
 

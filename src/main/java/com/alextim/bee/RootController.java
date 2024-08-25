@@ -4,10 +4,6 @@ package com.alextim.bee;
 import com.alextim.bee.client.DetectorClientAbstract;
 import com.alextim.bee.client.messages.DetectorCommands;
 import com.alextim.bee.client.messages.DetectorCommands.*;
-import com.alextim.bee.client.messages.DetectorEvents.AccumulationDetectorState;
-import com.alextim.bee.client.messages.DetectorEvents.InitializationDetectorState;
-import com.alextim.bee.client.messages.DetectorEvents.RestartDetector;
-import com.alextim.bee.client.messages.DetectorEvents.SomeEvent;
 import com.alextim.bee.client.messages.DetectorMsg;
 import com.alextim.bee.context.AppState;
 import com.alextim.bee.frontend.MainWindow;
@@ -35,8 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.alextim.bee.client.messages.DetectorEvents.InternalEvent;
-import static com.alextim.bee.client.messages.DetectorEvents.MeasurementDetectorState;
+import static com.alextim.bee.client.messages.DetectorEvents.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus.SUCCESS;
 import static com.alextim.bee.client.protocol.DetectorCodes.Error.getErrorByCode;
@@ -115,7 +110,15 @@ public class RootController extends RootControllerInitializer {
 
         } else if (detectorMsg instanceof InternalEvent event) {
             handleInternalEvent(dataController, event);
+
+        } else if(detectorMsg instanceof ErrorDetectorState errorDetectorState) {
+            handleErrorDetectorState(dataController, errorDetectorState);
         }
+    }
+
+    private void handleErrorDetectorState(DataController dataController, ErrorDetectorState errorDetectorState) {
+        dataController.setRedCircle();
+        dataController.setImageViewLabel(String.format("0x%x", errorDetectorState.error.code), "", "");
     }
 
     private void handleRestartDetector(ManagementController managementController, RestartDetector restartDetector) {
@@ -130,7 +133,7 @@ public class RootController extends RootControllerInitializer {
 
     private void handleAccumulationDetectorState(DataController dataController, AccumulationDetectorState accStateDetector) {
         dataController.setYellowCircle();
-        dataController.setImageViewLabel(100 * accStateDetector.curTime / accStateDetector.measTime + "%", null, null);
+        dataController.setImageViewLabel(100 * accStateDetector.curTime / accStateDetector.measTime + "%", "", "");
     }
 
     private void handleInternalEvent(DataController dataController, InternalEvent internalEvent) {

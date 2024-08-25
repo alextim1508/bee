@@ -2,6 +2,7 @@ package com.alextim.bee.client.messages;
 
 import com.alextim.bee.client.dto.InternalData;
 import com.alextim.bee.client.dto.Measurement;
+import lombok.EqualsAndHashCode;
 
 import java.util.Arrays;
 
@@ -11,6 +12,7 @@ import static com.alextim.bee.client.protocol.DetectorCodes.State.*;
 
 public class DetectorEvents {
 
+    @EqualsAndHashCode(callSuper = true)
     public static class RestartDetector extends SomeEvent {
 
         public final RestartReason reason;
@@ -40,6 +42,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class UnknownDetectorState extends SomeEvent {
         public UnknownDetectorState(SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
@@ -51,6 +54,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class InitializationDetectorState extends SomeEvent {
         public InitializationDetectorState(SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
@@ -62,6 +66,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class ErrorDetectorState extends SomeEvent {
 
         public final Error error;
@@ -77,6 +82,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class AccumulationDetectorState extends SomeEvent {
 
         public final long curTime;
@@ -94,6 +100,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class MeasurementDetectorState extends SomeEvent {
 
         public final Measurement meas;
@@ -109,6 +116,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class InternalEvent extends SomeEvent {
 
         public final InternalData internalData;
@@ -124,6 +132,7 @@ public class DetectorEvents {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     public static class SomeEvent extends DetectorMsg {
 
         public final Event eventCode;

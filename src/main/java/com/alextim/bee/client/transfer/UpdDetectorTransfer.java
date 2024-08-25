@@ -50,9 +50,12 @@ public class UpdDetectorTransfer {
                         callback.run();
 
                     loop();
-                    return;
 
-                } catch (SocketException e) {
+                    return;
+                } catch (UnknownHostException e) {
+                    throw new RuntimeException(e);
+
+                } catch (Exception e) {
                     log.error("NEED TO RECONNECT", e);
 
                     try {
@@ -61,8 +64,6 @@ public class UpdDetectorTransfer {
                         log.error("InterruptedException");
                         return;
                     }
-                } catch (UnknownHostException e) {
-                    throw new RuntimeException(e);
                 }
             }
         });
@@ -75,9 +76,6 @@ public class UpdDetectorTransfer {
         int rcvInd = 0;
 
         while (true) {
-            int size = 0;
-            int start = 0;
-
             if (Thread.currentThread().isInterrupted()) {
                 return;
             }
@@ -86,111 +84,81 @@ public class UpdDetectorTransfer {
                 if (rcvInd >= rcvBuf.length)
                     throw new RuntimeException("OverFlow " + rcvInd + " " + rcvBuf.length);
 
-                log.info("==========================");
-                log.info("rcv index before receiving: {}", rcvInd);
-                log.info("available rcv buffer size before receiving: {}", rcvBuf.length - rcvInd);
-
                 DatagramPacket packet = new DatagramPacket(rcvBuf, rcvInd, rcvBuf.length - rcvInd, address, port);
-
-
                 socket.receive(packet);
-                System.out.println("BUFFER");
-                for (int i = 0; i < rcvBuf.length; i++) {
-                    System.out.printf("%x ", rcvBuf[i]);
-                }
-                System.out.println();
 
+                if (packet.getLength() == 0)
+                    continue;
 
-                System.out.println("-------------------------------NEW MESSAGE");
-
-                size += packet.getLength();
-                log.info("received bytes size: {}", size);
+                rcvInd += packet.getLength();
 
             } catch (SocketException e) {
+                log.error("SocketException", e);
                 return;
             } catch (IOException e) {
-                log.error("Socket error", e);
+                log.error("IOException", e);
                 throw new RuntimeException(e);
             }
 
-            if (size > 0) {
-                rcvInd += size;
-                log.info("rcvInd after receiving: {}", rcvInd);
-
-                while (start < rcvInd) {
-
-                    while (start < rcvInd) {
-                        if (rcvBuf[start] == START_PACKAGE_BYTE)
-                            break;
-                        else
-                            start++;
-                    }
-
-                    if (socketListener.isInterrupted()) {
-                        log.info("socketListener is interrupted");
-                        return;
-                    }
-
-                    log.info("------------------- found start: {}", start);
-                    if (start != 0) {
-                        System.arraycopy(rcvBuf, start, rcvBuf, 0, rcvInd - start);
-                        rcvInd = rcvInd - start;
-                        start = 0;
-                    }
-                    log.info("rcv index after shift: {}", rcvInd);
-
-                    int len = Short.toUnsignedInt(
-                            ByteBuffer.wrap(new byte[]{rcvBuf[LEN.shift + 1], rcvBuf[LEN.shift]}).getShort());
-                    log.info("len: {}", len);
-
-//                    System.out.println("rcvInd = " + rcvInd);
-//                    System.out.println("DATA.shift + len = " + (DATA.shift + len));
-//                    if (rcvInd < DATA.shift + len) {
-//                        System.out.println("ER2");
-//                        log.info("break");
-//                        break;
-//                    }
-
-                    for (int i = 0; i < DATA.shift + len; i++) {
-                        System.out.printf("%x ", rcvBuf[i]);
-                    }
-                    System.out.println();
-
-                    try {
-                        controlHeaderCheck(rcvBuf,0, HEADER_KS.shift, HEADER_KS.shift);
-                    } catch (Exception e) {
-                        log.error("", e);
-                    }
-
-                    try {
-                        controlBodyCheck(rcvBuf, DATA.shift, DATA.shift + len + 1, DATA_KS.shift);
-                    } catch (Exception e) {
-                        log.error("", e);
-                    }
-
-                    byte[] data = new byte[DATA.shift + len];
-                    System.arraycopy(rcvBuf, start, data, 0, data.length);
-
-                    if (consumer != null) {
-                        consumer.accept(data);
-                        log.info("payload data is handled");
-                    }
-
-                    start = DATA.shift + len;
-                    log.info("start after one handling: {}", start);
-                }
-
-                if (rcvInd != start) {
-                    System.arraycopy(rcvBuf, start, rcvBuf, 0, rcvInd - start);
-                }
-
-                rcvInd = rcvInd - start;
-            } else {
-                log.error("Socket error. Size: {}", size);
-
-                throw new RuntimeException("Socket error. Size:" + size);
-            }
+            rcvInd = handle(rcvBuf, rcvInd, consumer);
         }
+    }
+
+    static int handle(byte[] rcvBuf, int rcvInd, Consumer<byte[]> consumer) {
+        int start = 0;
+        while (start < rcvInd) {
+
+            while (start < rcvInd) {
+                if (rcvBuf[start] == START_PACKAGE_BYTE)
+                    break;
+                else
+                    start++;
+            }
+
+            if (start != 0) {
+                System.arraycopy(rcvBuf, start, rcvBuf, 0, rcvInd - start);
+                rcvInd = rcvInd - start;
+                start = 0;
+            }
+
+            if (rcvInd < LEN.shift + 1) {
+                return rcvInd;
+            }
+
+            int len = Short.toUnsignedInt(
+                    ByteBuffer.wrap(new byte[]{rcvBuf[LEN.shift + 1], rcvBuf[LEN.shift]}).getShort());
+
+            if (rcvInd < DATA.shift + len) {
+                return rcvInd;
+            }
+
+            try {
+                controlHeaderCheck(rcvBuf, 0, HEADER_KS.shift, HEADER_KS.shift);
+            } catch (Exception e) {
+                log.error("", e);
+                start++;
+                continue;
+            }
+
+            try {
+                controlBodyCheck(rcvBuf, DATA.shift, DATA.shift + len, DATA_KS.shift);
+            } catch (Exception e) {
+                log.error("", e);
+                start++;
+                continue;
+            }
+
+            byte[] data = new byte[DATA.shift + len];
+            System.arraycopy(rcvBuf, start, data, 0, data.length);
+
+            consumer.accept(data);
+
+            start = DATA.shift + len;
+        }
+
+        rcvInd -= start;
+
+        return rcvInd;
     }
 
     static void controlBodyCheck(byte[] arr, int i1, int i2, int indexKs) {

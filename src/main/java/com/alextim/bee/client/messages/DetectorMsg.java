@@ -1,7 +1,9 @@
 package com.alextim.bee.client.messages;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 @AllArgsConstructor
 public abstract class DetectorMsg {
     public final int detectorID;

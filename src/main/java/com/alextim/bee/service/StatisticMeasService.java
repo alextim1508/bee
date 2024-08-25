@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
-import static com.alextim.bee.context.Context.DATE_FORMATTER;
+
+import static com.alextim.bee.context.Context.DATE_TIME_FORMATTER;
 
 @Slf4j
 public class StatisticMeasService {
@@ -49,14 +50,14 @@ public class StatisticMeasService {
 
         @Override
         public String toString() {
-            return "Счетчик 1 =" + currentCount1 +
+                  return "Счетчик 1 =" + currentCount1 +
                     ", Счетчик 2 =" + currentCount2 +
                     ", Суммарное значение счетчиков =" + currentCountSum +
                     ", Среднее значение счетчика 1 =" + averageCount1 +
                     ", Среднее значение счетчика 2 =" + averageCount2 +
                     ", Среднее суммарное значение счетчиков =" + averageCountSum +
                     ", Время измерения = " + measTime +
-                    ", Дата = " + DATE_FORMATTER.format(localDateTime);
+                    ", Дата = " + DATE_TIME_FORMATTER.format(localDateTime);
         }
     }
 

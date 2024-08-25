@@ -27,7 +27,7 @@ public class DetectorParser {
         throw new RuntimeException("Unknown DetectorMsg");
     }
 
-    private static DetectorMsg parseEvent(SomeEvent event) {
+    static DetectorMsg parseEvent(SomeEvent event) {
         log.info("EventCode.code {}", event.eventCode);
 
         if (event.eventCode.code == Event.RESTART.code) {
@@ -65,7 +65,7 @@ public class DetectorParser {
         throw new RuntimeException("Unknown detectorEventCode: " + event.eventCode.code);
     }
 
-    private static DetectorMsg parseCommand(SomeCommandAnswer answer) {
+    static DetectorMsg parseCommand(SomeCommandAnswer answer) {
         log.info("CommandCode: {} {}", answer.commandCode.title, answer.commandStatusCode.title);
 
         if (answer.commandCode.code == Command.GET_VERSION.code) {
@@ -154,7 +154,7 @@ public class DetectorParser {
         throw new RuntimeException("Unknown detectorCommandAnswerCode: " + answer.commandCode.code);
     }
 
-    private static ErrorDetectorState getErrorDetectorState(SomeEvent event) {
+    static ErrorDetectorState getErrorDetectorState(SomeEvent event) {
         log.info("ERROR EVENT: {}", getHexString(event));
 
         Error error = Error.getErrorByCode(event.data[DATA.shift + 1]);
@@ -162,7 +162,7 @@ public class DetectorParser {
         return new ErrorDetectorState(error, event);
     }
 
-    private static AccumulationDetectorState getAccumulationDetectorState(SomeEvent event) {
+    static AccumulationDetectorState getAccumulationDetectorState(SomeEvent event) {
         log.info("ACCUMULATION EVENT: {}", getHexString(event));
 
         long curTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
@@ -184,7 +184,7 @@ public class DetectorParser {
         return new AccumulationDetectorState(curTime, measTime, event);
     }
 
-    private static RestartDetector getRestartDetector(SomeEvent event) {
+    static RestartDetector getRestartDetector(SomeEvent event) {
         log.info("RESTART EVENT: {}", getHexString(event));
 
         RestartReason reason = RestartReason.getRestartReasonByCode(event.data[DATA.shift]);
@@ -216,7 +216,7 @@ public class DetectorParser {
         return new RestartDetector(reason, param, ipAddr, ipPort, ipPortExtDevice, event);
     }
 
-    private static InternalEvent getInternalEvent(SomeEvent event) {
+    static InternalEvent getInternalEvent(SomeEvent event) {
         log.info("INTERNAL_DATA EVENT : {}", getHexString(event));
 
         int structVersion = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
@@ -344,7 +344,7 @@ public class DetectorParser {
         }
     }
 
-    private static MeasurementDetectorState getMeasurementStateDetector(SomeEvent event) {
+    static MeasurementDetectorState getMeasurementStateDetector(SomeEvent event) {
         log.info("MEASUREMENT EVENT : {}", getHexString(event));
 
         int structVersion = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
@@ -432,7 +432,7 @@ public class DetectorParser {
         return new MeasurementDetectorState(measurement, event);
     }
 
-    private static StringBuilder getHexString(SomeEvent event) {
+    static StringBuilder getHexString(SomeEvent event) {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < event.data.length; i++)
             s.append(String.format("%x ", event.data[i]));

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<AnchorPane fx:id="pane" prefHeight="90.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alextim.SFI.frontend.dialog.progress.ProgressController">
+<AnchorPane fx:id="pane" prefHeight="90.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alextim.bee.frontend.dialog.progress.ProgressController">
    <children>
       <Label fx:id="status" alignment="CENTER" layoutX="213.0" layoutY="228.0" text="-" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="50.0" />
       <StackPane layoutX="5.375999927520752" layoutY="5.375999927520752" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">

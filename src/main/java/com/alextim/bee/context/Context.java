@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -30,7 +31,7 @@ public class Context {
     private ExportService exportService;
     private AppState appState;
 
-    public static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd MM yyyy HH:mm:ss");
+    public static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public Context(MainWindow mainWindow, String[] args) {
         readAppProperty();

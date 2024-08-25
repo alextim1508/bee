@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static com.alextim.bee.client.protocol.DetectorCodes.Format.*;
 
 
-public class UpdDetectorTransferTest {
+public class UpdDetectorTransferControlSumTest {
 
     @Test
     public void checkControlSumOfGetSensitivityCommand() {
