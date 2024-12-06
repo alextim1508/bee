@@ -6,6 +6,7 @@ import java.util.Arrays;
 import static com.alextim.bee.client.protocol.DetectorCodes.Command;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus;
 import static com.alextim.bee.client.transfer.UpdDetectorTransfer.wrapToPackage;
+import static com.alextim.bee.context.Property.OTHER_NUMBER_FORMAT;
 
 public class DetectorCommands {
 
@@ -38,16 +39,16 @@ public class DetectorCommands {
 
     public static class GetVersionAnswer extends SomeCommandAnswer {
 
-        public byte[] version;
+        public String version;
 
-        public GetVersionAnswer(byte[] version, SomeCommandAnswer answer) {
+        public GetVersionAnswer(String version, SomeCommandAnswer answer) {
             super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.version = version;
         }
 
         @Override
         public String toString() {
-            return String.format("%s. Версия: %s", Command.GET_VERSION.title, Arrays.toString(version));
+            return String.format("%s. Версия: %s", Command.GET_VERSION.title, version);
         }
     }
 
@@ -109,7 +110,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Чувствительность: %f", Command.SET_SENSITIVITY.title, sensitivity);
+            return String.format("%s. Чувствительность: " + OTHER_NUMBER_FORMAT, Command.SET_SENSITIVITY.title, sensitivity);
         }
     }
 
@@ -149,7 +150,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Чувствительность: %f", Command.GET_SENSITIVITY.title, sensitivity);
+            return String.format("%s. Чувствительность: " + OTHER_NUMBER_FORMAT, Command.GET_SENSITIVITY.title, sensitivity);
         }
     }
 
@@ -173,7 +174,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: %f", Command.SET_DEAD_TIME.title, deadTime);
+            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT, Command.SET_DEAD_TIME.title, deadTime);
         }
     }
 
@@ -212,7 +213,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: %f", Command.GET_DEAD_TIME.title, deadTime);
+            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT, Command.GET_DEAD_TIME.title, deadTime);
         }
     }
 
@@ -241,7 +242,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s %d, Корректирующий коэффициент: %f",
+            return String.format("%s %d, Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT,
                     Command.SET_CORRECT_COFF.title, counterIndex, counterCorrectCoeff);
         }
     }
@@ -295,7 +296,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s %d, Корректирующий коэффициент: %f",
+            return String.format("%s %d, Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT,
                     Command.GET_CORRECT_COFF.title, counterIndex, counterCorrectCoeff);
         }
     }
@@ -350,7 +351,7 @@ public class DetectorCommands {
             byte[] array2 = ByteBuffer.allocate(2).putShort(unsignedExternalDeviceIpPort).array();
 
             return new byte[]{
-                    (byte) ipAddr[3], (byte) ipAddr[2], (byte) ipAddr[1], (byte) ipAddr[0],
+                    (byte) ipAddr[0], (byte) ipAddr[1], (byte) ipAddr[2], (byte) ipAddr[3],
                     array1[1], array1[0],
                     array2[1], array2[0]
             };

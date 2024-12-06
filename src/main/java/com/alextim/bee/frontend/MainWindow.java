@@ -44,7 +44,7 @@ public class MainWindow {
     private final Stage owner;
 
     @Getter
-    private Image iconImage, redCircleImage, yellowCircleImage, greenCircleImage, whiteCircleImage, grayCircleImage, noConnectImage;
+    private Image iconImage, redCircleImage, yellowCircleImage, greenCircleImage, grayCircleImage, noConnectImage;
 
     @SneakyThrows
     private void loadIcons() {
@@ -60,9 +60,6 @@ public class MainWindow {
         @Cleanup
         InputStream greenCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-green.png");
         greenCircleImage = new Image(Objects.requireNonNull(greenCircleAsStream));
-        @Cleanup
-        InputStream whiteCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-white.png");
-        whiteCircleImage = new Image(Objects.requireNonNull(whiteCircleAsStream));
         @Cleanup
         InputStream grayCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-gray.png");
         grayCircleImage = new Image(Objects.requireNonNull(grayCircleAsStream));

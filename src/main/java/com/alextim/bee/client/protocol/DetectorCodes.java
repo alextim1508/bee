@@ -51,16 +51,16 @@ public final class DetectorCodes {
                     return type;
                 }
             }
-            throw new RuntimeException("Unknown BDTypeCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код типа БД: %x", code));
         }
 
-        public static BDType getBDTypeByCode(String name) {
+        public static BDType getBDTypeByName(String name) {
             for (BDType type : BDType.values()) {
                 if (type.name.equals(name)) {
                     return type;
                 }
             }
-            throw new RuntimeException("Unknown BDName " + name);
+            throw new RuntimeException("Неизвестное название БД: " + name);
         }
     }
 
@@ -79,7 +79,7 @@ public final class DetectorCodes {
                     return event;
                 }
             }
-            throw new RuntimeException("Unknown EventCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код события БД: %x", code));
         }
     }
 
@@ -99,7 +99,7 @@ public final class DetectorCodes {
                     return reason;
                 }
             }
-            throw new RuntimeException("Unknown RestartReasonCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код причины перезапуска: %x", code));
         }
     }
 
@@ -118,7 +118,7 @@ public final class DetectorCodes {
                     return param;
                 }
             }
-            throw new RuntimeException("Unknown RestartParamCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код параметра перезапуска: %x", code));
         }
     }
 
@@ -139,7 +139,7 @@ public final class DetectorCodes {
                     return param;
                 }
             }
-            throw new RuntimeException("Unknown StateCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код состояние БД: %x", code));
         }
     }
 
@@ -164,7 +164,7 @@ public final class DetectorCodes {
             for (Command command : Command.values())
                 if (command.code == code)
                     return command;
-            throw new RuntimeException("Unknown CommandCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код команды БД: %x", code));
         }
     }
 
@@ -182,7 +182,7 @@ public final class DetectorCodes {
             for (CommandStatus commandStatus : CommandStatus.values())
                 if (commandStatus.code == code)
                     return commandStatus;
-            throw new RuntimeException("Unknown CommandStatusCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код статуса выполнения команды %x", code));
         }
     }
 
@@ -216,7 +216,7 @@ public final class DetectorCodes {
                     return error;
                 }
             }
-            throw new RuntimeException("Unknown ErrorCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код ошибки БД: %x", code));
         }
     }
 
@@ -236,8 +236,8 @@ public final class DetectorCodes {
 
     @AllArgsConstructor
     public enum BDInternalMode {
-        BD_MODE_CONTINUOUS_HIGH_SENS((byte) 0, "непрер-ый (выс. чувств-ть)"),
-        BD_MODE_CONTINUOUS_LOW_SENS((byte) 1, "непрер-ый (низк. чувств-ть)"),
+        BD_MODE_CONTINUOUS_HIGH_SENS((byte) 0, "непрерывный (высокая чувствительность)"),
+        BD_MODE_CONTINUOUS_LOW_SENS((byte) 1, "непрерывный (низкая чувствительность)"),
         BD_MODE_PULSE((byte) 2, "импульсный");
 
         public final byte code;
@@ -249,7 +249,7 @@ public final class DetectorCodes {
                     return mode;
                 }
             }
-            throw new RuntimeException("Unknown BDTypeCode " + code);
+            throw new RuntimeException(String.format("Неизвестный код режима работы БД: %x", code));
         }
     }
 }

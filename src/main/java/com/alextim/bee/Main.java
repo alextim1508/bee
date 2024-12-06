@@ -83,7 +83,7 @@ public class Main extends Application {
 
         stage.setOnShowing(event -> {
             log.info("showing callback");
-            rootController.connect();
+            rootController.listenDetectorClient();
         });
 
         stage.setOnCloseRequest(handler -> {
@@ -92,8 +92,11 @@ public class Main extends Application {
             rootController.close();
             log.info("Root controller is closed");
 
+            log.info("call Platform.exit");
             Platform.exit();
-            log.info("Platform.exit");
+
+            log.info("call System.exit 0");
+            System.exit(0);
         });
 
         stage.show();

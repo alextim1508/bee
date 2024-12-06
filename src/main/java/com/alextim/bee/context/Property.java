@@ -4,16 +4,23 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Property {
     public static String TITLE_APP;
-    public static String SOFTWARE_VERSION;
+    public static String SOFTWARE_VERSION = "Версия ПО: 1.1";
     public static String FRONTEND_FOR_DETECTOR;
     public static Integer TRANSFER_TO_DETECTOR_ID;
     public static String TRANSFER_IP;
-    public static Integer TRANSFER_PORT;
+    public static Integer TRANSFER_RCV_PORT;
+    public static Integer TRANSFER_TR_PORT;
     public static Integer TRANSFER_RCV_BUFFER_SIZE;
 
+    public static String COUNTER_NUMBER_FORMAT;
+    public static String MEAS_DATA_NUMBER_FORMAT;
+    public static String OTHER_NUMBER_FORMAT;
+    public static Integer MEAS_DATA_NUMBER_SING_DIGITS;
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("H:mm:ss:SSS");
+    public static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 }

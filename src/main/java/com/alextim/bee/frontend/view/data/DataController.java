@@ -10,6 +10,7 @@ import java.net.URL;
 import java.time.ZoneId;
 import java.util.ResourceBundle;
 
+import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
 import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 
 
@@ -25,7 +26,7 @@ public class DataController extends DataControllerInitializer {
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
 
-        changeDisableStartStopBtn(true);
+        changeDisableStartStopBtn(false);
     }
 
     private int index;
@@ -42,10 +43,13 @@ public class DataController extends DataControllerInitializer {
 
         updateTable(meas);
 
-        setMeasData(meas.getMeasDataTitle(),
-                new ValueFormatter(meas.getMeasDataValue(), meas.getMeasDataUnit()).toString());
+        String formattedMeasData = new ValueFormatter(
+                Math.abs(meas.getCurrentMeasDataValue()), meas.getMeasDataUnit(), MEAS_DATA_NUMBER_SING_DIGITS)
+                .toString();
 
-        setMeasTime(meas.getMeasTime() + " сек");
+        setMeasData(meas.getMeasDataTitle(), (meas.getCurrentMeasDataValue() < 0 ? "-" : "") + formattedMeasData);
+
+        setMeasTime(meas.getAccInterval() + " сек");
 
         setGeoData("59.9386, 30.3141");
     }
@@ -53,7 +57,7 @@ public class DataController extends DataControllerInitializer {
     @Override
     void start(long measTime) {
         index = 0;
-        rootController.startMeasurement(measTime);
+        rootController.startMeasurement();
     }
 
     @Override
@@ -65,7 +69,7 @@ public class DataController extends DataControllerInitializer {
     void save() {
         File file = mainWindow.showFileChooseDialog();
         if (file != null) {
-            rootController.saveMeasurements(file);
+            rootController.saveMeasurements(file, getFileComment());
         }
     }
 

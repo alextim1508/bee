@@ -1,6 +1,5 @@
 package com.alextim.bee.frontend.view.magazine;
 
-import com.alextim.bee.frontend.view.data.DataView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;

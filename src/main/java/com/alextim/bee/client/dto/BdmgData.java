@@ -1,34 +1,68 @@
 package com.alextim.bee.client.dto;
 
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+
 import java.util.Locale;
 
+import static com.alextim.bee.context.Property.COUNTER_NUMBER_FORMAT;
+import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_FORMAT;
+
+
+@Getter
+@SuperBuilder
 public class BdmgData extends BdData {
-    private final float currentMED;
-    private final float averageMED;
+
+    private float currentMED;     // Текущая МЭД
+    private float averageMED;     // Усредненная за время экспозиции МЭД
+    private float accumulatedMED;       // Накопленная доза после запуска режима накопления, Зв
+    private float accumulatedPowerMEDP;       // Накопленная доза за время работы БД, Зв
 
     public final static String title = "МАЭД";
-    public final static String unit = "Зв/час";
+    public final static String measDataUnit = "Зв/час";
 
-    public float getCurrentMED() {
-        return 0.001f * currentMED;
+    private static final float MILLI_PREFIX = 0.001f;
+
+    @Override
+    public float getCurrentMeasData() {
+        return MILLI_PREFIX * currentMED;
     }
 
-    public float getAverageMED() {
-        return 0.001f * averageMED;
+    @Override
+    public float getAverageMeasData() {
+        return MILLI_PREFIX * averageMED;
     }
 
-    public BdmgData(float currentMED, float averageMED, float curScore, float aveScore) {
-        super(curScore, aveScore);
-        this.currentMED = currentMED;
-        this.averageMED = averageMED;
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Override
+    public String getMeasDataUnit() {
+        return measDataUnit;
     }
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "Текущая МЭД: %.1f %s Средняя МЭД: %.1f %s Текущий счет: %.0f %s, Средний счет: %.1f %s",
-                currentMED, "м" + unit,
-                averageMED, "м" + unit,
-                currentScore, BdData.unit,
-                averageScore, BdData.unit);
+        return String.format(Locale.US,
+                System.lineSeparator() +
+                        "Текущая МАЭД: " + MEAS_DATA_NUMBER_FORMAT + " мЗв/час, " +
+                        "Усредненная за время экспозиции МАЭД: " + MEAS_DATA_NUMBER_FORMAT + " мЗв/час, " +
+                        System.lineSeparator() +
+                        "Накопленная МАЭД после запуска режима накопления: " + COUNTER_NUMBER_FORMAT + " Зв, " +
+                        "Накопленная МАЭД за время работы БД: " + COUNTER_NUMBER_FORMAT + " Зв, " +
+                        System.lineSeparator() +
+                        "Текущий счет: " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        "Усредненный за время экспозиции счет: " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        System.lineSeparator() +
+                        "Интервал времени после запуска режима накопления: %d сек",
+                currentMED,
+                averageMED,
+                accumulatedMED,
+                accumulatedPowerMEDP,
+                currentScore,
+                averageScore,
+                accumulatedTime);
     }
 }

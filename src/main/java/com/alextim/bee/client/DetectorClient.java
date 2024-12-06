@@ -1,9 +1,9 @@
 package com.alextim.bee.client;
 
-import com.alextim.bee.client.messages.DetectorCommands.GetVersionCommand;
 import com.alextim.bee.client.messages.DetectorCommands.SomeCommand;
 import com.alextim.bee.client.messages.DetectorCommands.SomeCommandAnswer;
 import com.alextim.bee.client.messages.DetectorMsg;
+import com.alextim.bee.client.messages.ExceptionMessage;
 import com.alextim.bee.client.protocol.DetectorCodes.Command;
 import com.alextim.bee.client.protocol.DetectorCodes.CommandStatus;
 import com.alextim.bee.client.protocol.DetectorCodes.Event;
@@ -16,23 +16,25 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static com.alextim.bee.client.messages.DetectorEvents.SomeEvent;
 import static com.alextim.bee.client.protocol.DetectorCodes.Format.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.MsgType.EVENT_TYPE;
-import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 
 @Slf4j
 public class DetectorClient extends DetectorClientAbstract {
 
     private final String IP;
-    private final int port;
+    private final int rcvPort;
+    private final int trPort;
     private final int rcvBufSize;
     private UpdDetectorTransfer transfer;
 
     public DetectorClient(String ip,
-                          int port,
+                          int rcvPrt,
+                          int trPort,
                           int rcvBufSize,
                           LinkedBlockingQueue<DetectorMsg> queue ) {
         super(queue);
         this.IP = ip;
-        this.port = port;
+        this.rcvPort = rcvPrt;
+        this.trPort = trPort;
         this.rcvBufSize = rcvBufSize;
 
         createTransfer();
@@ -40,7 +42,7 @@ public class DetectorClient extends DetectorClientAbstract {
 
     public void createTransfer() {
         transfer = new UpdDetectorTransfer((bytes) -> {
-            log.info("========New some detector message========");
+            log.info("========== New detector message ========== ");
 
             int detectorID = ByteBuffer.wrap(new byte[]{
                             bytes[ID.shift + 3],
@@ -58,31 +60,31 @@ public class DetectorClient extends DetectorClientAbstract {
                     .getInt());
             log.info("Time: {}", time);
 
-            if (bytes[TYPE.shift] == EVENT_TYPE.code) {
-                Event eventByCode = Event.getEventByCode(bytes[EVT_ANS_CMD.shift]);
-                log.info("Event: {}", eventByCode.title);
+            try {
+                if (bytes[TYPE.shift] == EVENT_TYPE.code) {
+                    Event eventByCode = Event.getEventByCode(bytes[EVT_ANS_CMD.shift]);
+                    log.info("Event: {}", eventByCode.title);
 
-                queue.add(new SomeEvent(detectorID, time, eventByCode, bytes));
-            } else {
-                Command commandByCode = Command.getCommandByCode(bytes[TYPE.shift]);
-                log.info("Command: {}", commandByCode.title);
+                    queue.add(new SomeEvent(detectorID, time, eventByCode, bytes));
+                } else {
+                    Command commandByCode = Command.getCommandByCode(bytes[TYPE.shift]);
+                    log.info("Command: {}", commandByCode.title);
 
-                CommandStatus statusByCode = CommandStatus.getCommandStatusByCode(bytes[EVT_ANS_CMD.shift]);
-                log.info("Status: {}", statusByCode.title);
+                    CommandStatus statusByCode = CommandStatus.getCommandStatusByCode(bytes[EVT_ANS_CMD.shift]);
+                    log.info("Status: {}", statusByCode.title);
 
-                queue.add(new SomeCommandAnswer(detectorID, time, commandByCode, statusByCode, bytes));
+                    queue.add(new SomeCommandAnswer(detectorID, time, commandByCode, statusByCode, bytes));
+                }
+            } catch (Exception e) {
+                queue.add(new ExceptionMessage(detectorID, time, e, bytes));
             }
+
         }, rcvBufSize);
     }
 
     @Override
     public void connect() {
-        transfer.open(IP, port, () -> {
-            log.info("Connect to detector");
-
-
-            sendCommand(new GetVersionCommand(TRANSFER_TO_DETECTOR_ID));
-        });
+        transfer.open(IP, rcvPort, trPort);
     }
 
     @Override
@@ -91,8 +93,7 @@ public class DetectorClient extends DetectorClientAbstract {
     }
 
     @Override
-    public void shutdown() {
-        log.info("transfer shutdown");
-        transfer.shutdown();
+    public void close() {
+        transfer.close();
     }
 }

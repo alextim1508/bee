@@ -2,6 +2,7 @@ package com.alextim.bee.client.transfer;
 
 import com.alextim.bee.client.messages.DetectorCommands.SomeCommand;
 import com.alextim.bee.client.protocol.DetectorCodes.Command;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -17,90 +18,81 @@ import static com.alextim.bee.client.protocol.DetectorCodes.START_PACKAGE_BYTE;
 @Slf4j
 public class UpdDetectorTransfer {
 
-    private Thread socketListener;
-
     private final byte[] rcvBuf;
 
     private final Consumer<byte[]> consumer;
 
     private DatagramSocket socket;
     private InetAddress address;
-    private int port;
+    private int rcvPort;
+    private int trPort;
 
     public UpdDetectorTransfer(Consumer<byte[]> consumer, int rcvBufSize) {
         this.consumer = consumer;
         rcvBuf = new byte[rcvBufSize];
     }
 
-    public void open(String ip, int port, Runnable callback) {
-        log.info("open socket: {} / {}", ip, port);
+    public void open(String ip, int rcvPort, int trPort) {
+        log.info("open socket: {} / {}", ip, rcvPort);
 
-        socketListener = new Thread(() -> {
-            while (true) {
-                try {
-                    log.info("=== CONNECT TO SOCKET! ===");
+        try {
+            this.address = InetAddress.getByName(ip);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
 
-                    socket = new DatagramSocket();
-
-                    address = InetAddress.getByName(ip);
-
-                    this.port = port;
-
-                    if (callback != null)
-                        callback.run();
-
-                    loop();
-
-                    return;
-                } catch (UnknownHostException e) {
-                    throw new RuntimeException(e);
-
-                } catch (Exception e) {
-                    log.error("NEED TO RECONNECT", e);
-
-                    try {
-                        Thread.sleep(1_000);
-                    } catch (InterruptedException ex) {
-                        log.error("InterruptedException");
-                        return;
-                    }
-                }
-            }
-        });
-        socketListener.setName(getClass().getSimpleName() + "Thread");
-        socketListener.setPriority(Thread.NORM_PRIORITY);
-        socketListener.start();
-    }
-
-    private void loop() {
-        int rcvInd = 0;
+        this.rcvPort = rcvPort;
+        this.trPort = trPort;
 
         while (true) {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
+            log.info("=== CONNECT TO SOCKET! ===");
 
             try {
-                if (rcvInd >= rcvBuf.length)
-                    throw new RuntimeException("OverFlow " + rcvInd + " " + rcvBuf.length);
-
-                DatagramPacket packet = new DatagramPacket(rcvBuf, rcvInd, rcvBuf.length - rcvInd, address, port);
-                socket.receive(packet);
-
-                if (packet.getLength() == 0)
-                    continue;
-
-                rcvInd += packet.getLength();
-
+                socket = new DatagramSocket(rcvPort);
             } catch (SocketException e) {
-                log.error("SocketException", e);
-                return;
-            } catch (IOException e) {
-                log.error("IOException", e);
-                throw new RuntimeException(e);
+                log.error("New DatagramSocket", e);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    log.error("New DatagramSocket", e);
+                    return;
+                }
+
+                continue;
             }
 
-            rcvInd = handle(rcvBuf, rcvInd, consumer);
+            int rcvInd = 0;
+
+            while (true) {
+                if (Thread.currentThread().isInterrupted()) {
+                    log.info("udp transfer thread is interrupted");
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+
+                try {
+                    if (rcvInd >= rcvBuf.length)
+                        throw new RuntimeException("OverFlow " + rcvInd + " " + rcvBuf.length);
+
+                    DatagramPacket packet = new DatagramPacket(rcvBuf, rcvInd, rcvBuf.length - rcvInd);
+                    socket.receive(packet);
+
+                    if (packet.getLength() == 0)
+                        continue;
+
+                    rcvInd += packet.getLength();
+
+                } catch (SocketException e) {
+                    log.error("SocketException", e);
+                    return;
+                } catch (IOException e) {
+                    log.error("IOException", e);
+                    return;
+                }
+
+                rcvInd = handle(rcvBuf, rcvInd, consumer);
+            }
         }
     }
 
@@ -229,8 +221,9 @@ public class UpdDetectorTransfer {
         return bytes;
     }
 
+    @SneakyThrows
     public void sendData(SomeCommand command) {
-        DatagramPacket packet = new DatagramPacket(command.data, command.data.length, address, port);
+        DatagramPacket packet = new DatagramPacket(command.data, command.data.length, address, trPort);
         try {
             socket.send(packet);
         } catch (IOException e) {
@@ -238,15 +231,9 @@ public class UpdDetectorTransfer {
         }
     }
 
-    public void shutdown() {
-        if (socketListener != null) {
-            socketListener.interrupt();
-            log.info("socketListener is interrupted");
-        }
-
-        socket.close();
-        log.info("socket is closed");
-
-        log.info("detector transfer is shutdown");
+    public void close() {
+        log.info("socket.close");
+        if (socket != null)
+            socket.close();
     }
 }

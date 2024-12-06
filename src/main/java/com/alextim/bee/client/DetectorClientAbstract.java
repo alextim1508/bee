@@ -13,7 +13,7 @@ public abstract class DetectorClientAbstract {
 
     public abstract void connect();
     public abstract void sendCommand(SomeCommand command);
-    public abstract void shutdown();
+    public abstract void close();
 
     public DetectorMsg waitAndGetDetectorMsg() throws InterruptedException {
         return queue.take();

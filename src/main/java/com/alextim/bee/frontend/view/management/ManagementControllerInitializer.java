@@ -7,13 +7,13 @@ import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.BDType.GAMMA;
@@ -30,7 +30,8 @@ public abstract class ManagementControllerInitializer extends NodeController {
     public static final String PARAM_IS_GOT = "Параметр %s прочитан из БД";
     public static final String ERROR_ANSWER = "Параметр %s не задан. Команда завершилась с ошибкой: %s";
     public static final String ARE_YOU_SURE_TO_RESTART = "Вы уверены, что хотите перезапустить БД ?";
-    public static final String DETECTOR_IS_RESTARTED = "БД успешно перезапущен";
+    public static final String DETECTOR_IS_NORMALLY_RESTARTED = "БД успешно перезапущен";
+    public static final String DETECTOR_IS_EMERGENCY_RESTARTED = "БД аварийно перезапущен";
 
     @FXML
     private AnchorPane pane;
@@ -57,7 +58,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
     protected TextField externalDeviceIpPort;
 
     @FXML
-    protected TextField versionHardware;
+    protected TextArea versionHardware;
 
     @FXML
     protected TextField geoData;
@@ -85,7 +86,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
     }
 
     private void initByDetectorName() {
-        if (DetectorCodes.BDType.getBDTypeByCode(FRONTEND_FOR_DETECTOR) == GAMMA) {
+        if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
             counterCoefPane.getChildren().removeAll(counter3, counter4);
         }
     }
@@ -130,50 +131,70 @@ public abstract class ManagementControllerInitializer extends NodeController {
                 ARE_YOU_SURE_TO_RESTART);
     }
 
-    public void showDialogDetectorIsRestarted() {
+    public void showDialogDetectorIsNormallyRestarted() {
         Platform.runLater(() -> {
             mainWindow.showDialog(INFORMATION, "Информация",
                     HEADER,
-                    DETECTOR_IS_RESTARTED);
+                    DETECTOR_IS_NORMALLY_RESTARTED);
+        });
+    }
+
+    public void showDialogDetectorIsCrashRestarted(String reason) {
+        Platform.runLater(() -> {
+            mainWindow.showDialog(INFORMATION, "Информация",
+                    HEADER,
+                    DETECTOR_IS_EMERGENCY_RESTARTED + ": " + reason);
         });
     }
 
     public void setSoftwareVersion(String text) {
-        softwareVersion.setText(text);
+        Platform.runLater(() -> {
+            softwareVersion.setText(text);
+        });
     }
 
     public void setSensitivity(float sensitivity) {
-        this.sensitivity.setText(String.valueOf(sensitivity));
+        Platform.runLater(() -> {
+            this.sensitivity.setText(String.valueOf(sensitivity));
+        });
     }
 
     public void setDeadTime(float deadTime) {
-        this.deadTime.setText(String.valueOf(deadTime));
+        Platform.runLater(() -> {
+            this.deadTime.setText(String.valueOf(deadTime));
+        });
     }
 
-    public void setHardwareVersion(byte[] version) {
-        this.versionHardware.setText(Arrays.toString(version));
+    public void setHardwareVersion(String version) {
+        Platform.runLater(() -> {
+            this.versionHardware.setText(version);
+        });
     }
 
     public void setCounterCorrectCoeff(long counterIndex, float counterCorrectCoeff) {
-        if (counterIndex == 1) {
-            this.counter1.setText(String.valueOf(counterCorrectCoeff));
-        } else if (counterIndex == 2) {
-            this.counter2.setText(String.valueOf(counterCorrectCoeff));
-        } else if (counterIndex == 3) {
-            this.counter3.setText(String.valueOf(counterCorrectCoeff));
-        } else if (counterIndex == 4) {
-            this.counter4.setText(String.valueOf(counterCorrectCoeff));
-        }
+        Platform.runLater(() -> {
+            if (counterIndex == 1) {
+                this.counter1.setText(String.valueOf(counterCorrectCoeff));
+            } else if (counterIndex == 2) {
+                this.counter2.setText(String.valueOf(counterCorrectCoeff));
+            } else if (counterIndex == 3) {
+                this.counter3.setText(String.valueOf(counterCorrectCoeff));
+            } else if (counterIndex == 4) {
+                this.counter4.setText(String.valueOf(counterCorrectCoeff));
+            }
+        });
     }
 
     public void setIpInfo(int[] ipAddr, int ipPort, int externalDeviceIpPort) {
-        this.ipAddress1.setText(String.valueOf(ipAddr[0]));
-        this.ipAddress2.setText(String.valueOf(ipAddr[1]));
-        this.ipAddress3.setText(String.valueOf(ipAddr[2]));
-        this.ipAddress4.setText(String.valueOf(ipAddr[3]));
+        Platform.runLater(() -> {
+            this.ipAddress1.setText(String.valueOf(ipAddr[0]));
+            this.ipAddress2.setText(String.valueOf(ipAddr[1]));
+            this.ipAddress3.setText(String.valueOf(ipAddr[2]));
+            this.ipAddress4.setText(String.valueOf(ipAddr[3]));
 
-        this.ipPort.setText(String.valueOf(ipPort));
+            this.ipPort.setText(String.valueOf(ipPort));
 
-        this.externalDeviceIpPort.setText(String.valueOf(externalDeviceIpPort));
+            this.externalDeviceIpPort.setText(String.valueOf(externalDeviceIpPort));
+        });
     }
 }
