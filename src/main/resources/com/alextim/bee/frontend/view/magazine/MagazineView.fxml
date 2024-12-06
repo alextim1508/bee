@@ -19,8 +19,8 @@
           <TableColumn fx:id="time" prefWidth="75.0" text="Время" />
           <TableColumn fx:id="type" prefWidth="75.0" text="Тип" />
             <TableColumn fx:id="comEvAns" prefWidth="135.0" text="Команда&#10;Событие" />
-            <TableColumn fx:id="message" prefWidth="332.0" text="Сообщение" />
-            <TableColumn fx:id="data" prefWidth="605.0" text="Данные" />
+            <TableColumn fx:id="message" prefWidth="646.0" text="Сообщение" />
+            <TableColumn fx:id="data" prefWidth="290.0" text="Данные" />
         </columns>
       </TableView>
    </children>

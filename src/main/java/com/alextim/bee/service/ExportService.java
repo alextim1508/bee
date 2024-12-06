@@ -16,13 +16,18 @@ import java.util.function.BiConsumer;
 public class ExportService {
 
     @SneakyThrows
-    public void exportMeasurements(Collection<StatisticMeasurement> measurements, File file, BiConsumer<Integer, Double> progress) {
+    public void exportMeasurements(Collection<StatisticMeasurement> measurements, String fileComment, File file,
+                                   BiConsumer<Integer, Double> progress) {
         log.info("export to file");
 
         @Cleanup
         FileWriter fileWriter = new FileWriter(file);
 
         Iterator<StatisticMeasurement> iterator = measurements.iterator();
+
+        fileWriter
+                .append("Комментарий: ").append(fileComment)
+                .append(System.lineSeparator());
 
         for (int i = 0; iterator.hasNext(); i++) {
             progress.accept(i + 1, 1.0 * (i + 1) / measurements.size());

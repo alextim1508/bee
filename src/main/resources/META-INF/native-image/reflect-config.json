@@ -104,6 +104,8 @@
   "methods":[
     {"name":"measTimeOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onClear","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"onConnectToDetector","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"onDisconnectFromDetector","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onSave","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onStart","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onStop","parameterTypes":["javafx.event.ActionEvent"] }
@@ -300,7 +302,10 @@
 },
 {
   "name":"java.lang.Class",
-  "methods":[{"name":"getModule","parameterTypes":[] }]
+  "methods":[
+    {"name":"forName","parameterTypes":["java.lang.Module","java.lang.String"] }, 
+    {"name":"getModule","parameterTypes":[] }
+  ]
 },
 {
   "name":"java.lang.Enum",
@@ -308,7 +313,19 @@
 },
 {
   "name":"java.lang.Module",
-  "methods":[{"name":"getResourceAsStream","parameterTypes":["java.lang.String"] }]
+  "methods":[
+    {"name":"getDescriptor","parameterTypes":[] }, 
+    {"name":"getLayer","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }, 
+    {"name":"getResourceAsStream","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"java.lang.ModuleLayer",
+  "methods":[
+    {"name":"boot","parameterTypes":[] }, 
+    {"name":"findModule","parameterTypes":["java.lang.String"] }
+  ]
 },
 {
   "name":"java.lang.Object",
@@ -513,6 +530,12 @@
   ]
 },
 {
+  "name":"javafx.scene.control.TextArea",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"javafx.scene.control.TextField",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -614,6 +637,7 @@
   "methods":[
     {"name":"setMinHeight","parameterTypes":["double"] }, 
     {"name":"setMinWidth","parameterTypes":["double"] }, 
+    {"name":"setPadding","parameterTypes":["javafx.geometry.Insets"] }, 
     {"name":"setPrefHeight","parameterTypes":["double"] }, 
     {"name":"setPrefWidth","parameterTypes":["double"] }
   ]

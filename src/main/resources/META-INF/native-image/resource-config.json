@@ -77,6 +77,9 @@
       "pattern":"\\Qcom/ibm/icu/impl/data/icudt65b/numberingSystems.res\\E"
     }, 
     {
+      "pattern":"\\Qcom/ibm/icu/impl/data/icudt65b/pnames.icu\\E"
+    }, 
+    {
       "pattern":"\\Qcom/ibm/icu/impl/data/icudt65b/pool.res\\E"
     }, 
     {
@@ -87,6 +90,9 @@
     }, 
     {
       "pattern":"\\Qcom/ibm/icu/impl/data/icudt65b/ru_RU.res\\E"
+    }, 
+    {
+      "pattern":"\\Qcom/ibm/icu/impl/data/icudt65b/uprops.icu\\E"
     }, 
     {
       "pattern":"\\Qde/gsi/chart/chart.css\\E"
@@ -105,10 +111,7 @@
     }, 
     {
       "name":"com/sun/glass/ui/win/themes",
-      "locales":[
-        "", 
-        "und"
-      ]
+      "locales":["und"]
     }, 
     {
       "name":"com/sun/javafx/scene/control/skin/resources/controls",

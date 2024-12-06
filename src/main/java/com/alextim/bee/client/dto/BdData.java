@@ -1,12 +1,22 @@
 package com.alextim.bee.client.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
-@AllArgsConstructor
-@ToString
+
+@SuperBuilder
+@Getter
 public abstract class BdData {
-    public final float currentScore;
-    public final float averageScore;
-    public final static String unit = "имп/сек";
+
+    protected float currentScore;       //Текущий счет, имп/сек
+    protected float averageScore;       //Усредненный счет за время экспозиции, имп/сек
+    protected long accumulatedTime;     //Интервал времени после запуска режима накопления, сек
+
+    public abstract float getCurrentMeasData();
+
+    public abstract float getAverageMeasData();
+
+    public abstract String getTitle();
+
+    public abstract String getMeasDataUnit();
 }

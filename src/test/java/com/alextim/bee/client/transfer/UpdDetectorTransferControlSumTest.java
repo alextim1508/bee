@@ -367,4 +367,48 @@ public class UpdDetectorTransferControlSumTest {
         Assertions.assertDoesNotThrow(() ->
                 UpdDetectorTransfer.controlBodyCheck(array, DATA.shift, DATA.shift + len, DATA_KS.shift));
     }
+
+    @Test
+    public void checkControlComeCommand() {
+        byte[] array = new byte[]{
+                (byte) 0x79,
+                (byte) 0x78, (byte) 0x56, (byte) 0x34, (byte) 0x12,
+                (byte) 0x64, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0xFF,
+                (byte) 0x20,
+                (byte) 0x04, (byte) 0x00,
+                (byte) 0x5B,
+                (byte) 0xC6,
+                (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00
+        };
+
+        Assertions.assertDoesNotThrow(() ->
+                UpdDetectorTransfer.controlHeaderCheck(array, 0, HEADER_KS.shift, HEADER_KS.shift));
+
+        int len = 4;
+        Assertions.assertDoesNotThrow(() ->
+                UpdDetectorTransfer.controlBodyCheck(array, DATA.shift, DATA.shift + len, DATA_KS.shift));
+    }
+
+    @Test
+    public void checkControlComeCommand2() {
+        byte[] array = new byte[]{
+                (byte) 0x79,
+                (byte) 0x78, (byte) 0x56, (byte) 0x34, (byte) 0x12,
+                (byte) 0x67, (byte) 0x2b, (byte) 0x0, (byte) 0x0,
+                (byte) 0x20,
+                (byte) 0x0,
+                (byte) 0x0, (byte) 0x0,
+                (byte) 0x57,
+                (byte) 0xed
+        };
+
+        Assertions.assertDoesNotThrow(() ->
+                UpdDetectorTransfer.controlHeaderCheck(array, 0, HEADER_KS.shift, HEADER_KS.shift));
+
+        int len = 0;
+        Assertions.assertDoesNotThrow(() ->
+                UpdDetectorTransfer.controlBodyCheck(array, DATA.shift, DATA.shift + len, DATA_KS.shift));
+    }
+
 }

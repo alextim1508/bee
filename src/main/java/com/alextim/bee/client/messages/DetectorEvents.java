@@ -8,39 +8,59 @@ import java.util.Arrays;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.Error;
 import static com.alextim.bee.client.protocol.DetectorCodes.*;
+import static com.alextim.bee.client.protocol.DetectorCodes.RestartReason.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.State.*;
 
 public class DetectorEvents {
 
     @EqualsAndHashCode(callSuper = true)
-    public static class RestartDetector extends SomeEvent {
+    public static class RestartDetectorState extends SomeEvent {
 
         public final RestartReason reason;
         public final RestartParam param;
-        public final int[] ipAddr;
-        public final int ipPort;
-        public final int externalDeviceIpPort;
+        public final int[] detectorIpAddr;
+        public final int[] sourceIpAddr;
+        public final Integer ipPort;
+        public final Integer externalDeviceIpPort;
 
-        public RestartDetector(RestartReason reason,
-                               RestartParam param,
-                               int[] ipAddr,
-                               int ipPort,
-                               int externalDeviceIpPort,
-                               SomeEvent someEvent) {
+        public RestartDetectorState(RestartReason reason,
+                                    RestartParam param,
+                                    int[] detectorIpAddr,
+                                    int[] sourceIpAddr,
+                                    Integer ipPort,
+                                    Integer externalDeviceIpPort,
+                                    SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
             this.reason = reason;
             this.param = param;
-            this.ipAddr = ipAddr;
+            this.detectorIpAddr = detectorIpAddr;
+            this.sourceIpAddr = sourceIpAddr;
             this.ipPort = ipPort;
             this.externalDeviceIpPort = externalDeviceIpPort;
         }
 
         @Override
         public String toString() {
-            return String.format("Причина: %s/%s, IP адрес БД: %s, IP порт БД: %s, IP порт внешних устройств: %d",
-                    reason.title, param.name(), Arrays.toString(ipAddr), ipPort, externalDeviceIpPort);
+            if (reason == RESTART_COMMAND) {
+                return String.format("Причина: %s/%s, IP адрес источника команды перезапуска: %s, IP адрес БД: %s, " +
+                                "IP порт БД: %s, IP порт внешних устройств: %s",
+                        reason.title,
+                        param != null ? param.name() : "-",
+                        sourceIpAddr != null ? Arrays.toString(sourceIpAddr) : "-",
+                        detectorIpAddr != null ? Arrays.toString(detectorIpAddr) : "-",
+                        ipPort != null ? Integer.toString(ipPort) : "-",
+                        externalDeviceIpPort != null ? Integer.toString(externalDeviceIpPort) : "-");
+
+            } else if (reason == RESTART_ERROR) {
+                return String.format("Причина: %s/%s", reason.title, param.name());
+
+            } else {
+                return String.format("Причина: %s/Перезапуск после подачи питания", reason.title);
+            }
         }
     }
+
+
 
     @EqualsAndHashCode(callSuper = true)
     public static class UnknownDetectorState extends SomeEvent {

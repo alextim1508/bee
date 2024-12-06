@@ -2,7 +2,6 @@ package com.alextim.bee;
 
 
 import com.alextim.bee.client.DetectorClientAbstract;
-import com.alextim.bee.client.messages.DetectorCommands;
 import com.alextim.bee.client.messages.DetectorCommands.*;
 import com.alextim.bee.client.messages.DetectorMsg;
 import com.alextim.bee.context.AppState;
@@ -30,13 +29,15 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.alextim.bee.client.messages.DetectorEvents.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus.SUCCESS;
 import static com.alextim.bee.client.protocol.DetectorCodes.Error.getErrorByCode;
+import static com.alextim.bee.client.protocol.DetectorCodes.RestartReason.RESTART_COMMAND;
 import static com.alextim.bee.client.transfer.DetectorParser.parse;
-import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 import static com.alextim.bee.service.StatisticMeasService.StatisticMeasurement;
 
 @Slf4j
@@ -54,50 +55,61 @@ public class RootController extends RootControllerInitializer {
 
     private final Map<Long, StatisticMeasurement> statisticMeasurements = new HashMap<>();
 
-    private Future<?> queueHandlerTask;
-
     protected final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
+    private Future<?> connectTimer;
+    private final AtomicLong time = new AtomicLong();
+
     @SneakyThrows
-    public void connect() {
+    public void listenDetectorClient() {
         Runnable task = () -> {
+
             DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
             MagazineController magazineController = (MagazineController) getChild(MagazineController.class.getSimpleName());
             ManagementController managementController = (ManagementController) getChild(ManagementController.class.getSimpleName());
 
-            detectorClient.connect();
-
             while (!Thread.currentThread().isInterrupted()) {
-                DetectorMsg msg = null;
+                DetectorMsg msg;
                 try {
                     msg = detectorClient.waitAndGetDetectorMsg();
                 } catch (InterruptedException e) {
                     log.error("Detector client Interrupted Exception");
-                    return;
+                    break;
                 }
+
+                time.set(System.currentTimeMillis());
 
                 DetectorMsg detectorMsg = parse(msg);
                 log.info("DetectorMsg: {}. {}", detectorMsg.getClass().getSimpleName(), detectorMsg);
 
                 if (detectorMsg instanceof SomeEvent event) {
-                    handleEvent(dataController, managementController, event);
+                    try {
+                        handleEvent(dataController, managementController, event);
+                    } catch (Exception e) {
+                        log.error("handleEvent exception", e);
+                    }
 
                 } else if (detectorMsg instanceof SomeCommandAnswer answer) {
-                    handleCommandAnswer(managementController, answer);
+                    try {
+                        handleCommandAnswer(managementController, answer);
+                    } catch (Exception e) {
+                        log.error("handleCommandAnswer exception", e);
+                    }
                 }
 
                 magazineController.addLog(detectorMsg);
 
                 detectorMsgs.add(detectorMsg);
             }
+            log.info("queue handle task is done");
         };
 
-        queueHandlerTask = executorService.submit(task);
+        executorService.submit(task);
     }
 
     private void handleEvent(DataController dataController, ManagementController managementController, SomeEvent detectorMsg) {
-        if (detectorMsg instanceof RestartDetector restartDetector) {
-            handleRestartDetector(managementController, restartDetector);
+        if (detectorMsg instanceof RestartDetectorState restartDetectorState) {
+            handleRestartDetectorState(managementController, restartDetectorState);
 
         } else if (detectorMsg instanceof InitializationDetectorState state) {
             handleInitializationDetectorState(dataController, state);
@@ -111,7 +123,7 @@ public class RootController extends RootControllerInitializer {
         } else if (detectorMsg instanceof InternalEvent event) {
             handleInternalEvent(dataController, event);
 
-        } else if(detectorMsg instanceof ErrorDetectorState errorDetectorState) {
+        } else if (detectorMsg instanceof ErrorDetectorState errorDetectorState) {
             handleErrorDetectorState(dataController, errorDetectorState);
         }
     }
@@ -121,9 +133,13 @@ public class RootController extends RootControllerInitializer {
         dataController.setImageViewLabel(String.format("0x%x", errorDetectorState.error.code), "", "");
     }
 
-    private void handleRestartDetector(ManagementController managementController, RestartDetector restartDetector) {
-        managementController.setIpInfo(restartDetector.ipAddr, restartDetector.ipPort, restartDetector.externalDeviceIpPort);
-        managementController.showDialogDetectorIsRestarted();
+    private void handleRestartDetectorState(ManagementController managementController, RestartDetectorState restartDetectorState) {
+        if (restartDetectorState.reason == RESTART_COMMAND) {
+            managementController.setIpInfo(restartDetectorState.detectorIpAddr, restartDetectorState.ipPort, restartDetectorState.externalDeviceIpPort);
+            managementController.showDialogDetectorIsNormallyRestarted();
+        } else {
+            managementController.showDialogDetectorIsCrashRestarted(restartDetectorState.reason.title);
+        }
     }
 
     private void handleInitializationDetectorState(DataController dataController, InitializationDetectorState initStateDetector) {
@@ -137,40 +153,39 @@ public class RootController extends RootControllerInitializer {
     }
 
     private void handleInternalEvent(DataController dataController, InternalEvent internalEvent) {
-        dataController.setGreenCircle();
-        dataController.setImageViewLabel("", "", "");
+        log.info("handleInternalEvent time: {}", internalEvent.time);
 
-        if (statisticMeasurements.containsKey(internalEvent.internalData.measTime)) {
-            StatisticMeasurement statMeas = statisticMeasurements.get(internalEvent.internalData.measTime);
+        if (statisticMeasurements.containsKey(internalEvent.time)) {
+            StatisticMeasurement statMeas = statisticMeasurements.get(internalEvent.time);
 
-            statisticMeasService.addMeasToStatistic(internalEvent.internalData, statMeas);
-            statisticMeasService.initSumCounts(statMeas);
+            statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
             dataController.showStatisticMeas(statMeas);
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
-            statisticMeasService.addMeasToStatistic(internalEvent.internalData, statMeas);
+            statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
-            statisticMeasurements.put(internalEvent.internalData.measTime, statMeas);
+            statisticMeasurements.put(internalEvent.time, statMeas);
         }
     }
 
     private void handleMeasDetectorState(DataController dataController, MeasurementDetectorState measStateDetector) {
+        log.info("handleMeasDetectorState time: {}", measStateDetector.time);
+
         dataController.setGreenCircle();
         dataController.setImageViewLabel("", "", "");
 
-        if (statisticMeasurements.containsKey(measStateDetector.meas.measTime)) {
-            StatisticMeasurement statMeas = statisticMeasurements.get(measStateDetector.meas.measTime);
+        if (statisticMeasurements.containsKey(measStateDetector.time)) {
+            StatisticMeasurement statMeas = statisticMeasurements.get(measStateDetector.time);
 
-            statisticMeasService.addMeasToStatistic(measStateDetector.meas, statMeas);
-            statisticMeasService.initSumCounts(statMeas);
+            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
 
             dataController.showStatisticMeas(statMeas);
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
-            statisticMeasService.addMeasToStatistic(measStateDetector.meas, statMeas);
+            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
 
-            statisticMeasurements.put(measStateDetector.meas.measTime, statMeas);
+            statisticMeasurements.put(measStateDetector.time, statMeas);
         }
     }
 
@@ -214,7 +229,8 @@ public class RootController extends RootControllerInitializer {
 
         } else if (detectorMsg instanceof SetCounterCorrectCoeffAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                managementController.showDialogParamIsSet(COR_COEF);
+                if (isDialogShow(1000))
+                    managementController.showDialogParamIsSet(COR_COEF);
             } else {
                 managementController.showAnswerErrorDialog(COR_COEF, getErrorByCode(detectorMsg.data[0]));
             }
@@ -222,7 +238,10 @@ public class RootController extends RootControllerInitializer {
         } else if (detectorMsg instanceof GetCounterCorrectCoeffAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
                 managementController.setCounterCorrectCoeff(answer.counterIndex, answer.counterCorrectCoeff);
-                managementController.showDialogParamIsGot(COR_COEF);
+
+                if (isDialogShow(1000))
+                    managementController.showDialogParamIsGot(COR_COEF);
+
             } else {
                 managementController.showAnswerErrorDialog(COR_COEF, getErrorByCode(detectorMsg.data[0]));
             }
@@ -237,14 +256,49 @@ public class RootController extends RootControllerInitializer {
         }
     }
 
-    public void startMeasurement(long measTime) {
-        statisticMeasService.clearSumCounts();
+    private long showDialogLastTime = 0;
 
-        sendDetectorCommand(new DetectorCommands.SetMeasTimeCommand(TRANSFER_TO_DETECTOR_ID, measTime));
+    private boolean isDialogShow(long deltaMillis) {
+        long showDialogCurrentTime = System.currentTimeMillis();
+        boolean res = showDialogLastTime == 0 || showDialogCurrentTime - showDialogLastTime > deltaMillis;
+        showDialogLastTime = showDialogCurrentTime;
+        return res;
+    }
+
+    public void startMeasurement() {
+        statisticMeasService.clear();
+        executorService.submit(() -> {
+            try {
+                detectorClient.connect();
+            } catch (Exception e) {
+                log.error("detector client connect exception", e);
+            }
+        });
+
+        connectTimer = executorService.submit(() -> {
+            DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
+            time.set(System.currentTimeMillis());
+
+            try {
+                do {
+                    Thread.sleep(1000);
+
+                    long cur = System.currentTimeMillis();
+                    if (cur - time.get() > 5000) {
+                        dataController.setNoConnect();
+                    }
+                } while (!Thread.currentThread().isInterrupted());
+                log.info("timer canceled");
+            } catch (Exception e) {
+                log.error("timer connect exception", e);
+            }
+        });
     }
 
     public void stopMeasurement() {
+        connectTimer.cancel(true);
 
+        detectorClient.close();
     }
 
     public void sendDetectorCommand(SomeCommand command) {
@@ -260,7 +314,7 @@ public class RootController extends RootControllerInitializer {
         detectorClient.sendCommand(command);
     }
 
-    public void saveMeasurements(File file) {
+    public void saveMeasurements(File file, String fileComment) {
         DoubleProperty progressProperty = new SimpleDoubleProperty(0.0);
         StringProperty statusProperty = new SimpleStringProperty("");
 
@@ -269,21 +323,25 @@ public class RootController extends RootControllerInitializer {
         executorService.submit(() -> {
             log.info("export to selected file {}", file);
 
-            exportService.exportMeasurements(statisticMeasurements.values(), file, (n, progress) ->
+            try {
+                exportService.exportMeasurements(statisticMeasurements.values(), fileComment, file, (n, progress) ->
+                        Platform.runLater(() -> {
+                            progressProperty.set(progress);
+                            statusProperty.set("Экспорт измерения " + n);
+                        })
+                );
+
                 Platform.runLater(() -> {
-                    progressProperty.set(progress);
-                    statusProperty.set("Экспорт измерения " + n);
-                })
-            );
+                    progressDialog.forcefullyHideDialog();
 
-            Platform.runLater(() -> {
-                progressDialog.forcefullyHideDialog();
-
-                mainWindow.showDialog(Alert.AlertType.INFORMATION,
-                        "Экспорт",
-                        "Измерение",
-                        "Измерения экспортированы в файлы");
-            });
+                    mainWindow.showDialog(Alert.AlertType.INFORMATION,
+                            "Экспорт",
+                            "Измерение",
+                            "Измерения экспортированы в файлы");
+                });
+            } catch (Exception e) {
+                log.error("saveMeasurements", e);
+            }
         });
 
 
@@ -297,21 +355,25 @@ public class RootController extends RootControllerInitializer {
 
         log.info("export to selected file {}", file);
 
-        exportService.exportDetectorMsgs(detectorMsgs, file, (n, progress) ->
-                Platform.runLater(() -> {
-                    progressProperty.set(progress);
-                    statusProperty.set("Экспорт измерения " + n);
-                })
-        );
+        try {
+            exportService.exportDetectorMsgs(detectorMsgs, file, (n, progress) ->
+                    Platform.runLater(() -> {
+                        progressProperty.set(progress);
+                        statusProperty.set("Экспорт измерения " + n);
+                    })
+            );
 
-        Platform.runLater(() -> {
-            progressDialog.forcefullyHideDialog();
+            Platform.runLater(() -> {
+                progressDialog.forcefullyHideDialog();
 
-            mainWindow.showDialog(Alert.AlertType.INFORMATION,
-                    "Экспорт",
-                    "Измерение",
-                    "Измерения экспортированы в файлы");
-        });
+                mainWindow.showDialog(Alert.AlertType.INFORMATION,
+                        "Экспорт",
+                        "Измерение",
+                        "Измерения экспортированы в файлы");
+            });
+        } catch (Exception e) {
+            log.error("saveMeasurements", e);
+        }
     }
 
     public void clear() {
@@ -330,10 +392,20 @@ public class RootController extends RootControllerInitializer {
             log.error("SaveParams error", e);
         }
 
-        queueHandlerTask.cancel(true);
+        try {
+            detectorClient.close();
+        } catch (Exception e) {
+            log.error("detector client shutdown error", e);
+        }
 
-        executorService.shutdown();
+        executorService.shutdownNow();
+        log.info("scheduledExecutorService shutdown OK");
 
-        detectorClient.shutdown();
+        try {
+            boolean res = executorService.awaitTermination(500, TimeUnit.MILLISECONDS);
+            log.info("executorService is terminated: {}", res);
+        } catch (InterruptedException e) {
+            log.error("executorService.awaitTermination", e);
+        }
     }
 }

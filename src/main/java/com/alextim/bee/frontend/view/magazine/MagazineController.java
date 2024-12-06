@@ -3,6 +3,7 @@ package com.alextim.bee.frontend.view.magazine;
 import com.alextim.bee.client.messages.DetectorCommands;
 import com.alextim.bee.client.messages.DetectorEvents;
 import com.alextim.bee.client.messages.DetectorMsg;
+import com.alextim.bee.client.messages.ExceptionMessage;
 import com.alextim.bee.frontend.view.NodeController;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -80,6 +81,8 @@ public class MagazineController extends NodeController {
                 return new ReadOnlyObjectWrapper<>("Команда");
             } else if (param.getValue() instanceof DetectorCommands.SomeCommandAnswer) {
                 return new ReadOnlyObjectWrapper<>("Ответ на команду");
+            } else if (param.getValue() instanceof ExceptionMessage exceptionMessage) {
+                return new ReadOnlyObjectWrapper<>("Ошибка");
             } else {
                 return new ReadOnlyObjectWrapper<>("Не известно");
             }
@@ -127,6 +130,9 @@ public class MagazineController extends NodeController {
             } else if (param.getValue() instanceof DetectorCommands.SomeCommand command) {
                 return new ReadOnlyObjectWrapper<>(command.commandCode.title);
 
+            } else if (param.getValue() instanceof ExceptionMessage exceptionMessage) {
+                return new ReadOnlyObjectWrapper<>("-");
+
             } else {
                 return new ReadOnlyObjectWrapper<>("Не известно");
             }
@@ -140,6 +146,7 @@ public class MagazineController extends NodeController {
                 str.append(String.format("%02x ", datum));
             return new ReadOnlyObjectWrapper<>(str.toString());
         });
+
         table.setPlaceholder(new Label(""));
         table.setItems(FXCollections.observableArrayList());
     }

@@ -1,5 +1,6 @@
 package com.alextim.bee.frontend.view.data;
 
+import com.alextim.bee.client.protocol.DetectorCodes;
 import com.alextim.bee.frontend.view.NodeController;
 import com.alextim.bee.frontend.widget.GraphWidget;
 import com.alextim.bee.frontend.widget.graphs.SimpleGraph;
@@ -24,6 +25,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
+import static com.alextim.bee.client.protocol.DetectorCodes.BDType.GAMMA;
+import static com.alextim.bee.context.Property.COUNTER_NUMBER_FORMAT;
+import static com.alextim.bee.context.Property.FRONTEND_FOR_DETECTOR;
 import static com.alextim.bee.frontend.view.data.DataControllerInitializer.MeasTime.SEC_10;
 
 @Slf4j
@@ -44,11 +48,11 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     private TableColumn<TableRow, String> comment;
     @FXML
-    private TableColumn<TableRow, Long> count;
+    private TableColumn<TableRow, Float> count;
     @FXML
-    private TableColumn<TableRow, Double> averageCount;
+    private TableColumn<TableRow, Float> averageCount;
     @FXML
-    private TableColumn<TableRow, Long> currentCount;
+    private TableColumn<TableRow, Float> currentCount;
 
 
     @FXML
@@ -125,10 +129,6 @@ public abstract class DataControllerInitializer extends NodeController {
         Platform.runLater(() -> imageView.setImage(mainWindow.getYellowCircleImage()));
     }
 
-    public void setWhiteCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getWhiteCircleImage()));
-    }
-
     public void setGrayCircle() {
         Platform.runLater(() -> imageView.setImage(mainWindow.getGrayCircleImage()));
     }
@@ -178,7 +178,6 @@ public abstract class DataControllerInitializer extends NodeController {
         public final long seconds;
     }
 
-
     private void measTimeInit() {
         measTime.setItems(FXCollections.observableArrayList(MeasTime.values()));
         measTime.getSelectionModel().select(MeasTime.MIN_1);
@@ -219,43 +218,92 @@ public abstract class DataControllerInitializer extends NodeController {
     @AllArgsConstructor
     private static class TableRow {
         public String comment;
-        public long count;
-        public double averageCount;
-        public long currentCount;
+        public float count;
+        public float averageCount;
+        public float currentCount;
     }
 
     private void tableInitialize() {
         comment.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().comment));
+
         count.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().count));
-        currentCount.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().currentCount));
-        averageCount.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().averageCount));
-        averageCount.setCellFactory(new Callback<>() {
+        count.setCellFactory(new Callback<>() {
             @Override
-            public TableCell<TableRow, Double> call(TableColumn<TableRow, Double> tableRowDoubleTableColumn) {
+            public TableCell<TableRow, Float> call(TableColumn<TableRow, Float> tableRowDoubleTableColumn) {
                 return new TableCell<>() {
                     @Override
-                    protected void updateItem(Double item, boolean empty) {
+                    protected void updateItem(Float item, boolean empty) {
                         super.updateItem(item, empty);
                         if (empty) {
                             setText(null);
                         } else {
                             if (item != null) {
-                                setText(String.format("%.2f", item));
+                                setText(String.format(COUNTER_NUMBER_FORMAT, item));
                             }
                         }
                     }
                 };
             }
         });
+
+        currentCount.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().currentCount));
+        currentCount.setCellFactory(new Callback<>() {
+            @Override
+            public TableCell<TableRow, Float> call(TableColumn<TableRow, Float> tableRowDoubleTableColumn) {
+                return new TableCell<>() {
+                    @Override
+                    protected void updateItem(Float item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setText(null);
+                        } else {
+                            if (item != null) {
+                                setText(String.format(COUNTER_NUMBER_FORMAT, item));
+                            }
+                        }
+                    }
+                };
+            }
+        });
+        averageCount.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().averageCount));
+        averageCount.setCellFactory(new Callback<>() {
+            @Override
+            public TableCell<TableRow, Float> call(TableColumn<TableRow, Float> tableRowDoubleTableColumn) {
+                return new TableCell<>() {
+                    @Override
+                    protected void updateItem(Float item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setText(null);
+                        } else {
+                            if (item != null) {
+                                setText(String.format(COUNTER_NUMBER_FORMAT, item));
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
         table.setItems(FXCollections.observableArrayList());
     }
 
     private void fullTable() {
-        table.getItems().addAll(
-                new TableRow("Счетчик 1", 0, 0, 0),
-                new TableRow("Счетчик 2", 0, 0, 0),
-                new TableRow("Всего", 0, 0, 0)
-        );
+        if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
+            table.getItems().addAll(
+                    new TableRow("Счетчик 1", 0, 0, 0),
+                    new TableRow("Счетчик 2", 0, 0, 0),
+                    new TableRow("Всего", 0, 0, 0)
+            );
+        } else {
+            table.getItems().addAll(
+                    new TableRow("Счетчик 1", 0, 0, 0),
+                    new TableRow("Счетчик 2", 0, 0, 0),
+                    new TableRow("Счетчик 3", 0, 0, 0),
+                    new TableRow("Счетчик 4", 0, 0, 0),
+                    new TableRow("Всего", 0, 0, 0)
+            );
+        }
     }
 
     public void updateTable(StatisticMeasurement meas) {
@@ -269,9 +317,23 @@ public abstract class DataControllerInitializer extends NodeController {
         items.get(1).averageCount = meas.getAverageCount2();
         items.get(1).currentCount = meas.getCurrentCount2();
 
-        items.get(2).count = meas.getCountSum();
-        items.get(2).averageCount = meas.getAverageCountSum();
-        items.get(2).currentCount = meas.getCurrentCountSum();
+        if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
+            items.get(2).count = meas.getCountSum();
+            items.get(2).averageCount = meas.getAverageCountSum();
+            items.get(2).currentCount = meas.getCurrentCountSum();
+        } else {
+            items.get(2).count = meas.getCount3();
+            items.get(2).averageCount = meas.getAverageCount3();
+            items.get(2).currentCount = meas.getCurrentCount3();
+
+            items.get(3).count = meas.getCount4();
+            items.get(3).averageCount = meas.getAverageCount4();
+            items.get(3).currentCount = meas.getCurrentCount4();
+
+            items.get(4).count = meas.getCountSum();
+            items.get(4).averageCount = meas.getAverageCountSum();
+            items.get(4).currentCount = meas.getCurrentCountSum();
+        }
 
         table.refresh();
     }
@@ -291,19 +353,25 @@ public abstract class DataControllerInitializer extends NodeController {
         Platform.runLater(() -> geoData.setText(text));
     }
 
+    public String getFileComment() {
+        return fileComment.getText();
+    }
+
     protected void changeDisableStartStopBtn(boolean res) {
         startBtn.setDisable(res);
         stopBtn.setDisable(!res);
     }
 
     @FXML
-    void onStart(ActionEvent event) {
+    void onConnectToDetector(ActionEvent event) {
+        log.info("onConnectToDetector");
         changeDisableStartStopBtn(true);
         start(getMeasTime());
     }
 
     @FXML
-    void onStop(ActionEvent event) {
+    void onDisconnectFromDetector(ActionEvent event) {
+        log.info("onDisconnectFromDetector");
         changeDisableStartStopBtn(false);
         stop();
     }
