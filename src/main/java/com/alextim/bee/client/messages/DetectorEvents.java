@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.Error;
 import static com.alextim.bee.client.protocol.DetectorCodes.*;
-import static com.alextim.bee.client.protocol.DetectorCodes.RestartReason.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.State.*;
 
 public class DetectorEvents {
@@ -20,15 +19,15 @@ public class DetectorEvents {
         public final RestartParam param;
         public final int[] detectorIpAddr;
         public final int[] sourceIpAddr;
-        public final Integer ipPort;
-        public final Integer externalDeviceIpPort;
+        public final int ipPort;
+        public final int externalDeviceIpPort;
 
         public RestartDetectorState(RestartReason reason,
                                     RestartParam param,
                                     int[] detectorIpAddr,
                                     int[] sourceIpAddr,
-                                    Integer ipPort,
-                                    Integer externalDeviceIpPort,
+                                    int ipPort,
+                                    int externalDeviceIpPort,
                                     SomeEvent someEvent) {
             super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
             this.reason = reason;
@@ -41,26 +40,15 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            if (reason == RESTART_COMMAND) {
-                return String.format("Причина: %s/%s, IP адрес источника команды перезапуска: %s, IP адрес БД: %s, " +
-                                "IP порт БД: %s, IP порт внешних устройств: %s",
-                        reason.title,
-                        param != null ? param.name() : "-",
-                        sourceIpAddr != null ? Arrays.toString(sourceIpAddr) : "-",
-                        detectorIpAddr != null ? Arrays.toString(detectorIpAddr) : "-",
-                        ipPort != null ? Integer.toString(ipPort) : "-",
-                        externalDeviceIpPort != null ? Integer.toString(externalDeviceIpPort) : "-");
-
-            } else if (reason == RESTART_ERROR) {
-                return String.format("Причина: %s/%s", reason.title, param.name());
-
-            } else {
-                return String.format("Причина: %s/Перезапуск после подачи питания", reason.title);
-            }
+            return String.format("Причина: %s%s, IP адрес БД: %s, IP порт БД: %s, IP порт внешних устройств: %s%s",
+                    reason.title,
+                    param != null ? "/" + param.name() : "",
+                    Arrays.toString(detectorIpAddr),
+                    ipPort,
+                    externalDeviceIpPort,
+                    sourceIpAddr != null ? ", IP адрес источника команды перезапуска: " + Arrays.toString(sourceIpAddr) : "");
         }
     }
-
-
 
     @EqualsAndHashCode(callSuper = true)
     public static class UnknownDetectorState extends SomeEvent {

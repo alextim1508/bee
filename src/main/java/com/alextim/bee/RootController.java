@@ -134,8 +134,12 @@ public class RootController extends RootControllerInitializer {
     }
 
     private void handleRestartDetectorState(ManagementController managementController, RestartDetectorState restartDetectorState) {
+        managementController.setIpInfo(
+                restartDetectorState.detectorIpAddr,
+                restartDetectorState.ipPort,
+                restartDetectorState.externalDeviceIpPort);
+
         if (restartDetectorState.reason == RESTART_COMMAND) {
-            managementController.setIpInfo(restartDetectorState.detectorIpAddr, restartDetectorState.ipPort, restartDetectorState.externalDeviceIpPort);
             managementController.showDialogDetectorIsNormallyRestarted();
         } else {
             managementController.showDialogDetectorIsCrashRestarted(restartDetectorState.reason.title);

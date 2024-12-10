@@ -207,9 +207,6 @@ public class DetectorParser {
 
         RestartParam param = null;
         int[] sourceIpAddr = null;
-        int[] detectorIpAddr = null;
-        Integer ipPort = null;
-        Integer ipPortExtDevice = null;
 
         if (reason == RESTART_COMMAND) {
             sourceIpAddr = new int[]{
@@ -220,31 +217,30 @@ public class DetectorParser {
             };
             log.debug("sourceIpAddr: {}", sourceIpAddr);
 
-
-            detectorIpAddr = new int[]{
-                    Byte.toUnsignedInt(event.data[DATA.shift + 8]),
-                    Byte.toUnsignedInt(event.data[DATA.shift + 9]),
-                    Byte.toUnsignedInt(event.data[DATA.shift + 10]),
-                    Byte.toUnsignedInt(event.data[DATA.shift + 11])
-            };
-            log.debug("detectorIpAddr: {}", detectorIpAddr);
-
-            ipPort = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
-                            event.data[DATA.shift + 13],
-                            event.data[DATA.shift + 12]})
-                    .getShort());
-            log.debug("IpPort: {}", ipPort);
-
-            ipPortExtDevice = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
-                            event.data[DATA.shift + 15],
-                            event.data[DATA.shift + 14]})
-                    .getShort());
-            log.debug("IpPortExtDevice: {}", ipPortExtDevice);
-
         } else if (reason == RESTART_ERROR) {
             param = RestartParam.getRestartParamByCode(event.data[DATA.shift + 4]);
             log.debug("Param: {}", param);
         }
+
+        int[] detectorIpAddr = new int[]{
+                Byte.toUnsignedInt(event.data[DATA.shift + 8]),
+                Byte.toUnsignedInt(event.data[DATA.shift + 9]),
+                Byte.toUnsignedInt(event.data[DATA.shift + 10]),
+                Byte.toUnsignedInt(event.data[DATA.shift + 11])
+        };
+        log.debug("detectorIpAddr: {}", detectorIpAddr);
+
+        int ipPort = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
+                        event.data[DATA.shift + 13],
+                        event.data[DATA.shift + 12]})
+                .getShort());
+        log.debug("IpPort: {}", ipPort);
+
+        int ipPortExtDevice = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
+                        event.data[DATA.shift + 15],
+                        event.data[DATA.shift + 14]})
+                .getShort());
+        log.debug("IpPortExtDevice: {}", ipPortExtDevice);
 
         return new RestartDetectorState(reason, param, detectorIpAddr, sourceIpAddr, ipPort, ipPortExtDevice, event);
     }
