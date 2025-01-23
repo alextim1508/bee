@@ -153,16 +153,6 @@ public class ManagementController extends ManagementControllerInitializer {
     }
 
     @FXML
-    void setGeoDataOn(ActionEvent event) {
-
-    }
-
-    @FXML
-    void getGeoDataOn(ActionEvent event) {
-
-    }
-
-    @FXML
     void setIpOn(ActionEvent event) {
         BDParam bdParam = IP_ADDRESS_PORT;
         if (areYouSure(bdParam)) {

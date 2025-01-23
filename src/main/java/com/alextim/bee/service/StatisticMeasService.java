@@ -1,5 +1,6 @@
 package com.alextim.bee.service;
 
+import com.alextim.bee.client.dto.GeoData;
 import com.alextim.bee.client.dto.InternalData;
 import com.alextim.bee.client.dto.Measurement;
 import lombok.Getter;
@@ -24,6 +25,8 @@ public class StatisticMeasService {
         private float currentMeasDataValue, averageMeasDataValue;
 
         private String measDataTitle, measDataUnit;
+
+        private GeoData geoData;
 
         private long accInterval;
 
@@ -68,6 +71,7 @@ public class StatisticMeasService {
                     ", Накопленное значение счетчика 2: " + count2 +
                     ", Накопленное суммарное значение счетчиков: " + countSum +
                     ", Время после включения БД:  " + time +
+                    ", Гео данные: " + geoData.lat() +  ", "+ geoData.lon() +
                     ", Дата:  " + (localDateTime != null ? DATE_TIME_FORMATTER.format(localDateTime) : "-");
         }
     }
@@ -92,6 +96,7 @@ public class StatisticMeasService {
         statMeas.measDataTitle = meas.bdData.getTitle();
         statMeas.measDataUnit = meas.bdData.getMeasDataUnit();
         statMeas.accInterval = meas.bdData.getAccumulatedTime();
+        statMeas.geoData = meas.geoData;
 
         if (statMeas.time == time) {
             sumCounts(statMeas);

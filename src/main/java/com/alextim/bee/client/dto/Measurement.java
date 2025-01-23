@@ -12,13 +12,13 @@ public class Measurement {
     public final BDType bdType;
     public final long measTime;
     public final long geoTime;
-    public final short[] geoData;
+    public final GeoData geoData;
     public final BdData bdData;
 
     @Override
     public String toString() {
-        return String.format(Locale.US,"Версия: %d, Тип блока: %s, Время измерение: %d, %s",
-                version, bdType.title, measTime, bdData);
+        return String.format(Locale.US,"Версия: %d, Тип блока: %s, Время измерение: %d, %s, %s",
+                version, bdType.title, measTime, bdData, geoData);
     }
 }
 

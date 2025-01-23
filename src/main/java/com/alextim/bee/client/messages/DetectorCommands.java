@@ -1,5 +1,7 @@
 package com.alextim.bee.client.messages;
 
+import com.alextim.bee.client.dto.GeoData;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -304,9 +306,21 @@ public class DetectorCommands {
 
     public static class SetGeoDataCommand extends SomeCommand {
 
-        public SetGeoDataCommand(int detectorID) {
+        public final GeoData geoData;
+
+        public SetGeoDataCommand(int detectorID, GeoData geoData) {
             super(detectorID, 0, Command.SET_GEO_DATA,
-                    wrapToPackage(detectorID, 0, Command.SET_GEO_DATA, new byte[0]));
+                    wrapToPackage(detectorID, 0, Command.SET_GEO_DATA, getData(geoData)));
+            this.geoData = geoData;
+        }
+
+        private static byte[] getData(GeoData geoData) {
+            byte[] array1 = ByteBuffer.allocate(8).putDouble(geoData.lat()).array();
+            byte[] array2 = ByteBuffer.allocate(8).putDouble(geoData.lon()).array();
+            return new byte[]{
+                    array1[3], array1[2], array1[1], array1[0],
+                    array2[3], array2[2], array2[1], array2[0]
+            };
         }
 
         @Override

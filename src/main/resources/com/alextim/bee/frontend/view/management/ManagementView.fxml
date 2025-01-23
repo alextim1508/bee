@@ -43,7 +43,11 @@
                   </HBox>
                </children>
             </AnchorPane>
-            <AnchorPane layoutX="611.0" layoutY="5.0" prefHeight="94.0" prefWidth="493.0" style="-fx-border-color: black;" AnchorPane.topAnchor="5.0">
+         </children>
+      </HBox>
+      <HBox layoutX="5.0" layoutY="135.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="120.0">
+         <children>
+            <AnchorPane prefHeight="94.0" prefWidth="493.0" style="-fx-border-color: black;">
                <children>
                   <GridPane fx:id="counterCoefPane" hgap="10.0" vgap="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
                      <columnConstraints>
@@ -71,10 +75,6 @@
                   </HBox>
                </children>
             </AnchorPane>
-         </children>
-      </HBox>
-      <HBox layoutX="5.0" layoutY="135.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="120.0">
-         <children>
             <AnchorPane layoutX="14.0" layoutY="135.0" prefHeight="94.0" prefWidth="231.0" style="-fx-border-color: black;" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="135.0">
                <children>
                   <HBox layoutX="6.0" layoutY="84.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
@@ -89,22 +89,6 @@
                <HBox.margin>
                   <Insets />
                </HBox.margin>
-            </AnchorPane>
-            <AnchorPane prefHeight="94.0" prefWidth="240.0" style="-fx-border-color: black;">
-               <children>
-                  <HBox layoutX="4.0" layoutY="56.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
-                     <children>
-                        <Button layoutX="4.0" layoutY="56.0" mnemonicParsing="false" onAction="#setGeoDataOn" prefWidth="75.0" text="Задать" />
-                        <Button layoutX="94.0" layoutY="56.0" mnemonicParsing="false" onAction="#getGeoDataOn" prefWidth="75.0" text="Прочитать" />
-                     </children>
-                  </HBox>
-                  <HBox spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
-                     <children>
-                        <Label layoutY="4.0" prefHeight="26.0" prefWidth="61.0" text="Геоданные" />
-                        <TextField fx:id="geoData" layoutX="86.0" />
-                     </children>
-                  </HBox>
-               </children>
             </AnchorPane>
          </children>
       </HBox>

@@ -67,6 +67,8 @@ public class Context {
 
         initTransferProperties(properties);
 
+        initGeoDataProperties(properties);
+
         initNumberFormatProperties(properties);
     }
 
@@ -85,6 +87,20 @@ public class Context {
 
         TRANSFER_RCV_BUFFER_SIZE = Integer.parseInt((String) properties.get("app.transfer.rcv-bfr-size"));
         log.info("TRANSFER_RCV_BUFFER_SIZE: {}", TRANSFER_RCV_BUFFER_SIZE);
+    }
+
+    private void initGeoDataProperties(Properties properties) {
+        GEO_DATA_DELAY = Integer.parseInt((String) properties.get("app.geo-data.delay"));
+        log.info("GEO_DATA_DELAY: {}", GEO_DATA_DELAY);
+
+        GEO_DATA_DELTA = Float.parseFloat((String) properties.get("app.geo-data.delta"));
+        log.info("GEO_DATA_DELTA: {}", GEO_DATA_DELTA);
+
+        GEO_DATA_START_LAT = Float.parseFloat((String) properties.get("app.geo-data.start-lat"));
+        log.info("GEO_DATA_START_LAT: {}", GEO_DATA_START_LAT);
+
+        GEO_DATA_START_LON = Float.parseFloat((String) properties.get("app.geo-data.start-lon"));
+        log.info("GEO_DATA_START_LON: {}", GEO_DATA_START_LON);
     }
 
     private void initNumberFormatProperties(Properties properties) {

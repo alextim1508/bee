@@ -2,6 +2,7 @@ package com.alextim.bee;
 
 
 import com.alextim.bee.client.DetectorClientAbstract;
+import com.alextim.bee.client.dto.GeoData;
 import com.alextim.bee.client.messages.DetectorCommands.*;
 import com.alextim.bee.client.messages.DetectorMsg;
 import com.alextim.bee.context.AppState;
@@ -38,6 +39,7 @@ import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus.SUCCES
 import static com.alextim.bee.client.protocol.DetectorCodes.Error.getErrorByCode;
 import static com.alextim.bee.client.protocol.DetectorCodes.RestartReason.RESTART_COMMAND;
 import static com.alextim.bee.client.transfer.DetectorParser.parse;
+import static com.alextim.bee.context.Property.*;
 import static com.alextim.bee.service.StatisticMeasService.StatisticMeasurement;
 
 @Slf4j
@@ -58,6 +60,7 @@ public class RootController extends RootControllerInitializer {
     protected final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     private Future<?> connectTimer;
+    private Future<?> geoDataSender;
     private final AtomicLong time = new AtomicLong();
 
     @SneakyThrows
@@ -279,6 +282,23 @@ public class RootController extends RootControllerInitializer {
             }
         });
 
+        geoDataSender = executorService.submit(() -> {
+            try {
+                float curLat = GEO_DATA_START_LAT, curLon = GEO_DATA_START_LON;
+                do {
+                    Thread.sleep(GEO_DATA_DELAY);
+
+                    curLat +=  GEO_DATA_DELTA;
+                    curLon +=  GEO_DATA_DELTA;
+
+                    sendDetectorCommand(new SetGeoDataCommand(TRANSFER_TO_DETECTOR_ID, new GeoData(curLat, curLon)));
+                } while (!Thread.currentThread().isInterrupted());
+                log.info("geoDataSender canceled");
+            } catch (Exception e) {
+                log.error("geoDataSender exception", e);
+            }
+        });
+
         connectTimer = executorService.submit(() -> {
             DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
             time.set(System.currentTimeMillis());
@@ -301,6 +321,8 @@ public class RootController extends RootControllerInitializer {
 
     public void stopMeasurement() {
         connectTimer.cancel(true);
+
+        geoDataSender.cancel(true);
 
         detectorClient.close();
     }

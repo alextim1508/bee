@@ -281,8 +281,21 @@ public class DetectorParser {
                         event.data[DATA.shift + 14],
                         event.data[DATA.shift + 13]})
                 .getShort());
-        short[] geoData = new short[geoDataSize]; //todo!!
-        log.debug("GeoData: {}", geoData);
+        log.debug("geoDataSize: {}", geoDataSize);
+
+        float lat = ByteBuffer.wrap(new byte[]{
+                        event.data[DATA.shift + 15 + 3],
+                        event.data[DATA.shift + 15 + 2],
+                        event.data[DATA.shift + 15 + 1],
+                        event.data[DATA.shift + 15]})
+                .getFloat();
+        float lon = ByteBuffer.wrap(new byte[]{
+                        event.data[DATA.shift + 15 + 7],
+                        event.data[DATA.shift + 15 + 6],
+                        event.data[DATA.shift + 15 + 5],
+                        event.data[DATA.shift + 15 + 4]})
+                .getFloat();
+        GeoData geoData = new GeoData(lat, lon);
 
         float curScore = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 18 + geoDataSize],

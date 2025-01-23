@@ -17,6 +17,11 @@ public class Property {
     public static Integer TRANSFER_TR_PORT;
     public static Integer TRANSFER_RCV_BUFFER_SIZE;
 
+    public static Integer GEO_DATA_DELAY;
+    public static Float GEO_DATA_DELTA;
+    public static Float GEO_DATA_START_LAT;
+    public static Float GEO_DATA_START_LON;
+
     public static String COUNTER_NUMBER_FORMAT;
     public static String MEAS_DATA_NUMBER_FORMAT;
     public static String OTHER_NUMBER_FORMAT;
