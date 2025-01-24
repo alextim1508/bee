@@ -283,18 +283,24 @@ public class DetectorParser {
                 .getShort());
         log.debug("geoDataSize: {}", geoDataSize);
 
-        float lat = ByteBuffer.wrap(new byte[]{
-                        event.data[DATA.shift + 15 + 3],
-                        event.data[DATA.shift + 15 + 2],
-                        event.data[DATA.shift + 15 + 1],
-                        event.data[DATA.shift + 15]})
-                .getFloat();
-        float lon = ByteBuffer.wrap(new byte[]{
-                        event.data[DATA.shift + 15 + 7],
-                        event.data[DATA.shift + 15 + 6],
-                        event.data[DATA.shift + 15 + 5],
-                        event.data[DATA.shift + 15 + 4]})
-                .getFloat();
+        float lat = 0, lon = 0;
+        if (geoDataSize == 8) {
+            lat = ByteBuffer.wrap(new byte[]{
+                            event.data[DATA.shift + 15 + 3],
+                            event.data[DATA.shift + 15 + 2],
+                            event.data[DATA.shift + 15 + 1],
+                            event.data[DATA.shift + 15]})
+                    .getFloat();
+            log.debug("lat: {}", lat);
+            lon = ByteBuffer.wrap(new byte[]{
+                            event.data[DATA.shift + 15 + 7],
+                            event.data[DATA.shift + 15 + 6],
+                            event.data[DATA.shift + 15 + 5],
+                            event.data[DATA.shift + 15 + 4]})
+                    .getFloat();
+            log.debug("lon: {}", lon);
+        }
+
         GeoData geoData = new GeoData(lat, lon);
 
         float curScore = ByteBuffer.wrap(new byte[]{
@@ -343,7 +349,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 36 + geoDataSize],
                         event.data[DATA.shift + 35 + geoDataSize]})
                 .getFloat();
-        log.debug("CurMeasData: {}", curMeasData);
+        log.debug("AccMeasDataT: {}", accMeasDataT);
 
         float accMeasDataP = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 42 + geoDataSize],
@@ -351,7 +357,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 40 + geoDataSize],
                         event.data[DATA.shift + 39 + geoDataSize]})
                 .getFloat();
-        log.debug("AveMeasData: {}", aveMeasData);
+        log.debug("AccMeasDataP: {}", accMeasDataP);
 
 
         BdData bdData;
@@ -461,7 +467,6 @@ public class DetectorParser {
                     .getFloat();
             log.debug("AveScores2: {}", aveScores2);
 
-
             float temperature = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 31],
                             event.data[DATA.shift + 30],
@@ -469,7 +474,6 @@ public class DetectorParser {
                             event.data[DATA.shift + 28]})
                     .getFloat();
             log.debug("Temperature: {}", temperature);
-
 
             float voltage400V = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 35],

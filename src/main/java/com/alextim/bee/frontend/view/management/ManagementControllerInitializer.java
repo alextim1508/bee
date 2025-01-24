@@ -6,6 +6,7 @@ import com.alextim.bee.frontend.view.NodeController;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -37,19 +38,29 @@ public abstract class ManagementControllerInitializer extends NodeController {
     private AnchorPane pane;
 
     @FXML
+    protected Button setSensitivityBtn, getSensitivityBtn;
+    @FXML
     protected TextField sensitivity;
 
     @FXML
+    protected Button setDeadTimeBtn, getDeadTimeBtn;
+    @FXML
     protected TextField deadTime;
 
+    @FXML
+    protected Button setMeasTimeBtn;
     @FXML
     protected TextField measTime;
 
     @FXML
     private GridPane counterCoefPane;
     @FXML
+    protected Button setCounterCoefBtn, getCounterCoefBtn;
+    @FXML
     protected TextField counter1, counter2, counter3, counter4;
 
+    @FXML
+    protected Button setIpBtn;
     @FXML
     protected TextField ipAddress1, ipAddress2, ipAddress3, ipAddress4;
     @FXML
@@ -58,10 +69,12 @@ public abstract class ManagementControllerInitializer extends NodeController {
     protected TextField externalDeviceIpPort;
 
     @FXML
+    protected Button getVersionHardwareBtn;
+    @FXML
     protected TextArea versionHardware;
 
     @FXML
-    protected TextField geoData;
+    protected Button restartBtn;
 
     @FXML
     protected Label softwareVersion;
@@ -196,5 +209,17 @@ public abstract class ManagementControllerInitializer extends NodeController {
 
             this.externalDeviceIpPort.setText(String.valueOf(externalDeviceIpPort));
         });
+    }
+
+    public void setDisableAllButtons(boolean b) {
+        setSensitivityBtn.setDisable(b);
+        getSensitivityBtn.setDisable(b);
+        setDeadTimeBtn.setDisable(b);
+        getDeadTimeBtn.setDisable(b);
+        setMeasTimeBtn.setDisable(b);
+        setCounterCoefBtn.setDisable(b);
+        getCounterCoefBtn.setDisable(b);
+        getVersionHardwareBtn.setDisable(b);
+        restartBtn.setDisable(b);
     }
 }

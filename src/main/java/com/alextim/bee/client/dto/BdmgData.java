@@ -46,8 +46,7 @@ public class BdmgData extends BdData {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                System.lineSeparator() +
-                        "Текущая МАЭД: " + MEAS_DATA_NUMBER_FORMAT + " мЗв/час, " +
+                "Текущая МАЭД: " + MEAS_DATA_NUMBER_FORMAT + " мЗв/час, " +
                         "Усредненная за время экспозиции МАЭД: " + MEAS_DATA_NUMBER_FORMAT + " мЗв/час, " +
                         System.lineSeparator() +
                         "Накопленная МАЭД после запуска режима накопления: " + COUNTER_NUMBER_FORMAT + " Зв, " +

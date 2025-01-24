@@ -282,22 +282,24 @@ public class RootController extends RootControllerInitializer {
             }
         });
 
-        geoDataSender = executorService.submit(() -> {
-            try {
-                float curLat = GEO_DATA_START_LAT, curLon = GEO_DATA_START_LON;
-                do {
-                    Thread.sleep(GEO_DATA_DELAY);
+        if(GEO_DATA_ENABLE) {
+            geoDataSender = executorService.submit(() -> {
+                try {
+                    float curLat = GEO_DATA_START_LAT, curLon = GEO_DATA_START_LON;
+                    do {
+                        Thread.sleep(GEO_DATA_DELAY);
 
-                    curLat +=  GEO_DATA_DELTA;
-                    curLon +=  GEO_DATA_DELTA;
+                        curLat +=  GEO_DATA_DELTA;
+                        curLon +=  GEO_DATA_DELTA;
 
-                    sendDetectorCommand(new SetGeoDataCommand(TRANSFER_TO_DETECTOR_ID, new GeoData(curLat, curLon)));
-                } while (!Thread.currentThread().isInterrupted());
-                log.info("geoDataSender canceled");
-            } catch (Exception e) {
-                log.error("geoDataSender exception", e);
-            }
-        });
+                        sendDetectorCommand(new SetGeoDataCommand(TRANSFER_TO_DETECTOR_ID, new GeoData(curLat, curLon)));
+                    } while (!Thread.currentThread().isInterrupted());
+                    log.info("geoDataSender canceled");
+                } catch (Exception e) {
+                    log.error("geoDataSender exception", e);
+                }
+            });
+        }
 
         connectTimer = executorService.submit(() -> {
             DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
@@ -317,14 +319,20 @@ public class RootController extends RootControllerInitializer {
                 log.error("timer connect exception", e);
             }
         });
+
+        ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(false);
     }
 
     public void stopMeasurement() {
         connectTimer.cancel(true);
 
-        geoDataSender.cancel(true);
+        if(GEO_DATA_ENABLE) {
+            geoDataSender.cancel(true);
+        }
 
         detectorClient.close();
+
+        ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(true);
     }
 
     public void sendDetectorCommand(SomeCommand command) {

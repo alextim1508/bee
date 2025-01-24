@@ -40,18 +40,26 @@ public class Context {
     private void readAppProperty() {
         Properties properties = new Properties();
         try {
-            @Cleanup Reader reader = new BufferedReader(new FileReader(
-                    System.getProperty("user.dir") + "/config/application.properties", StandardCharsets.UTF_8));
+            String profile = System.getProperty("profile");
+            log.info("profile: {}", profile);
 
-            log.info("File application.properties from currently dir is found!");
+            String file = System.getProperty("user.dir") + "/config/application-" + profile + ".properties";
+            log.info("properties file: {}", file);
+
+            @Cleanup Reader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
+
             properties.load(reader);
 
         } catch (Exception e) {
+            log.error("Can not open properties file", e);
+
             log.info("There are default properties!");
 
             @Cleanup InputStream resourceAsStream = Context.class.getClassLoader()
                     .getResourceAsStream("application.properties");
+
             @Cleanup Reader resourceReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
+
             properties.load(resourceReader);
         }
 
@@ -90,6 +98,9 @@ public class Context {
     }
 
     private void initGeoDataProperties(Properties properties) {
+        GEO_DATA_ENABLE = Boolean.parseBoolean((String) properties.get("app.geo-data.enable"));
+        log.info("GEO_DATA_ENABLE: {}", GEO_DATA_ENABLE);
+
         GEO_DATA_DELAY = Integer.parseInt((String) properties.get("app.geo-data.delay"));
         log.info("GEO_DATA_DELAY: {}", GEO_DATA_DELAY);
 

@@ -44,8 +44,7 @@ public class BdpnData extends BdData {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                System.lineSeparator() +
-                        "Текущий ППН: " + MEAS_DATA_NUMBER_FORMAT + " нейтр./см²сек, " +
+                "Текущий ППН: " + MEAS_DATA_NUMBER_FORMAT + " нейтр./см²сек, " +
                         "Усредненный за время экспозиции ППН: " + MEAS_DATA_NUMBER_FORMAT + " нейтр./см²сек, " +
                         System.lineSeparator() +
                         "Накопленный счет после запуска режима накопления: " + COUNTER_NUMBER_FORMAT + " имп, " +
@@ -53,6 +52,7 @@ public class BdpnData extends BdData {
                         System.lineSeparator() +
                         "Текущий счет: " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
                         "Усредненный за время экспозиции счет: " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        System.lineSeparator() +
                         "Интервал времени после запуска режима накопления: %d сек",
                 currentDensity,
                 averageDensity,

@@ -21,8 +21,8 @@
                   </HBox>
                   <HBox layoutY="53.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
                      <children>
-                        <Button layoutY="53.0" mnemonicParsing="false" onAction="#setSensitivityOn" prefWidth="75.0" text="Задать" />
-                        <Button layoutX="88.0" layoutY="53.0" mnemonicParsing="false" onAction="#getSensitivityOn" prefWidth="75.0" text="Прочитать" />
+                        <Button fx:id="setSensitivityBtn" disable="true" layoutY="53.0" mnemonicParsing="false" onAction="#setSensitivityOn" prefWidth="75.0" text="Задать" />
+                        <Button fx:id="getSensitivityBtn" disable="true" layoutX="88.0" layoutY="53.0" mnemonicParsing="false" onAction="#getSensitivityOn" prefWidth="75.0" text="Прочитать" />
                      </children>
                   </HBox>
                </children>
@@ -37,8 +37,8 @@
                   </HBox>
                   <HBox layoutX="6.0" layoutY="47.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
                      <children>
-                        <Button layoutX="6.0" layoutY="47.0" mnemonicParsing="false" onAction="#setDeadTimeOn" prefWidth="75.0" text="Задать" />
-                        <Button layoutX="94.0" layoutY="47.0" mnemonicParsing="false" onAction="#getDeadTimeOn" prefWidth="75.0" text="Прочитать" />
+                        <Button fx:id="setDeadTimeBtn" disable="true" layoutX="6.0" layoutY="47.0" mnemonicParsing="false" onAction="#setDeadTimeOn" prefWidth="75.0" text="Задать" />
+                        <Button fx:id="getDeadTimeBtn" disable="true" layoutX="94.0" layoutY="47.0" mnemonicParsing="false" onAction="#getDeadTimeOn" prefWidth="75.0" text="Прочитать" />
                      </children>
                   </HBox>
                </children>
@@ -69,8 +69,8 @@
                   </GridPane>
                   <HBox layoutX="49.0" layoutY="56.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
                      <children>
-                        <Button layoutX="49.0" layoutY="56.0" mnemonicParsing="false" onAction="#setCorrCoefOn" prefWidth="75.0" text="Задать" />
-                        <Button layoutX="137.0" layoutY="56.0" mnemonicParsing="false" onAction="#getCorrCoefOn" prefWidth="75.0" text="Прочитать" />
+                        <Button fx:id="setCounterCoefBtn" disable="true" layoutX="49.0" layoutY="56.0" mnemonicParsing="false" onAction="#setCorrCoefOn" prefWidth="75.0" text="Задать" />
+                        <Button fx:id="getCounterCoefBtn" disable="true" layoutX="137.0" layoutY="56.0" mnemonicParsing="false" onAction="#getCorrCoefOn" prefWidth="75.0" text="Прочитать" />
                      </children>
                   </HBox>
                </children>
@@ -84,7 +84,7 @@
                         <TextField fx:id="measTime" layoutX="144.0" layoutY="34.0" prefHeight="25.0" prefWidth="100.0" />
                      </children>
                   </HBox>
-                  <Button layoutX="20.0" layoutY="50.0" mnemonicParsing="false" onAction="#setMeasTimeOn" prefWidth="75.0" text="Задать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+                  <Button fx:id="setMeasTimeBtn" disable="true" layoutX="20.0" layoutY="50.0" mnemonicParsing="false" onAction="#setMeasTimeOn" prefWidth="75.0" text="Задать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
                </children>
                <HBox.margin>
                   <Insets />
@@ -117,12 +117,12 @@
                         <TextField fx:id="externalDeviceIpPort" layoutX="1258.0" layoutY="510.0" prefHeight="25.0" prefWidth="50.0" />
                      </children>
                   </HBox>
-                  <Button layoutX="132.0" layoutY="142.0" mnemonicParsing="false" onAction="#setIpOn" prefWidth="75.0" text="Задать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+                  <Button fx:id="setIpBtn" disable="true" layoutX="132.0" layoutY="142.0" mnemonicParsing="false" onAction="#setIpOn" prefWidth="75.0" text="Задать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
                </children>
             </AnchorPane>
             <AnchorPane layoutX="402.0" layoutY="248.0" prefHeight="207.0" prefWidth="394.0" style="-fx-border-color: black;" AnchorPane.leftAnchor="402.0">
                <children>
-                  <Button layoutX="140.0" layoutY="62.0" mnemonicParsing="false" onAction="#getVersionHardwareOn" prefWidth="75.0" text="Прочитать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+                  <Button fx:id="getVersionHardwareBtn" disable="true" layoutX="140.0" layoutY="62.0" mnemonicParsing="false" onAction="#getVersionHardwareOn" prefWidth="75.0" text="Прочитать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
                   <HBox layoutX="1.0" layoutY="8.0" prefHeight="160.0" prefWidth="383.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="7.0">
                      <children>
                         <Label layoutX="26.0" layoutY="38.0" prefHeight="25.0" prefWidth="127.0" text="Версия прошивки" />
@@ -143,7 +143,7 @@
             </AnchorPane>
          </children>
       </HBox>
-      <Button layoutX="14.0" layoutY="432.0" mnemonicParsing="false" onAction="#restartOn" prefHeight="25.0" prefWidth="131.0" text="Перезапустить БД" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="450.0" />
+      <Button fx:id="restartBtn" disable="true" layoutX="14.0" layoutY="432.0" mnemonicParsing="false" onAction="#restartOn" prefHeight="25.0" prefWidth="131.0" text="Перезапустить БД" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="450.0" />
       <Label fx:id="softwareVersion" layoutX="1604.0" layoutY="678.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
    </children>
 </AnchorPane>

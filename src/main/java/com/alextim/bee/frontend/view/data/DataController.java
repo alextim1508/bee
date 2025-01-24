@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.net.URL;
 import java.time.ZoneId;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
@@ -51,7 +52,7 @@ public class DataController extends DataControllerInitializer {
 
         setMeasTime(meas.getAccInterval() + " сек");
 
-        setGeoData(String.format("%f, %f", meas.getGeoData().lat(), meas.getGeoData().lon()));
+        setGeoData(String.format(Locale.US, "%f, %f", meas.getGeoData().lat(), meas.getGeoData().lon()));
     }
 
     @Override
