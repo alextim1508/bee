@@ -94,6 +94,8 @@ public class GraphWidget {
             } else {
                 chart.getDatasets().removeAll(graph.getDataSetList());
             }
+
+            forceToRedraw();
         });
 
         ColorPicker colorPicker = new ColorPicker(Color.web(graph.getColor()));

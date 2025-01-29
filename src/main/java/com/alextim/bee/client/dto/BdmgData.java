@@ -34,6 +34,16 @@ public class BdmgData extends BdData {
     }
 
     @Override
+    public float getAccumulatedMeasData() {
+        return accumulatedMED;
+    }
+
+    @Override
+    public float getAccumulatedPowerMeasData() {
+        return accumulatedPowerMEDP;
+    }
+
+    @Override
     public String getTitle() {
         return title;
     }

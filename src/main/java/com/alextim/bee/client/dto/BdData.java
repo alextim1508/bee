@@ -16,6 +16,10 @@ public abstract class BdData {
 
     public abstract float getAverageMeasData();
 
+    public abstract float getAccumulatedMeasData();
+
+    public abstract float getAccumulatedPowerMeasData();
+
     public abstract String getTitle();
 
     public abstract String getMeasDataUnit();

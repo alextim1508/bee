@@ -32,6 +32,16 @@ public class BdpnData extends BdData {
     }
 
     @Override
+    public float getAccumulatedMeasData() {
+        return accumulatedScore;
+    }
+
+    @Override
+    public float getAccumulatedPowerMeasData() {
+        return accumulatedPowerScore;
+    }
+
+    @Override
     public String getTitle() {
         return title;
     }
