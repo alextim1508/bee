@@ -152,7 +152,7 @@ public class GraphWidget {
         yAxis = new DefaultNumericAxis(yAxisLabel, null);
         yAxis.setMin(0);
         yAxis.setMax(100);
-
+        yAxis.setAutoRangePadding(0.1);
         final long now = System.currentTimeMillis();
         xAxis = new TimeAxis("Время", "с", now, 10 * now, 1000);
 

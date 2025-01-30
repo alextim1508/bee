@@ -315,8 +315,8 @@ public class DetectorCommands {
         }
 
         private static byte[] getData(GeoData geoData) {
-            byte[] array1 = ByteBuffer.allocate(8).putDouble(geoData.lat()).array();
-            byte[] array2 = ByteBuffer.allocate(8).putDouble(geoData.lon()).array();
+            byte[] array1 = ByteBuffer.allocate(4).putFloat(geoData.lat()).array();
+            byte[] array2 = ByteBuffer.allocate(4).putFloat(geoData.lon()).array();
             return new byte[]{
                     array1[3], array1[2], array1[1], array1[0],
                     array2[3], array2[2], array2[1], array2[0]
@@ -325,7 +325,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return Command.SET_GEO_DATA.title;
+            return Command.SET_GEO_DATA.title + " " + geoData;
         }
     }
 

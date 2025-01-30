@@ -292,6 +292,7 @@ public class RootController extends RootControllerInitializer {
                         curLat +=  GEO_DATA_DELTA;
                         curLon +=  GEO_DATA_DELTA;
 
+                        log.info("Send geo data: {} {}", curLat, curLon);
                         sendDetectorCommand(new SetGeoDataCommand(TRANSFER_TO_DETECTOR_ID, new GeoData(curLat, curLon)));
                     } while (!Thread.currentThread().isInterrupted());
                     log.info("geoDataSender canceled");
