@@ -63,64 +63,64 @@ public class DetectorEvents {
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static class InitializationDetectorState extends SomeEvent {
-        public InitializationDetectorState(SomeEvent someEvent) {
-            super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
+    public static class InitializationDetectorState extends DetectorStateEvent {
+        public InitializationDetectorState(DetectorStateEvent detectorStateEvent) {
+            super(detectorStateEvent.attentionFlags, detectorStateEvent);
         }
 
         @Override
         public String toString() {
-            return String.format("%s", INITIALIZATION.title);
+            return String.format("%s, %s", INITIALIZATION.title, attentionFlags);
         }
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static class ErrorDetectorState extends SomeEvent {
+    public static class ErrorDetectorState extends DetectorStateEvent {
 
         public final Error error;
 
-        public ErrorDetectorState(Error error, SomeEvent someEvent) {
-            super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
+        public ErrorDetectorState(Error error, DetectorStateEvent detectorStateEvent) {
+            super(detectorStateEvent.attentionFlags, detectorStateEvent);
             this.error = error;
         }
 
         @Override
         public String toString() {
-            return String.format("%s. Ошибка: %s", ERROR.title, error.title);
+            return String.format("%s. Ошибка: %s, %s", ERROR.title, error.title, attentionFlags);
         }
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static class AccumulationDetectorState extends SomeEvent {
+    public static class AccumulationDetectorState extends DetectorStateEvent {
 
         public final long curTime;
         public final long measTime;
 
-        public AccumulationDetectorState(long curTime, long measTime, SomeEvent someEvent) {
-            super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
+        public AccumulationDetectorState(long curTime, long measTime, DetectorStateEvent detectorStateEvent) {
+            super(detectorStateEvent.attentionFlags, detectorStateEvent);
             this.curTime = curTime;
             this.measTime = measTime;
         }
 
         @Override
         public String toString() {
-            return String.format("%s. Текущее время: %d, Время измерения: %d", ACCUMULATION.title, curTime, measTime);
+            return String.format("%s. Текущее время: %d, Время измерения: %d, %s", ACCUMULATION.title, curTime, measTime, attentionFlags);
         }
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static class MeasurementDetectorState extends SomeEvent {
+    public static class MeasurementDetectorState extends DetectorStateEvent {
 
         public final Measurement meas;
 
-        public MeasurementDetectorState(Measurement meas, SomeEvent someEvent) {
-            super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
+        public MeasurementDetectorState(Measurement meas, DetectorStateEvent detectorStateEvent) {
+            super(detectorStateEvent.attentionFlags, detectorStateEvent);
             this.meas = meas;
         }
 
         @Override
         public String toString() {
-            return String.format("%s. %s", MEASUREMENT.title, meas.toString());
+            return String.format("%s. %s, %s", MEASUREMENT.title, meas.toString(), attentionFlags);
         }
     }
 
@@ -137,6 +137,17 @@ public class DetectorEvents {
         @Override
         public String toString() {
             return internalData.toString();
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    public static class DetectorStateEvent extends SomeEvent {
+
+        public final AttentionFlags attentionFlags;
+
+        public DetectorStateEvent(AttentionFlags attentionFlags, SomeEvent someEvent) {
+            super(someEvent.detectorID, someEvent.time, someEvent.eventCode, someEvent.data);
+            this.attentionFlags = attentionFlags;
         }
     }
 

@@ -1,6 +1,5 @@
 package com.alextim.bee.frontend.view.data;
 
-import com.alextim.bee.client.protocol.DetectorCodes;
 import com.alextim.bee.frontend.view.NodeController;
 import com.alextim.bee.frontend.widget.GraphWidget;
 import com.alextim.bee.frontend.widget.graphs.SimpleGraph;
@@ -25,9 +24,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
-import static com.alextim.bee.client.protocol.DetectorCodes.BDType.GAMMA;
 import static com.alextim.bee.context.Property.COUNTER_NUMBER_FORMAT;
-import static com.alextim.bee.context.Property.FRONTEND_FOR_DETECTOR;
 import static com.alextim.bee.frontend.view.data.DataControllerInitializer.MeasTime.SEC_10;
 
 @Slf4j
@@ -54,6 +51,8 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     private TableColumn<TableRow, Float> currentCount;
 
+    @FXML
+    private Label mode;
 
     @FXML
     private Label currentMeasTime;
@@ -117,20 +116,36 @@ public abstract class DataControllerInitializer extends NodeController {
         AnchorPane.setBottomAnchor(spectrumPane, 5.0);
     }
 
-    public void setGreenCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getGreenCircleImage()));
+    public void setGrayCircle() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getGrayCircleImage()));
     }
 
-    public void setRedCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getRedCircleImage()));
+    public void setGrayCircleExclamation() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getGrayCircleExclamationImage()));
     }
 
     public void setYellowCircle() {
         Platform.runLater(() -> imageView.setImage(mainWindow.getYellowCircleImage()));
     }
 
-    public void setGrayCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getGrayCircleImage()));
+    public void setYellowCircleExclamation() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getYellowCircleExclamationImage()));
+    }
+
+    public void setGreenCircle() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getGreenCircleImage()));
+    }
+
+    public void setGreenCircleExclamation() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getGreenCircleExclamationImage()));
+    }
+
+    public void setRedCircle() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getRedCircleImage()));
+    }
+
+    public void setRedCircleExclamation() {
+        Platform.runLater(() -> imageView.setImage(mainWindow.getRedCircleExclamationImage()));
     }
 
     public void setNoConnect() {
@@ -197,7 +212,7 @@ public abstract class DataControllerInitializer extends NodeController {
         });
 
         String param = rootController.getAppState().getParam(MEAS_TIME_STATE_APP_PARAM);
-        if(param != null) {
+        if (param != null) {
             measTime.getSelectionModel().select(MeasTime.valueOf(param));
         } else {
             measTime.getSelectionModel().select(SEC_10);
@@ -289,21 +304,13 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     private void fullTable() {
-        if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            table.getItems().addAll(
-                    new TableRow("Счетчик 1", 0, 0, 0),
-                    new TableRow("Счетчик 2", 0, 0, 0),
-                    new TableRow("Всего", 0, 0, 0)
-            );
-        } else {
-            table.getItems().addAll(
-                    new TableRow("Счетчик 1", 0, 0, 0),
-                    new TableRow("Счетчик 2", 0, 0, 0),
-                    new TableRow("Счетчик 3", 0, 0, 0),
-                    new TableRow("Счетчик 4", 0, 0, 0),
-                    new TableRow("Всего", 0, 0, 0)
-            );
-        }
+
+        table.getItems().addAll(
+                new TableRow("Счетчик 1", 0, 0, 0),
+                new TableRow("Счетчик 2", 0, 0, 0),
+                new TableRow("Всего", 0, 0, 0)
+        );
+
     }
 
     public void updateTable(StatisticMeasurement meas) {
@@ -317,25 +324,17 @@ public abstract class DataControllerInitializer extends NodeController {
         items.get(1).averageCount = meas.getAverageCount2();
         items.get(1).currentCount = meas.getCurrentCount2();
 
-        if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            items.get(2).count = meas.getCountSum();
-            items.get(2).averageCount = meas.getAverageCountSum();
-            items.get(2).currentCount = meas.getCurrentCountSum();
-        } else {
-            items.get(2).count = meas.getCount3();
-            items.get(2).averageCount = meas.getAverageCount3();
-            items.get(2).currentCount = meas.getCurrentCount3();
-
-            items.get(3).count = meas.getCount4();
-            items.get(3).averageCount = meas.getAverageCount4();
-            items.get(3).currentCount = meas.getCurrentCount4();
-
-            items.get(4).count = meas.getCountSum();
-            items.get(4).averageCount = meas.getAverageCountSum();
-            items.get(4).currentCount = meas.getCurrentCountSum();
-        }
+        items.get(2).count = meas.getCountSum();
+        items.get(2).averageCount = meas.getAverageCountSum();
+        items.get(2).currentCount = meas.getCurrentCountSum();
 
         table.refresh();
+    }
+
+    public void setMode(String title) {
+        Platform.runLater(() -> {
+            mode.setText(title);
+        });
     }
 
     public void setMeasData(String title, String value) {

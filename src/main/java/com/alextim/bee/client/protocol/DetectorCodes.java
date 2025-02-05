@@ -2,7 +2,15 @@ package com.alextim.bee.client.protocol;
 
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Slf4j
 public final class DetectorCodes {
 
     public static final byte START_PACKAGE_BYTE = (byte) 0x79;
@@ -238,7 +246,8 @@ public final class DetectorCodes {
     public enum BDInternalMode {
         BD_MODE_CONTINUOUS_HIGH_SENS((byte) 0, "непрерывный (высокая чувствительность)"),
         BD_MODE_CONTINUOUS_LOW_SENS((byte) 1, "непрерывный (низкая чувствительность)"),
-        BD_MODE_PULSE((byte) 2, "импульсный");
+        BD_MODE_PULSE((byte) 2, "импульсный"),
+        BD_MODE_COUNTERS_OFF((byte) 3, "питание счетчиков отключено");
 
         public final byte code;
         public final String title;
@@ -250,6 +259,62 @@ public final class DetectorCodes {
                 }
             }
             throw new RuntimeException(String.format("Неизвестный код режима работы БД: %x", code));
+        }
+    }
+
+    @AllArgsConstructor
+    public enum AttentionFlag {
+        NO_ATTENTION((byte) -1, "отсутствуют"),
+        POWER_LOW((byte) 0, "пониженное напряжение питания"),
+        POWER_HIGH((byte) 1, "повышенное напряжение питания"),
+        HIVOLTAGE_LOW((byte)2, "пониженное высокое напряжение текущего режима работы"),
+        HIVOLTAGE_HIGH((byte) 3, "повышенное высокое напряжение текущего режима работы"),
+        TEMPERATURE_LOW((byte) 4, "пониженная температура детектора"),
+        TEMPERATURE_HIGH((byte) 5, "повышенная температура детектора");
+
+        public final byte shift;
+        public final String title;
+
+        public static Set<AttentionFlag> getAttentionFlagByCode(byte commonCode) {
+            if(commonCode == 0)  {
+                return Set.of(NO_ATTENTION);
+            }
+
+            Set<AttentionFlag> set = new HashSet<>();
+            for (int i = 0; i < 8; i++) {
+                byte code = (byte) ((commonCode >> i) & 1);
+
+                if(code != 0) {
+                    AttentionFlag attentionFlag = getAttentionFlag((byte) i);
+                    set.add(attentionFlag);
+                }
+            }
+            return set;
+        }
+
+        static AttentionFlag getAttentionFlag(byte shift) {
+            for (AttentionFlag flag : AttentionFlag.values()) {
+                if (flag.shift == shift) {
+                    return flag;
+                }
+            }
+            throw new RuntimeException(String.format("Неизвестное предаварийное состояние БД: %x", shift));
+        }
+    }
+
+    @RequiredArgsConstructor
+    @EqualsAndHashCode
+    public static class AttentionFlags {
+
+        public final Set<AttentionFlag> flags;
+
+        @Override
+        public String toString() {
+            return "Предаварийные состояния БД: " +
+                    flags.stream()
+                            .map(flag -> flag.title)
+                            .collect(Collectors.joining(", ", "", ""));
+
         }
     }
 }

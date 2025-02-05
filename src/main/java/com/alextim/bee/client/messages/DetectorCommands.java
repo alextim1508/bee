@@ -158,19 +158,24 @@ public class DetectorCommands {
 
 
     public static class SetDeadTimeCommand extends SomeCommand {
+        public long counterIndex;
         public float deadTime;
 
-        public SetDeadTimeCommand(int detectorID, float deadTime) {
+        public SetDeadTimeCommand(int detectorID,  long counterIndex, float deadTime) {
             super(detectorID, 0, Command.SET_DEAD_TIME,
-                    wrapToPackage(detectorID, 0, Command.SET_DEAD_TIME, getData(deadTime)));
+                    wrapToPackage(detectorID, 0, Command.SET_DEAD_TIME, getData(counterIndex, deadTime)));
 
+            this.counterIndex = counterIndex;
             this.deadTime = deadTime;
         }
 
-        private static byte[] getData(float deadTime) {
-            byte[] array = ByteBuffer.allocate(4).putFloat(deadTime).array();
+        private static byte[] getData(long counterIndex, float deadTime) {
+            int unsignedCounterIndex = (int) counterIndex;
+            byte[] array1 = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
+            byte[] array2 = ByteBuffer.allocate(4).putFloat(deadTime).array();
             return new byte[]{
-                    array[3], array[2], array[1], array[0]
+                    array1[3], array1[2], array1[1], array1[0],
+                    array2[3], array2[2], array2[1], array2[0]
             };
         }
 
@@ -193,9 +198,20 @@ public class DetectorCommands {
 
 
     public static class GetDeadTimeCommand extends SomeCommand {
-        public GetDeadTimeCommand(int detectorID) {
-            super(detectorID, 0, Command.GET_SENSITIVITY,
-                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, new byte[0]));
+        public final long counterIndex;
+
+        public GetDeadTimeCommand(int detectorID, long counterIndex) {
+            super(detectorID, 0, Command.GET_DEAD_TIME,
+                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, getData(counterIndex)));
+            this.counterIndex = counterIndex;
+        }
+
+        private static byte[] getData(long counterIndex) {
+            int unsignedCounterIndex = (int) counterIndex;
+            byte[] array = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
+            return new byte[]{
+                    array[3], array[2], array[1], array[0]
+            };
         }
 
         @Override
@@ -206,11 +222,15 @@ public class DetectorCommands {
 
     public static class GetDeadTimeAnswer extends SomeCommandAnswer {
 
+        public final long counterIndex;
         public float deadTime;
 
-        public GetDeadTimeAnswer(float deadTime, SomeCommandAnswer answer) {
+        public GetDeadTimeAnswer(long counterIndex,
+                                 float deadTime,
+                                 SomeCommandAnswer answer) {
             super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.deadTime = deadTime;
+            this.counterIndex = counterIndex;
         }
 
         @Override

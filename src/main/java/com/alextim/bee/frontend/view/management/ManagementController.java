@@ -71,20 +71,62 @@ public class ManagementController extends ManagementControllerInitializer {
             try {
                 log.info("setDeadTimeOn");
 
-                float deadTime = Float.parseFloat(this.deadTime.getText());
-                log.info("setDeadTime: {}", deadTime);
-                rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, deadTime));
+                if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
+                    float deadTime1 = Float.parseFloat(this.deadTime1.getText());
+                    float deadTime2 = Float.parseFloat(this.deadTime2.getText());
+                    log.info("deadTimes: {} {}", deadTime1, deadTime2);
+
+                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, deadTime1));
+                    Thread.sleep(100);
+                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, deadTime2));
+
+                } else {
+                    float deadTime1 = Float.parseFloat(this.deadTime1.getText());
+                    float deadTime2 = Float.parseFloat(this.deadTime2.getText());
+                    float deadTime3 = Float.parseFloat(this.deadTime3.getText());
+                    float deadTime4 = Float.parseFloat(this.deadTime4.getText());
+                    log.info("deadTimes: {} {} {} {}", deadTime1, deadTime2, deadTime3, deadTime4);
+
+                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, deadTime1));
+                    Thread.sleep(100);
+                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, deadTime2));
+                    Thread.sleep(100);
+                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 2, deadTime3));
+                    Thread.sleep(100);
+                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 3, deadTime4));
+                }
+
             } catch (Exception e) {
+                log.error("setDeadTimeOn: ", e);
                 showParsingErrorDialog(bdParam);
             }
         }
     }
 
+    @SneakyThrows
     @FXML
     void getDeadTimeOn(ActionEvent event) {
         log.info("getDeadTime");
-        deadTime.setText("-");
-        rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID));
+
+        if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
+            deadTime1.setText("-");
+            deadTime2.setText("-");
+            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0));
+            Thread.sleep(100);
+            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1));
+        } else {
+            deadTime1.setText("-");
+            deadTime2.setText("-");
+            deadTime3.setText("-");
+            deadTime4.setText("-");
+            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0));
+            Thread.sleep(100);
+            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1));
+            Thread.sleep(100);
+            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 2));
+            Thread.sleep(100);
+            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 3));
+        }
     }
 
     @FXML
@@ -95,28 +137,28 @@ public class ManagementController extends ManagementControllerInitializer {
                 log.info("setCorrCoefOn");
 
                 if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-                    float counter1 = Float.parseFloat(this.counter1.getText());
-                    float counter2 = Float.parseFloat(this.counter2.getText());
+                    float counter1 = Float.parseFloat(this.counterCoef1.getText());
+                    float counter2 = Float.parseFloat(this.counterCoef2.getText());
                     log.info("setCorrCoef: {} {}", counter1, counter2);
 
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, counter1));
+                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
                     Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2, counter2));
+                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
 
                 } else {
-                    float counter1 = Float.parseFloat(this.counter1.getText());
-                    float counter2 = Float.parseFloat(this.counter2.getText());
-                    float counter3 = Float.parseFloat(this.counter3.getText());
-                    float counter4 = Float.parseFloat(this.counter4.getText());
+                    float counter1 = Float.parseFloat(this.counterCoef1.getText());
+                    float counter2 = Float.parseFloat(this.counterCoef2.getText());
+                    float counter3 = Float.parseFloat(this.counterCoef3.getText());
+                    float counter4 = Float.parseFloat(this.counterCoef4.getText());
                     log.info("setCorrCoef: {} {} {} {}", counter1, counter2, counter3, counter4);
 
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, counter1));
+                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
                     Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2, counter2));
+                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
                     Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 3, counter3));
+                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2, counter3));
                     Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 4, counter4));
+                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 3, counter4));
                 }
 
             } catch (Exception e) {
@@ -132,23 +174,23 @@ public class ManagementController extends ManagementControllerInitializer {
         log.info("getCorrCoef");
 
         if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            counter1.setText("-");
-            counter2.setText("-");
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1));
+            counterCoef1.setText("-");
+            counterCoef2.setText("-");
+            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0));
             Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2));
+            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1));
         } else {
-            counter1.setText("-");
-            counter2.setText("-");
-            counter3.setText("-");
-            counter4.setText("-");
+            counterCoef1.setText("-");
+            counterCoef2.setText("-");
+            counterCoef3.setText("-");
+            counterCoef4.setText("-");
+            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0));
+            Thread.sleep(100);
             rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1));
             Thread.sleep(100);
             rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2));
             Thread.sleep(100);
             rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 3));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 4));
         }
     }
 

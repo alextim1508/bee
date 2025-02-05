@@ -23,19 +23,20 @@ public class BdpnInternalData extends InternalData {
                         "Режим работы БД: %s, " +
                         System.lineSeparator() +
                         "Текущие счета счетчиков: " +
-                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
                         "Усредненные за время экспозиции счета счетчиков: " +
-                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
                         System.lineSeparator() +
                         "Температура по коду датчика: " + OTHER_NUMBER_FORMAT + " °C, " +
-                        "Высокое напряжение 500V: " + OTHER_NUMBER_FORMAT + ", " +
-                        "Высокое напряжение 2500V: " + OTHER_NUMBER_FORMAT,
+                        "Высокое напряжение 500V: " + OTHER_NUMBER_FORMAT + " В, " +
+                        "Высокое напряжение 2500V: " + OTHER_NUMBER_FORMAT + " В, " +
+                        "Напряжение питания: " + OTHER_NUMBER_FORMAT + " В ",
                 version,
                 bdType.title,
                 measTime,
                 mode.title,
-                currentScores[0], currentScores[1], currentScores[2], currentScores[3],
-                averageScores[0], averageScores[1], averageScores[2], averageScores[3],
-                temperature, voltage500V, voltage2500V);
+                currentScores[0], currentScores[1],
+                averageScores[0], averageScores[1],
+                temperature, voltage500V, voltage2500V, power);
     }
 }

@@ -106,14 +106,32 @@
                         </HBox>
                      </children>
                   </VBox>
-                  <TableView fx:id="table" layoutX="372.0" layoutY="55.0" prefHeight="147.0" prefWidth="464.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
-                    <columns>
-                      <TableColumn fx:id="comment" editable="false" prefWidth="150.0" sortable="false" />
-                        <TableColumn fx:id="count" editable="false" prefWidth="100.0" sortable="false" text="Счет" />
-                        <TableColumn fx:id="averageCount" editable="false" prefWidth="100.0" sortable="false" text="Средний" />
-                      <TableColumn fx:id="currentCount" editable="false" prefWidth="100.0" sortable="false" text="Текущий" />
-                    </columns>
-                  </TableView>
+                  <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="147.0" prefWidth="476.0" style="-fx-border-color: black;">
+                     <children>
+                        <TableView fx:id="table" layoutX="7.0" layoutY="7.0" prefHeight="98.0" prefWidth="464.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
+                          <columns>
+                            <TableColumn fx:id="comment" editable="false" prefWidth="150.0" sortable="false" />
+                              <TableColumn fx:id="count" editable="false" prefWidth="100.0" sortable="false" text="Счет" />
+                              <TableColumn fx:id="averageCount" editable="false" prefWidth="100.0" sortable="false" text="Средний" />
+                            <TableColumn fx:id="currentCount" editable="false" prefWidth="100.0" sortable="false" text="Текущий" />
+                          </columns>
+                        </TableView>
+                        <HBox layoutX="50.0" layoutY="118.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
+                           <children>
+                              <Label layoutX="60.0" layoutY="157.0" prefHeight="34.0" prefWidth="60.0" text="Режим:">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="mode" layoutX="114.0" layoutY="128.0" prefHeight="33.0" prefWidth="366.0" text="-">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
                   <AnchorPane layoutX="1273.0" layoutY="33.0" prefHeight="92.0" prefWidth="423.0" style="-fx-border-color: black;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                      <children>
                         <HBox layoutX="8.0" layoutY="52.0" prefHeight="25.0" prefWidth="403.0" spacing="10.0" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="7.0">

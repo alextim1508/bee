@@ -44,25 +44,47 @@ public class MainWindow {
     private final Stage owner;
 
     @Getter
-    private Image iconImage, redCircleImage, yellowCircleImage, greenCircleImage, grayCircleImage, noConnectImage;
+    private Image iconImage,
+            grayCircleImage, grayCircleExclamationImage,
+            yellowCircleImage, yellowCircleExclamationImage,
+            greenCircleImage, greenCircleExclamationImage,
+            redCircleImage, redCircleExclamationImage,
+            noConnectImage;
 
     @SneakyThrows
     private void loadIcons() {
         @Cleanup
         InputStream iconResAsStream = MainWindow.class.getResourceAsStream("icon/icon.png");
         iconImage = new Image(Objects.requireNonNull(iconResAsStream));
+
         @Cleanup
-        InputStream redCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-red.png");
-        redCircleImage = new Image(Objects.requireNonNull(redCircleAsStream));
+        InputStream grayCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-gray.png");
+        grayCircleImage = new Image(Objects.requireNonNull(grayCircleAsStream));
+        @Cleanup
+        InputStream grayCircleExclamationAsStream = MainWindow.class.getResourceAsStream("icon/circle-gray-exclamation.png");
+        grayCircleExclamationImage = new Image(Objects.requireNonNull(grayCircleExclamationAsStream));
+
         @Cleanup
         InputStream yellowCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-yellow.png");
         yellowCircleImage = new Image(Objects.requireNonNull(yellowCircleAsStream));
         @Cleanup
+        InputStream yellowCircleExclamationAsStream = MainWindow.class.getResourceAsStream("icon/circle-yellow-exclamation.png");
+        yellowCircleExclamationImage = new Image(Objects.requireNonNull(yellowCircleExclamationAsStream));
+
+        @Cleanup
         InputStream greenCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-green.png");
         greenCircleImage = new Image(Objects.requireNonNull(greenCircleAsStream));
         @Cleanup
-        InputStream grayCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-gray.png");
-        grayCircleImage = new Image(Objects.requireNonNull(grayCircleAsStream));
+        InputStream greenCircleExclamationAsStream = MainWindow.class.getResourceAsStream("icon/circle-green-exclamation.png");
+        greenCircleExclamationImage = new Image(Objects.requireNonNull(greenCircleExclamationAsStream));
+
+        @Cleanup
+        InputStream redCircleAsStream = MainWindow.class.getResourceAsStream("icon/circle-red.png");
+        redCircleImage = new Image(Objects.requireNonNull(redCircleAsStream));
+        @Cleanup
+        InputStream redCircleExAsStream = MainWindow.class.getResourceAsStream("icon/circle-red-exclamation.png");
+        redCircleExclamationImage = new Image(Objects.requireNonNull(redCircleExAsStream));
+
         @Cleanup
         InputStream noConnectAsStream = MainWindow.class.getResourceAsStream("icon/no-connect.png");
         noConnectImage = new Image(Objects.requireNonNull(noConnectAsStream));

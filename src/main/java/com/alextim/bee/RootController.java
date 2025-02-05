@@ -5,6 +5,7 @@ import com.alextim.bee.client.DetectorClientAbstract;
 import com.alextim.bee.client.dto.GeoData;
 import com.alextim.bee.client.messages.DetectorCommands.*;
 import com.alextim.bee.client.messages.DetectorMsg;
+import com.alextim.bee.client.protocol.DetectorCodes.AttentionFlags;
 import com.alextim.bee.context.AppState;
 import com.alextim.bee.frontend.MainWindow;
 import com.alextim.bee.frontend.dialog.progress.ProgressDialog;
@@ -23,10 +24,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.alextim.bee.client.messages.DetectorEvents.*;
+import static com.alextim.bee.client.protocol.DetectorCodes.AttentionFlag.NO_ATTENTION;
 import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus.SUCCESS;
 import static com.alextim.bee.client.protocol.DetectorCodes.Error.getErrorByCode;
@@ -131,11 +130,6 @@ public class RootController extends RootControllerInitializer {
         }
     }
 
-    private void handleErrorDetectorState(DataController dataController, ErrorDetectorState errorDetectorState) {
-        dataController.setRedCircle();
-        dataController.setImageViewLabel(String.format("0x%x", errorDetectorState.error.code), "", "");
-    }
-
     private void handleRestartDetectorState(ManagementController managementController, RestartDetectorState restartDetectorState) {
         managementController.setIpInfo(
                 restartDetectorState.detectorIpAddr,
@@ -149,14 +143,55 @@ public class RootController extends RootControllerInitializer {
         }
     }
 
+    private void handleErrorDetectorState(DataController dataController, ErrorDetectorState errorDetectorState) {
+        if (areThereAttentionFlags(errorDetectorState.attentionFlags)) {
+            dataController.setRedCircle();
+        } else {
+            dataController.setRedCircleExclamation();
+        }
+        dataController.setImageViewLabel(String.format("0x%x", errorDetectorState.error.code), "", "");
+    }
+
     private void handleInitializationDetectorState(DataController dataController, InitializationDetectorState initStateDetector) {
-        dataController.setGrayCircle();
+        if (areThereAttentionFlags(initStateDetector.attentionFlags)) {
+            dataController.setGrayCircle();
+        } else {
+            dataController.setGrayCircleExclamation();
+        }
         dataController.setImageViewLabel("", "", "");
     }
 
     private void handleAccumulationDetectorState(DataController dataController, AccumulationDetectorState accStateDetector) {
-        dataController.setYellowCircle();
+        if (areThereAttentionFlags(accStateDetector.attentionFlags)) {
+            dataController.setYellowCircle();
+        } else {
+            dataController.setYellowCircleExclamation();
+        }
         dataController.setImageViewLabel(100 * accStateDetector.curTime / accStateDetector.measTime + "%", "", "");
+    }
+
+    private void handleMeasDetectorState(DataController dataController, MeasurementDetectorState measStateDetector) {
+        log.info("handleMeasDetectorState time: {}", measStateDetector.time);
+
+        if (areThereAttentionFlags(measStateDetector.attentionFlags)) {
+            dataController.setGreenCircle();
+        } else {
+            dataController.setGreenCircleExclamation();
+        }
+        dataController.setImageViewLabel("", "", "");
+
+        if (statisticMeasurements.containsKey(measStateDetector.time)) {
+            StatisticMeasurement statMeas = statisticMeasurements.get(measStateDetector.time);
+
+            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
+
+            dataController.showStatisticMeas(statMeas);
+        } else {
+            StatisticMeasurement statMeas = new StatisticMeasurement();
+            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
+
+            statisticMeasurements.put(measStateDetector.time, statMeas);
+        }
     }
 
     private void handleInternalEvent(DataController dataController, InternalEvent internalEvent) {
@@ -176,24 +211,8 @@ public class RootController extends RootControllerInitializer {
         }
     }
 
-    private void handleMeasDetectorState(DataController dataController, MeasurementDetectorState measStateDetector) {
-        log.info("handleMeasDetectorState time: {}", measStateDetector.time);
-
-        dataController.setGreenCircle();
-        dataController.setImageViewLabel("", "", "");
-
-        if (statisticMeasurements.containsKey(measStateDetector.time)) {
-            StatisticMeasurement statMeas = statisticMeasurements.get(measStateDetector.time);
-
-            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
-
-            dataController.showStatisticMeas(statMeas);
-        } else {
-            StatisticMeasurement statMeas = new StatisticMeasurement();
-            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
-
-            statisticMeasurements.put(measStateDetector.time, statMeas);
-        }
+    public boolean areThereAttentionFlags(AttentionFlags attentionFlags) {
+        return attentionFlags.equals(new AttentionFlags(Set.of(NO_ATTENTION)));
     }
 
     private void handleCommandAnswer(ManagementController managementController, SomeCommandAnswer detectorMsg) {
@@ -221,15 +240,18 @@ public class RootController extends RootControllerInitializer {
 
         } else if (detectorMsg instanceof SetDeadTimeAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                managementController.showDialogParamIsSet(DEAD_TIME);
+                if (isDialogShow(1000))
+                    managementController.showDialogParamIsSet(DEAD_TIME);
             } else {
                 managementController.showAnswerErrorDialog(DEAD_TIME, getErrorByCode(detectorMsg.data[0]));
             }
 
         } else if (detectorMsg instanceof GetDeadTimeAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                managementController.setDeadTime(answer.deadTime);
-                managementController.showDialogParamIsGot(DEAD_TIME);
+                managementController.setDeadTime(answer.counterIndex, answer.deadTime);
+
+                if (isDialogShow(1000))
+                    managementController.showDialogParamIsGot(DEAD_TIME);
             } else {
                 managementController.showAnswerErrorDialog(DEAD_TIME, getErrorByCode(detectorMsg.data[0]));
             }
@@ -282,15 +304,15 @@ public class RootController extends RootControllerInitializer {
             }
         });
 
-        if(GEO_DATA_ENABLE) {
+        if (GEO_DATA_ENABLE) {
             geoDataSender = executorService.submit(() -> {
                 try {
                     float curLat = GEO_DATA_START_LAT, curLon = GEO_DATA_START_LON;
                     do {
                         Thread.sleep(GEO_DATA_DELAY);
 
-                        curLat +=  GEO_DATA_DELTA;
-                        curLon +=  GEO_DATA_DELTA;
+                        curLat += GEO_DATA_DELTA;
+                        curLon += GEO_DATA_DELTA;
 
                         log.info("Send geo data: {} {}", curLat, curLon);
                         sendDetectorCommand(new SetGeoDataCommand(TRANSFER_TO_DETECTOR_ID, new GeoData(curLat, curLon)));
@@ -327,7 +349,7 @@ public class RootController extends RootControllerInitializer {
     public void stopMeasurement() {
         connectTimer.cancel(true);
 
-        if(GEO_DATA_ENABLE) {
+        if (GEO_DATA_ENABLE) {
             geoDataSender.cancel(true);
         }
 

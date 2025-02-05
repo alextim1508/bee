@@ -21,19 +21,21 @@ public class BdmgInternalData extends InternalData {
                         "Время экспозиции: %d, " +
                         "Режим работы БД: %s, " +
                         System.lineSeparator() +
-                        "Текущие счета счетчиков: " + COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
-                        "Усредненные за время экспозиции счета счетчиков: " + COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        "Текущие счета счетчиков: " +
+                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        "Усредненные за время экспозиции счета счетчиков: " +
+                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
                         System.lineSeparator() +
                         "Температура по коду датчика: " + OTHER_NUMBER_FORMAT + " °C, " +
-                        "Высокое напряжение 400V:  " + OTHER_NUMBER_FORMAT,
+                        "Высокое напряжение 400V:  " + OTHER_NUMBER_FORMAT + " В " +
+                        "Напряжение питания: " + OTHER_NUMBER_FORMAT + " В ",
                 version,
                 bdType.title,
                 measTime,
                 mode.title,
                 currentScores[0], currentScores[1],
                 averageScores[0], averageScores[1],
-                temperature,
-                voltage400V);
+                temperature, voltage400V, power);
     }
 }
 

@@ -43,9 +43,11 @@ public abstract class ManagementControllerInitializer extends NodeController {
     protected TextField sensitivity;
 
     @FXML
+    private GridPane deadTimePane;
+    @FXML
     protected Button setDeadTimeBtn, getDeadTimeBtn;
     @FXML
-    protected TextField deadTime;
+    protected TextField deadTime1, deadTime2, deadTime3, deadTime4;
 
     @FXML
     protected Button setMeasTimeBtn;
@@ -57,7 +59,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
     @FXML
     protected Button setCounterCoefBtn, getCounterCoefBtn;
     @FXML
-    protected TextField counter1, counter2, counter3, counter4;
+    protected TextField counterCoef1, counterCoef2, counterCoef3, counterCoef4;
 
     @FXML
     protected Button setIpBtn;
@@ -100,7 +102,8 @@ public abstract class ManagementControllerInitializer extends NodeController {
 
     private void initByDetectorName() {
         if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            counterCoefPane.getChildren().removeAll(counter3, counter4);
+            counterCoefPane.getChildren().removeAll(counterCoef3, counterCoef4);
+            deadTimePane.getChildren().removeAll(deadTime3, deadTime4);
         }
     }
 
@@ -172,9 +175,17 @@ public abstract class ManagementControllerInitializer extends NodeController {
         });
     }
 
-    public void setDeadTime(float deadTime) {
+    public void setDeadTime(long counterIndex, float deadTime) {
         Platform.runLater(() -> {
-            this.deadTime.setText(String.valueOf(deadTime));
+            if (counterIndex == 0) {
+                this.deadTime1.setText(String.valueOf(deadTime));
+            } else if (counterIndex == 1) {
+                this.deadTime2.setText(String.valueOf(deadTime));
+            } else if (counterIndex == 2) {
+                this.deadTime3.setText(String.valueOf(deadTime));
+            } else if (counterIndex == 3) {
+                this.deadTime4.setText(String.valueOf(deadTime));
+            }
         });
     }
 
@@ -186,14 +197,14 @@ public abstract class ManagementControllerInitializer extends NodeController {
 
     public void setCounterCorrectCoeff(long counterIndex, float counterCorrectCoeff) {
         Platform.runLater(() -> {
-            if (counterIndex == 1) {
-                this.counter1.setText(String.valueOf(counterCorrectCoeff));
+            if (counterIndex == 0) {
+                this.counterCoef1.setText(String.valueOf(counterCorrectCoeff));
+            } else if (counterIndex == 1) {
+                this.counterCoef2.setText(String.valueOf(counterCorrectCoeff));
             } else if (counterIndex == 2) {
-                this.counter2.setText(String.valueOf(counterCorrectCoeff));
+                this.counterCoef3.setText(String.valueOf(counterCorrectCoeff));
             } else if (counterIndex == 3) {
-                this.counter3.setText(String.valueOf(counterCorrectCoeff));
-            } else if (counterIndex == 4) {
-                this.counter4.setText(String.valueOf(counterCorrectCoeff));
+                this.counterCoef4.setText(String.valueOf(counterCorrectCoeff));
             }
         });
     }

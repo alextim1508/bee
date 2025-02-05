@@ -52,6 +52,8 @@ public class DataController extends DataControllerInitializer {
 
         setMeasTime(meas.getAccInterval() + " сек");
 
+        setMode(meas.getMode().title);
+
         setGeoData(String.format(Locale.US, "%f, %f", meas.getGeoData().lat(), meas.getGeoData().lon()));
     }
 
