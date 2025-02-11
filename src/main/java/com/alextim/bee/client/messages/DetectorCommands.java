@@ -335,11 +335,13 @@ public class DetectorCommands {
         }
 
         private static byte[] getData(GeoData geoData) {
-            byte[] array1 = ByteBuffer.allocate(4).putFloat(geoData.lat()).array();
-            byte[] array2 = ByteBuffer.allocate(4).putFloat(geoData.lon()).array();
+            byte[] arraySize = ByteBuffer.allocate(2).putShort((short) 8).array();
+            byte[] arrayLat = ByteBuffer.allocate(4).putFloat(geoData.lat()).array();
+            byte[] arrayLon = ByteBuffer.allocate(4).putFloat(geoData.lon()).array();
             return new byte[]{
-                    array1[3], array1[2], array1[1], array1[0],
-                    array2[3], array2[2], array2[1], array2[0]
+                    arraySize[1], arraySize[0],
+                    arrayLat[3], arrayLat[2], arrayLat[1], arrayLat[0],
+                    arrayLon[3], arrayLon[2], arrayLon[1], arrayLon[0]
             };
         }
 
