@@ -1,15 +1,13 @@
 package com.alextim.bee.frontend.view.management;
 
 import com.alextim.bee.client.protocol.DetectorCodes;
+import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
 import com.alextim.bee.client.protocol.DetectorCodes.BDParam;
 import com.alextim.bee.frontend.view.NodeController;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -17,8 +15,7 @@ import javafx.scene.layout.GridPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static com.alextim.bee.client.protocol.DetectorCodes.BDType.GAMMA;
-import static com.alextim.bee.context.Property.FRONTEND_FOR_DETECTOR;
+import static com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode.*;
 import static javafx.scene.control.Alert.AlertType.*;
 
 public abstract class ManagementControllerInitializer extends NodeController {
@@ -47,7 +44,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
     @FXML
     protected Button setDeadTimeBtn, getDeadTimeBtn;
     @FXML
-    protected TextField deadTime1, deadTime2, deadTime3, deadTime4;
+    protected TextField deadTime1, deadTime2;
 
     @FXML
     protected Button setMeasTimeBtn;
@@ -59,7 +56,11 @@ public abstract class ManagementControllerInitializer extends NodeController {
     @FXML
     protected Button setCounterCoefBtn, getCounterCoefBtn;
     @FXML
-    protected TextField counterCoef1, counterCoef2, counterCoef3, counterCoef4;
+    protected TextField counterCoef1, counterCoef2;
+    @FXML
+    protected ToggleGroup modes;
+    @FXML
+    protected RadioButton highSens, lowSens, pulse;
 
     @FXML
     protected Button setIpBtn;
@@ -92,19 +93,11 @@ public abstract class ManagementControllerInitializer extends NodeController {
         super.initialize(location, resources);
 
         paneInit();
-        initByDetectorName();
     }
 
     private void paneInit() {
         /* Bug JavaFX. Other tabs of tabPane get ScrollEvent from current tab */
         pane.addEventHandler(ScrollEvent.ANY, Event::consume);
-    }
-
-    private void initByDetectorName() {
-        if (DetectorCodes.BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            counterCoefPane.getChildren().removeAll(counterCoef3, counterCoef4);
-            deadTimePane.getChildren().removeAll(deadTime3, deadTime4);
-        }
     }
 
     public void showDialogParamIsSet(BDParam bdParam) {
@@ -175,37 +168,33 @@ public abstract class ManagementControllerInitializer extends NodeController {
         });
     }
 
-    public void setDeadTime(long counterIndex, float deadTime) {
+    public void setDeadTime(int counterIndex,  BDInternalMode selectedMode, float deadTime) {
         Platform.runLater(() -> {
             if (counterIndex == 0) {
                 this.deadTime1.setText(String.valueOf(deadTime));
             } else if (counterIndex == 1) {
                 this.deadTime2.setText(String.valueOf(deadTime));
-            } else if (counterIndex == 2) {
-                this.deadTime3.setText(String.valueOf(deadTime));
-            } else if (counterIndex == 3) {
-                this.deadTime4.setText(String.valueOf(deadTime));
             }
+
+            setSelectedMode(selectedMode);
+        });
+    }
+
+    public void setCounterCorrectCoeff(int counterIndex,  BDInternalMode selectedMode, float counterCorrectCoeff) {
+        Platform.runLater(() -> {
+            if (counterIndex == 0) {
+                this.counterCoef1.setText(String.valueOf(counterCorrectCoeff));
+            } else if (counterIndex == 1) {
+                this.counterCoef2.setText(String.valueOf(counterCorrectCoeff));
+            }
+
+            setSelectedMode(selectedMode);
         });
     }
 
     public void setHardwareVersion(String version) {
         Platform.runLater(() -> {
             this.versionHardware.setText(version);
-        });
-    }
-
-    public void setCounterCorrectCoeff(long counterIndex, float counterCorrectCoeff) {
-        Platform.runLater(() -> {
-            if (counterIndex == 0) {
-                this.counterCoef1.setText(String.valueOf(counterCorrectCoeff));
-            } else if (counterIndex == 1) {
-                this.counterCoef2.setText(String.valueOf(counterCorrectCoeff));
-            } else if (counterIndex == 2) {
-                this.counterCoef3.setText(String.valueOf(counterCorrectCoeff));
-            } else if (counterIndex == 3) {
-                this.counterCoef4.setText(String.valueOf(counterCorrectCoeff));
-            }
         });
     }
 
@@ -222,6 +211,25 @@ public abstract class ManagementControllerInitializer extends NodeController {
         });
     }
 
+    protected BDInternalMode getSelectedMode() {
+        if (modes.getSelectedToggle() == highSens)
+            return BD_MODE_CONTINUOUS_HIGH_SENS;
+        if (modes.getSelectedToggle() == lowSens)
+            return BD_MODE_CONTINUOUS_LOW_SENS;
+        if (modes.getSelectedToggle() == pulse)
+            return BD_MODE_PULSE;
+        return null;
+    }
+
+    protected void setSelectedMode(BDInternalMode mode) {
+        if (BD_MODE_CONTINUOUS_HIGH_SENS == mode)
+            modes.selectToggle(highSens);
+        if (BD_MODE_CONTINUOUS_LOW_SENS == mode)
+            modes.selectToggle(lowSens);
+        if (BD_MODE_PULSE == mode)
+            modes.selectToggle(pulse);
+    }
+
     public void setDisableAllButtons(boolean b) {
         setSensitivityBtn.setDisable(b);
         getSensitivityBtn.setDisable(b);
@@ -232,5 +240,6 @@ public abstract class ManagementControllerInitializer extends NodeController {
         getCounterCoefBtn.setDisable(b);
         getVersionHardwareBtn.setDisable(b);
         restartBtn.setDisable(b);
+        setIpBtn.setDisable(b);
     }
 }

@@ -134,13 +134,14 @@ public class DetectorParser {
         } else if (answer.commandCode.code == Command.GET_DEAD_TIME.code) {
             log.debug("GET_DEAD_TIME: {}", getHexString(answer));
 
-            long counterIndex = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
-                            answer.data[DATA.shift + 3],
-                            answer.data[DATA.shift + 2],
+            int counterIndex = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                             answer.data[DATA.shift + 1],
                             answer.data[DATA.shift]})
-                    .getInt());
+                    .getShort());
             log.debug("CounterIndex: {}", counterIndex);
+
+            BDInternalMode mode = BDInternalMode.getBDInternalModeByCode(answer.data[DATA.shift + 2]);
+            log.debug("BDInternalMode: {}", mode);
 
             float deadTime = ByteBuffer.wrap(new byte[]{
                             answer.data[DATA.shift + 7],
@@ -150,7 +151,7 @@ public class DetectorParser {
                     .getFloat();
             log.debug("deadTime: {}", deadTime);
 
-            return new GetDeadTimeAnswer(counterIndex, deadTime, answer);
+            return new GetDeadTimeAnswer(counterIndex, mode, deadTime, answer);
 
         } else if (answer.commandCode.code == Command.SET_CORRECT_COFF.code) {
             log.debug("SET_CORRECT_COFF: {}", getHexString(answer));
@@ -159,13 +160,14 @@ public class DetectorParser {
         } else if (answer.commandCode.code == Command.GET_CORRECT_COFF.code) {
             log.debug("GET_CORRECT_COFF: {}", getHexString(answer));
 
-            long counterIndex = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
-                            answer.data[DATA.shift + 3],
-                            answer.data[DATA.shift + 2],
+            int counterIndex = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                             answer.data[DATA.shift + 1],
                             answer.data[DATA.shift]})
-                    .getInt());
+                    .getShort());
             log.debug("CounterIndex: {}", counterIndex);
+
+            BDInternalMode mode = BDInternalMode.getBDInternalModeByCode(answer.data[DATA.shift + 2]);
+            log.debug("BDInternalMode: {}", mode);
 
             float counterCorrectCoff = ByteBuffer.wrap(new byte[]{
                             answer.data[DATA.shift + 7],
@@ -175,7 +177,7 @@ public class DetectorParser {
                     .getFloat();
             log.debug("CounterCorrectCoff: {}", counterCorrectCoff);
 
-            return new GetCounterCorrectCoeffAnswer(counterIndex, counterCorrectCoff, answer);
+            return new GetCounterCorrectCoeffAnswer(counterIndex, mode, counterCorrectCoff, answer);
 
         } else if (answer.commandCode.code == Command.SET_GEO_DATA.code) {
             log.debug("SET_GEO_DATA: {}", getHexString(answer));

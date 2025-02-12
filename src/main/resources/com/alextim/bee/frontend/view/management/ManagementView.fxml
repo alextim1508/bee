@@ -11,6 +11,18 @@
    <children>
       <HBox layoutX="5.0" layoutY="5.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
          <children>
+            <AnchorPane prefHeight="94.0" prefWidth="231.0" style="-fx-border-color: black;">
+               <children>
+                  <HBox layoutX="6.0" layoutY="84.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+                  <HBox spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
+                     <children>
+                        <Label layoutX="26.0" layoutY="38.0" prefHeight="25.0" prefWidth="99.0" text="Экспозиция" />
+                        <TextField fx:id="measTime" layoutX="144.0" layoutY="34.0" prefHeight="25.0" prefWidth="100.0" />
+                     </children>
+                  </HBox>
+                  <Button fx:id="setMeasTimeBtn" disable="true" layoutX="20.0" layoutY="50.0" mnemonicParsing="false" onAction="#setMeasTimeOn" prefWidth="75.0" text="Задать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+               </children>
+            </AnchorPane>
             <AnchorPane prefHeight="94.0" prefWidth="310.0" style="-fx-border-color: black;">
                <children>
                   <HBox layoutX="7.0" layoutY="7.0" prefHeight="25.0" prefWidth="307.0" spacing="10.0" AnchorPane.leftAnchor="6.0" AnchorPane.topAnchor="6.0">
@@ -27,54 +39,24 @@
                   </HBox>
                </children>
             </AnchorPane>
-            <AnchorPane layoutX="335.0" layoutY="5.0" prefHeight="120.0" prefWidth="331.0" style="-fx-border-color: black;" AnchorPane.topAnchor="5.0">
-               <children>
-                  <HBox layoutX="6.0" layoutY="47.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
-                     <children>
-                        <Button fx:id="setDeadTimeBtn" disable="true" layoutX="6.0" layoutY="47.0" mnemonicParsing="false" onAction="#setDeadTimeOn" prefWidth="75.0" text="Задать" />
-                        <Button fx:id="getDeadTimeBtn" disable="true" layoutX="94.0" layoutY="47.0" mnemonicParsing="false" onAction="#getDeadTimeOn" prefWidth="75.0" text="Прочитать" />
-                     </children>
-                  </HBox>
-                  <GridPane fx:id="deadTimePane" hgap="10.0" layoutX="-26.0" layoutY="-6.0" vgap="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
-                     <children>
-                        <TextField fx:id="deadTime4" layoutX="437.0" layoutY="43.0" promptText="Счетчик 4" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField fx:id="deadTime3" layoutX="268.0" layoutY="43.0" promptText="Счетчик 3" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField fx:id="deadTime2" layoutX="437.0" promptText="Счетчик 2" GridPane.columnIndex="2" />
-                        <Label layoutY="4.0" text="Мертвое время" />
-                        <TextField fx:id="deadTime1" layoutX="268.0" prefWidth="100.0" promptText="Счетчик 1" GridPane.columnIndex="1" />
-                     </children>
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
-                  </GridPane>
-               </children>
-            </AnchorPane>
          </children>
       </HBox>
-      <HBox layoutX="5.0" layoutY="135.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="140.0">
+      <HBox layoutX="5.0" layoutY="135.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="120.0">
          <children>
-            <AnchorPane prefHeight="94.0" prefWidth="493.0" style="-fx-border-color: black;">
+            <AnchorPane prefHeight="120.0" prefWidth="370.0" style="-fx-border-color: black;">
                <children>
                   <GridPane fx:id="counterCoefPane" hgap="10.0" vgap="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                      </columnConstraints>
                      <rowConstraints>
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
-                        <TextField fx:id="counterCoef4" layoutX="437.0" layoutY="43.0" promptText="Счетчик 4" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField fx:id="counterCoef3" layoutX="268.0" layoutY="43.0" promptText="Счетчик 3" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField fx:id="counterCoef2" layoutX="437.0" promptText="Счетчик 2" GridPane.columnIndex="2" />
+                        <TextField fx:id="counterCoef2" layoutX="437.0" promptText="Счетчик 2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <Label layoutY="4.0" text="Корректирующие коэффициенты счетчиков" />
                         <TextField fx:id="counterCoef1" layoutX="268.0" prefWidth="100.0" promptText="Счетчик 1" GridPane.columnIndex="1" />
                      </children>
@@ -87,24 +69,52 @@
                   </HBox>
                </children>
             </AnchorPane>
-            <AnchorPane layoutX="14.0" layoutY="135.0" prefHeight="94.0" prefWidth="231.0" style="-fx-border-color: black;" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="135.0">
+            <AnchorPane prefHeight="120.0" prefWidth="212.0" style="-fx-border-color: black;">
                <children>
-                  <HBox layoutX="6.0" layoutY="84.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
-                  <HBox spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
+                  <HBox layoutX="6.0" layoutY="47.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
                      <children>
-                        <Label layoutX="26.0" layoutY="38.0" prefHeight="25.0" prefWidth="99.0" text="Экспозиция" />
-                        <TextField fx:id="measTime" layoutX="144.0" layoutY="34.0" prefHeight="25.0" prefWidth="100.0" />
+                        <Button fx:id="setDeadTimeBtn" disable="true" layoutX="6.0" layoutY="47.0" mnemonicParsing="false" onAction="#setDeadTimeOn" prefWidth="75.0" text="Задать" />
+                        <Button fx:id="getDeadTimeBtn" disable="true" layoutX="94.0" layoutY="47.0" mnemonicParsing="false" onAction="#getDeadTimeOn" prefWidth="75.0" text="Прочитать" />
                      </children>
                   </HBox>
-                  <Button fx:id="setMeasTimeBtn" disable="true" layoutX="20.0" layoutY="50.0" mnemonicParsing="false" onAction="#setMeasTimeOn" prefWidth="75.0" text="Задать" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" />
+                  <GridPane fx:id="deadTimePane" hgap="10.0" layoutX="-26.0" layoutY="-6.0" vgap="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
+                     <children>
+                        <TextField fx:id="deadTime2" layoutX="437.0" promptText="Счетчик 2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label layoutY="4.0" text="Мертвое время" />
+                        <TextField fx:id="deadTime1" layoutX="268.0" prefWidth="100.0" promptText="Счетчик 1" GridPane.columnIndex="1" />
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+               </children>
+            </AnchorPane>
+            <VBox spacing="10.0" style="-fx-border-color: black;">
+               <children>
+                  <RadioButton fx:id="highSens" layoutX="1032.0" layoutY="217.0" mnemonicParsing="false" selected="true" text="непрерывный (высокая чувствительность)">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="modes" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="lowSens" layoutX="1026.0" layoutY="250.0" mnemonicParsing="false" text="непрерывный (низкая чувствительность)" toggleGroup="$modes" />
+                  <RadioButton fx:id="pulse" layoutX="1084.0" layoutY="267.0" mnemonicParsing="false" text="импульсный" toggleGroup="$modes" />
                </children>
                <HBox.margin>
                   <Insets />
                </HBox.margin>
-            </AnchorPane>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </VBox>
          </children>
       </HBox>
-      <HBox layoutX="30.0" layoutY="248.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="250.0">
+      <HBox layoutX="30.0" layoutY="248.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="260.0">
          <children>
             <AnchorPane layoutX="30.0" layoutY="248.0" prefHeight="173.0" prefWidth="330.0" style="-fx-border-color: black;" AnchorPane.topAnchor="248.0">
                <children>
@@ -155,7 +165,7 @@
             </AnchorPane>
          </children>
       </HBox>
-      <Button fx:id="restartBtn" disable="true" layoutX="14.0" layoutY="432.0" mnemonicParsing="false" onAction="#restartOn" prefHeight="25.0" prefWidth="131.0" text="Перезапустить БД" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="480.0" />
+      <Button fx:id="restartBtn" disable="true" layoutX="23.0" layoutY="600.0" mnemonicParsing="false" onAction="#restartOn" prefHeight="25.0" prefWidth="131.0" text="Перезапустить БД" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="480.0" />
       <Label fx:id="softwareVersion" layoutX="1604.0" layoutY="678.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
    </children>
 </AnchorPane>

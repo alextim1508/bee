@@ -1,6 +1,7 @@
 package com.alextim.bee.client.messages;
 
 import com.alextim.bee.client.dto.GeoData;
+import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -158,30 +159,37 @@ public class DetectorCommands {
 
 
     public static class SetDeadTimeCommand extends SomeCommand {
-        public long counterIndex;
+        public final int counterIndex;
+        public final BDInternalMode mode;
         public float deadTime;
 
-        public SetDeadTimeCommand(int detectorID,  long counterIndex, float deadTime) {
+        public SetDeadTimeCommand(int detectorID, int counterIndex, BDInternalMode mode, float deadTime) {
             super(detectorID, 0, Command.SET_DEAD_TIME,
-                    wrapToPackage(detectorID, 0, Command.SET_DEAD_TIME, getData(counterIndex, deadTime)));
+                    wrapToPackage(detectorID, 0, Command.SET_DEAD_TIME, getData(counterIndex, mode, deadTime)));
 
             this.counterIndex = counterIndex;
+            this.mode = mode;
             this.deadTime = deadTime;
         }
 
-        private static byte[] getData(long counterIndex, float deadTime) {
-            int unsignedCounterIndex = (int) counterIndex;
-            byte[] array1 = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
-            byte[] array2 = ByteBuffer.allocate(4).putFloat(deadTime).array();
+        private static byte[] getData(int counterIndex, BDInternalMode mode, float deadTime) {
+            byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
+            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
+            byte[] arrayDeadTime = ByteBuffer.allocate(4).putFloat(deadTime).array();
             return new byte[]{
-                    array1[3], array1[2], array1[1], array1[0],
-                    array2[3], array2[2], array2[1], array2[0]
+                    arrayCounterIndex[1], arrayCounterIndex[0],
+                    arrayMode[1], arrayMode[0],
+                    arrayDeadTime[3], arrayDeadTime[2], arrayDeadTime[1], arrayDeadTime[0]
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT, Command.SET_DEAD_TIME.title, deadTime);
+            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " %d счетчика, %s",
+                    Command.SET_DEAD_TIME.title,
+                    deadTime,
+                    counterIndex,
+                    mode.title);
         }
     }
 
@@ -198,74 +206,93 @@ public class DetectorCommands {
 
 
     public static class GetDeadTimeCommand extends SomeCommand {
-        public final long counterIndex;
+        public final int counterIndex;
+        public final BDInternalMode mode;
 
-        public GetDeadTimeCommand(int detectorID, long counterIndex) {
+        public GetDeadTimeCommand(int detectorID, int counterIndex, BDInternalMode mode) {
             super(detectorID, 0, Command.GET_DEAD_TIME,
-                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, getData(counterIndex)));
+                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, getData(counterIndex, mode)));
             this.counterIndex = counterIndex;
+            this.mode = mode;
         }
 
-        private static byte[] getData(long counterIndex) {
-            int unsignedCounterIndex = (int) counterIndex;
-            byte[] array = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
+        private static byte[] getData(int counterIndex, BDInternalMode mode) {
+            byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
+            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
             return new byte[]{
-                    array[3], array[2], array[1], array[0]
+                    arrayCounterIndex[1], arrayCounterIndex[0],
+                    arrayMode[1], arrayMode[0]
             };
         }
 
         @Override
         public String toString() {
-            return Command.GET_DEAD_TIME.title;
+            return String.format("%s %d счетчика, %s",
+                    Command.GET_DEAD_TIME.title,
+                    counterIndex,
+                    mode.title);
         }
     }
 
     public static class GetDeadTimeAnswer extends SomeCommandAnswer {
 
-        public final long counterIndex;
+        public final int counterIndex;
+        public final BDInternalMode mode;
         public float deadTime;
 
-        public GetDeadTimeAnswer(long counterIndex,
+        public GetDeadTimeAnswer(int counterIndex,
+                                 BDInternalMode mode,
                                  float deadTime,
                                  SomeCommandAnswer answer) {
             super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.deadTime = deadTime;
+            this.mode = mode;
             this.counterIndex = counterIndex;
         }
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT, Command.GET_DEAD_TIME.title, deadTime);
+            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " %d счетчика, %s",
+                    Command.GET_DEAD_TIME.title,
+                    deadTime,
+                    counterIndex,
+                    mode.title);
         }
     }
 
 
     public static class SetCounterCorrectCoeffCommand extends SomeCommand {
-        public long counterIndex;
+        public final int counterIndex;
+        public final BDInternalMode mode;
         public float counterCorrectCoeff;
 
-        public SetCounterCorrectCoeffCommand(int detectorID, long counterIndex, float counterCorrectCoeff) {
+        public SetCounterCorrectCoeffCommand(int detectorID, int counterIndex, BDInternalMode mode, float counterCorrectCoeff) {
             super(detectorID, 0, Command.SET_CORRECT_COFF,
-                    wrapToPackage(detectorID, 0, Command.SET_CORRECT_COFF, getData(counterIndex, counterCorrectCoeff)));
+                    wrapToPackage(detectorID, 0, Command.SET_CORRECT_COFF, getData(counterIndex, mode, counterCorrectCoeff)));
 
             this.counterIndex = counterIndex;
+            this.mode = mode;
             this.counterCorrectCoeff = counterCorrectCoeff;
         }
 
-        private static byte[] getData(long counterIndex, float counterCorrectCoeff) {
-            int unsignedCounterIndex = (int) counterIndex;
-            byte[] array1 = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
-            byte[] array2 = ByteBuffer.allocate(4).putFloat(counterCorrectCoeff).array();
+        private static byte[] getData(int counterIndex, BDInternalMode mode, float counterCorrectCoeff) {
+            byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
+            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
+            byte[] arrayCounterCorCoef = ByteBuffer.allocate(4).putFloat(counterCorrectCoeff).array();
             return new byte[]{
-                    array1[3], array1[2], array1[1], array1[0],
-                    array2[3], array2[2], array2[1], array2[0]
+                    arrayCounterIndex[1], arrayCounterIndex[0],
+                    arrayMode[1], arrayMode[0],
+                    arrayCounterCorCoef[3], arrayCounterCorCoef[2], arrayCounterCorCoef[1], arrayCounterCorCoef[0]
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s %d, Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT,
-                    Command.SET_CORRECT_COFF.title, counterIndex, counterCorrectCoeff);
+            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT + " %d счетчика, %s",
+                    Command.SET_CORRECT_COFF.title,
+                    counterIndex,
+                    counterCorrectCoeff,
+                    mode);
         }
     }
 
@@ -282,44 +309,56 @@ public class DetectorCommands {
 
 
     public static class GetCounterCorrectCoeffCommand extends SomeCommand {
-        public final long counterIndex;
+        public final int counterIndex;
+        public final BDInternalMode mode;
 
-        public GetCounterCorrectCoeffCommand(int detectorID, long counterIndex) {
+        public GetCounterCorrectCoeffCommand(int detectorID, int counterIndex, BDInternalMode mode) {
             super(detectorID, 0, Command.GET_CORRECT_COFF,
-                    wrapToPackage(detectorID, 0, Command.GET_CORRECT_COFF, getData(counterIndex)));
+                    wrapToPackage(detectorID, 0, Command.GET_CORRECT_COFF, getData(counterIndex, mode)));
             this.counterIndex = counterIndex;
+            this.mode = mode;
         }
 
-        private static byte[] getData(long counterIndex) {
-            int unsignedCounterIndex = (int) counterIndex;
-            byte[] array = ByteBuffer.allocate(4).putInt(unsignedCounterIndex).array();
+        private static byte[] getData(int counterIndex,  BDInternalMode mode) {
+            byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
+            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
             return new byte[]{
-                    array[3], array[2], array[1], array[0]
+                    arrayCounterIndex[1], arrayCounterIndex[0],
+                    arrayMode[1], arrayMode[0]
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s %d", Command.GET_CORRECT_COFF.title, counterIndex);
+            return String.format("%s %d счетчика, %s",
+                    Command.GET_CORRECT_COFF.title,
+                    counterIndex,
+                    mode);
         }
     }
 
     public static class GetCounterCorrectCoeffAnswer extends SomeCommandAnswer {
-        public final long counterIndex;
+        public final int counterIndex;
+        public final BDInternalMode mode;
         public final float counterCorrectCoeff;
 
-        public GetCounterCorrectCoeffAnswer(long counterIndex,
+        public GetCounterCorrectCoeffAnswer(int counterIndex,
+                                            BDInternalMode mode,
                                             float counterCorrectCoeff,
                                             SomeCommandAnswer answer) {
             super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.counterIndex = counterIndex;
+            this.mode = mode;
             this.counterCorrectCoeff = counterCorrectCoeff;
         }
 
         @Override
         public String toString() {
-            return String.format("%s %d, Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT,
-                    Command.GET_CORRECT_COFF.title, counterIndex, counterCorrectCoeff);
+            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT +  " %d счетчика, %s",
+                    Command.GET_CORRECT_COFF.title,
+                    counterIndex,
+                    counterCorrectCoeff,
+                    mode);
         }
     }
 

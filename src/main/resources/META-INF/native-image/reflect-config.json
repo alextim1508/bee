@@ -492,6 +492,12 @@
   "methods":[{"name":"setProgress","parameterTypes":["double"] }]
 },
 {
+  "name":"javafx.scene.control.RadioButton",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"javafx.scene.control.SplitPane",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -545,6 +551,19 @@
   "name":"javafx.scene.control.TextInputControl",
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"setPromptText","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"javafx.scene.control.ToggleButton",
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"setSelected","parameterTypes":["boolean"] }, 
+    {"name":"setToggleGroup","parameterTypes":["javafx.scene.control.ToggleGroup"] }
+  ]
+},
+{
+  "name":"javafx.scene.control.ToggleGroup",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"javafx.scene.effect.Effect"

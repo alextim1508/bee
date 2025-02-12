@@ -248,7 +248,7 @@ public class RootController extends RootControllerInitializer {
 
         } else if (detectorMsg instanceof GetDeadTimeAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                managementController.setDeadTime(answer.counterIndex, answer.deadTime);
+                managementController.setDeadTime(answer.counterIndex, answer.mode, answer.deadTime);
 
                 if (isDialogShow(1000))
                     managementController.showDialogParamIsGot(DEAD_TIME);
@@ -266,7 +266,7 @@ public class RootController extends RootControllerInitializer {
 
         } else if (detectorMsg instanceof GetCounterCorrectCoeffAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                managementController.setCounterCorrectCoeff(answer.counterIndex, answer.counterCorrectCoeff);
+                managementController.setCounterCorrectCoeff(answer.counterIndex, answer.mode, answer.counterCorrectCoeff);
 
                 if (isDialogShow(1000))
                     managementController.showDialogParamIsGot(COR_COEF);

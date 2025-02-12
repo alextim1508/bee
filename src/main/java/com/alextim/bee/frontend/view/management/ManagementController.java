@@ -1,8 +1,8 @@
 package com.alextim.bee.frontend.view.management;
 
 import com.alextim.bee.client.messages.DetectorCommands.*;
+import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
 import com.alextim.bee.client.protocol.DetectorCodes.BDParam;
-import com.alextim.bee.client.protocol.DetectorCodes.BDType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import lombok.SneakyThrows;
@@ -12,8 +12,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.*;
-import static com.alextim.bee.client.protocol.DetectorCodes.BDType.GAMMA;
-import static com.alextim.bee.context.Property.*;
+import static com.alextim.bee.context.Property.SOFTWARE_VERSION;
+import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
 
 @Slf4j
 public class ManagementController extends ManagementControllerInitializer {
@@ -71,31 +71,20 @@ public class ManagementController extends ManagementControllerInitializer {
             try {
                 log.info("setDeadTimeOn");
 
-                if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-                    float deadTime1 = Float.parseFloat(this.deadTime1.getText());
-                    float deadTime2 = Float.parseFloat(this.deadTime2.getText());
-                    log.info("deadTimes: {} {}", deadTime1, deadTime2);
+                float deadTime1 = Float.parseFloat(this.deadTime1.getText());
+                float deadTime2 = Float.parseFloat(this.deadTime2.getText());
+                log.info("deadTimes: {} {}", deadTime1, deadTime2);
 
-                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, deadTime1));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, deadTime2));
+                BDInternalMode selectedMode = getSelectedMode();
+                log.info("selectedMode: {}", selectedMode);
 
-                } else {
-                    float deadTime1 = Float.parseFloat(this.deadTime1.getText());
-                    float deadTime2 = Float.parseFloat(this.deadTime2.getText());
-                    float deadTime3 = Float.parseFloat(this.deadTime3.getText());
-                    float deadTime4 = Float.parseFloat(this.deadTime4.getText());
-                    log.info("deadTimes: {} {} {} {}", deadTime1, deadTime2, deadTime3, deadTime4);
+                rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID,
+                        0, selectedMode, deadTime1));
 
-                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, deadTime1));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, deadTime2));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 2, deadTime3));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 3, deadTime4));
-                }
+                Thread.sleep(100);
 
+                rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID,
+                        1, selectedMode, deadTime2));
             } catch (Exception e) {
                 log.error("setDeadTimeOn: ", e);
                 showParsingErrorDialog(bdParam);
@@ -108,25 +97,16 @@ public class ManagementController extends ManagementControllerInitializer {
     void getDeadTimeOn(ActionEvent event) {
         log.info("getDeadTime");
 
-        if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            deadTime1.setText("-");
-            deadTime2.setText("-");
-            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1));
-        } else {
-            deadTime1.setText("-");
-            deadTime2.setText("-");
-            deadTime3.setText("-");
-            deadTime4.setText("-");
-            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 2));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 3));
-        }
+        BDInternalMode selectedMode = getSelectedMode();
+        log.info("selectedMode: {}", selectedMode);
+
+        deadTime1.setText("-");
+        deadTime2.setText("-");
+        rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode));
+
+        Thread.sleep(100);
+
+        rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode));
     }
 
     @FXML
@@ -136,30 +116,20 @@ public class ManagementController extends ManagementControllerInitializer {
             try {
                 log.info("setCorrCoefOn");
 
-                if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-                    float counter1 = Float.parseFloat(this.counterCoef1.getText());
-                    float counter2 = Float.parseFloat(this.counterCoef2.getText());
-                    log.info("setCorrCoef: {} {}", counter1, counter2);
+                float counter1 = Float.parseFloat(this.counterCoef1.getText());
+                float counter2 = Float.parseFloat(this.counterCoef2.getText());
+                log.info("setCorrCoef: {} {}", counter1, counter2);
 
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
+                BDInternalMode selectedMode = getSelectedMode();
+                log.info("selectedMode: {}", selectedMode);
 
-                } else {
-                    float counter1 = Float.parseFloat(this.counterCoef1.getText());
-                    float counter2 = Float.parseFloat(this.counterCoef2.getText());
-                    float counter3 = Float.parseFloat(this.counterCoef3.getText());
-                    float counter4 = Float.parseFloat(this.counterCoef4.getText());
-                    log.info("setCorrCoef: {} {} {} {}", counter1, counter2, counter3, counter4);
+                rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
+                        0, selectedMode, counter1));
 
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2, counter3));
-                    Thread.sleep(100);
-                    rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 3, counter4));
-                }
+                Thread.sleep(100);
+
+                rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
+                        1, selectedMode, counter2));
 
             } catch (Exception e) {
                 log.error("setCorrCoefOn: ", e);
@@ -173,25 +143,19 @@ public class ManagementController extends ManagementControllerInitializer {
     void getCorrCoefOn(ActionEvent event) {
         log.info("getCorrCoef");
 
-        if (BDType.getBDTypeByName(FRONTEND_FOR_DETECTOR) == GAMMA) {
-            counterCoef1.setText("-");
-            counterCoef2.setText("-");
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1));
-        } else {
-            counterCoef1.setText("-");
-            counterCoef2.setText("-");
-            counterCoef3.setText("-");
-            counterCoef4.setText("-");
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 2));
-            Thread.sleep(100);
-            rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 3));
-        }
+        BDInternalMode selectedMode = getSelectedMode();
+        log.info("selectedMode: {}", selectedMode);
+
+        counterCoef1.setText("-");
+        counterCoef2.setText("-");
+
+        rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
+                0, selectedMode));
+
+        Thread.sleep(100);
+
+        rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
+                1, selectedMode));
     }
 
     @FXML
