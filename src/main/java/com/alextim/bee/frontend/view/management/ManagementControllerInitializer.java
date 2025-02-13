@@ -13,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode.*;
@@ -164,28 +165,28 @@ public abstract class ManagementControllerInitializer extends NodeController {
 
     public void setSensitivity(float sensitivity) {
         Platform.runLater(() -> {
-            this.sensitivity.setText(String.valueOf(sensitivity));
+            this.sensitivity.setText(String.format(Locale.US, "%f", sensitivity));
         });
     }
 
-    public void setDeadTime(int counterIndex,  BDInternalMode selectedMode, float deadTime) {
+    public void setDeadTime(int counterIndex, BDInternalMode selectedMode, float deadTime) {
         Platform.runLater(() -> {
             if (counterIndex == 0) {
-                this.deadTime1.setText(String.valueOf(deadTime));
+                this.deadTime1.setText(String.format(Locale.US, "%f", deadTime));
             } else if (counterIndex == 1) {
-                this.deadTime2.setText(String.valueOf(deadTime));
+                this.deadTime2.setText(String.format(Locale.US, "%f", deadTime));
             }
 
             setSelectedMode(selectedMode);
         });
     }
 
-    public void setCounterCorrectCoeff(int counterIndex,  BDInternalMode selectedMode, float counterCorrectCoeff) {
+    public void setCounterCorrectCoeff(int counterIndex, BDInternalMode selectedMode, float counterCorrectCoeff) {
         Platform.runLater(() -> {
             if (counterIndex == 0) {
-                this.counterCoef1.setText(String.valueOf(counterCorrectCoeff));
+                this.counterCoef1.setText(String.format(Locale.US, "%f", counterCorrectCoeff));
             } else if (counterIndex == 1) {
-                this.counterCoef2.setText(String.valueOf(counterCorrectCoeff));
+                this.counterCoef2.setText(String.format(Locale.US, "%f", counterCorrectCoeff));
             }
 
             setSelectedMode(selectedMode);

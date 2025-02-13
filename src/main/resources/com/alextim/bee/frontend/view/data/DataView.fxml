@@ -47,7 +47,7 @@
                      <children>
                         <HBox layoutX="522.0" layoutY="70.0" prefHeight="35.0" prefWidth="300.0" spacing="10.0">
                            <children>
-                              <Label layoutX="522.0" layoutY="70.0" prefHeight="35.0" prefWidth="145.0" text="Экспозиция:">
+                              <Label layoutX="522.0" layoutY="70.0" prefHeight="35.0" prefWidth="229.0" text="Интервал времени:">
                                  <font>
                                     <Font size="24.0" />
                                  </font>

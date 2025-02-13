@@ -66,7 +66,7 @@ public class ExportService {
             fileWriter
                     .append(Integer.toString(next.detectorID)).append("\t")
                     .append(Long.toString(next.time)).append("\t")
-                    .append(next.toString()).append("\t")
+                    .append(next.toString().replace(System.lineSeparator(), " ")).append("\t")
                     .append(hexData)
                     .append(System.lineSeparator());
         }

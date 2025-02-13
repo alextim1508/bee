@@ -54,6 +54,10 @@ public class RootController extends RootControllerInitializer {
 
     private final List<DetectorMsg> detectorMsgs = new ArrayList<>();
 
+    private synchronized void addDetectorMsg(DetectorMsg msg) {
+        detectorMsgs.add(msg);
+    }
+
     private final Map<Long, StatisticMeasurement> statisticMeasurements = new HashMap<>();
 
     protected final ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -101,7 +105,7 @@ public class RootController extends RootControllerInitializer {
 
                 magazineController.addLog(detectorMsg);
 
-                detectorMsgs.add(detectorMsg);
+                addDetectorMsg(detectorMsg);
             }
             log.info("queue handle task is done");
         };
@@ -367,6 +371,8 @@ public class RootController extends RootControllerInitializer {
         log.info(str.toString());
 
         ((MagazineController) getChild(MagazineController.class.getSimpleName())).addLog(command);
+
+        addDetectorMsg(command);
 
         detectorClient.sendCommand(command);
     }

@@ -70,7 +70,8 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s, %s", INITIALIZATION.title, attentionFlags);
+            return String.format("%s" + System.lineSeparator() + "%s",
+                    INITIALIZATION.title, attentionFlags);
         }
     }
 
@@ -86,7 +87,8 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s. Ошибка: %s, %s", ERROR.title, error.title, attentionFlags);
+            return String.format("%s. Ошибка: %s" + System.lineSeparator() + "%s",
+                    ERROR.title, error.title, attentionFlags);
         }
     }
 
@@ -104,7 +106,8 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s. Текущее время: %d, Время измерения: %d, %s", ACCUMULATION.title, curTime, measTime, attentionFlags);
+            return String.format("%s. Текущее время: %d, Время измерения: %d" + System.lineSeparator() + "%s",
+                    ACCUMULATION.title, curTime, measTime, attentionFlags);
         }
     }
 
@@ -120,7 +123,8 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s. %s, %s", MEASUREMENT.title, meas.toString(), attentionFlags);
+            return String.format("%s. %s" + System.lineSeparator() + "%s",
+                    MEASUREMENT.title, meas.toString(), attentionFlags);
         }
     }
 

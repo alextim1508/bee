@@ -174,18 +174,17 @@ public class DetectorCommands {
 
         private static byte[] getData(int counterIndex, BDInternalMode mode, float deadTime) {
             byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
-            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
             byte[] arrayDeadTime = ByteBuffer.allocate(4).putFloat(deadTime).array();
             return new byte[]{
                     arrayCounterIndex[1], arrayCounterIndex[0],
-                    arrayMode[1], arrayMode[0],
+                    mode.code, 0,
                     arrayDeadTime[3], arrayDeadTime[2], arrayDeadTime[1], arrayDeadTime[0]
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " %d счетчика, %s",
+            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " счетчика %d, Режим %s",
                     Command.SET_DEAD_TIME.title,
                     deadTime,
                     counterIndex,
@@ -218,16 +217,16 @@ public class DetectorCommands {
 
         private static byte[] getData(int counterIndex, BDInternalMode mode) {
             byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
-            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
+
             return new byte[]{
                     arrayCounterIndex[1], arrayCounterIndex[0],
-                    arrayMode[1], arrayMode[0]
+                    mode.code, 0
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s %d счетчика, %s",
+            return String.format("%s счетчика %d, Режим: %s",
                     Command.GET_DEAD_TIME.title,
                     counterIndex,
                     mode.title);
@@ -252,7 +251,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " %d счетчика, %s",
+            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " счетчика %d , Режим: %s",
                     Command.GET_DEAD_TIME.title,
                     deadTime,
                     counterIndex,
@@ -277,22 +276,21 @@ public class DetectorCommands {
 
         private static byte[] getData(int counterIndex, BDInternalMode mode, float counterCorrectCoeff) {
             byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
-            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
             byte[] arrayCounterCorCoef = ByteBuffer.allocate(4).putFloat(counterCorrectCoeff).array();
             return new byte[]{
                     arrayCounterIndex[1], arrayCounterIndex[0],
-                    arrayMode[1], arrayMode[0],
+                    mode.code, 0,
                     arrayCounterCorCoef[3], arrayCounterCorCoef[2], arrayCounterCorCoef[1], arrayCounterCorCoef[0]
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT + " %d счетчика, %s",
+            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT + " счетчика %d, Режим: %s",
                     Command.SET_CORRECT_COFF.title,
-                    counterIndex,
                     counterCorrectCoeff,
-                    mode);
+                    counterIndex,
+                    mode.title);
         }
     }
 
@@ -321,19 +319,18 @@ public class DetectorCommands {
 
         private static byte[] getData(int counterIndex,  BDInternalMode mode) {
             byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
-            byte[] arrayMode = ByteBuffer.allocate(2).putShort(mode.code).array();
             return new byte[]{
                     arrayCounterIndex[1], arrayCounterIndex[0],
-                    arrayMode[1], arrayMode[0]
+                    mode.code, 0
             };
         }
 
         @Override
         public String toString() {
-            return String.format("%s %d счетчика, %s",
+            return String.format("%s счетчика %d, Режим: %s",
                     Command.GET_CORRECT_COFF.title,
                     counterIndex,
-                    mode);
+                    mode.title);
         }
     }
 
@@ -354,11 +351,11 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT +  " %d счетчика, %s",
+            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT +  " счетчика %d, Режим: %s",
                     Command.GET_CORRECT_COFF.title,
-                    counterIndex,
                     counterCorrectCoeff,
-                    mode);
+                    counterIndex,
+                    mode.title);
         }
     }
 

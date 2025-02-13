@@ -50,7 +50,7 @@ public class AppState {
 
     @SneakyThrows
     public void readParam() {
-        log.info("readParam to file");
+        log.info("readParam from file");
 
         if(!file.exists()) {
             boolean isCreated = file.createNewFile();
@@ -69,6 +69,6 @@ public class AppState {
             }
         }
 
-        log.info("readParam to file OK");
+        log.info("readParam from file OK");
     }
 }

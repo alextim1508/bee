@@ -70,9 +70,6 @@ public class Context {
         TITLE_APP = (String) properties.get("app.title");
         log.info("TITLE_APP: {}", TITLE_APP);
 
-        FRONTEND_FOR_DETECTOR = (String) properties.get("app.frontend-for-detector");
-        log.info("FRONTEND_FOR_DETECTOR: {}", FRONTEND_FOR_DETECTOR);
-
         initTransferProperties(properties);
 
         initGeoDataProperties(properties);
@@ -81,8 +78,8 @@ public class Context {
     }
 
     private void initTransferProperties(Properties properties) {
-        TRANSFER_TO_DETECTOR_ID = Integer.parseInt((String) properties.get("app.transfer.detector-id"));
-        log.info("TRANSFER_TO_DETECTOR_ID: {}", TRANSFER_TO_DETECTOR_ID);
+        TRANSFER_TO_DETECTOR_ID = Integer.parseInt((String) properties.get("app.transfer.detector-id"), 16);
+        log.info(String.format("TRANSFER_TO_DETECTOR_ID (hex): %x", TRANSFER_TO_DETECTOR_ID));
 
         TRANSFER_IP = (String) properties.get("app.transfer.ip");
         log.info("TRANSFER_IP: {}", TRANSFER_IP);
