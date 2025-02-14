@@ -54,9 +54,7 @@ public class RootController extends RootControllerInitializer {
 
     private final List<DetectorMsg> detectorMsgs = new ArrayList<>();
 
-    private synchronized void addDetectorMsg(DetectorMsg msg) {
-        detectorMsgs.add(msg);
-    }
+    private Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
 
     private final Map<Long, StatisticMeasurement> statisticMeasurements = new HashMap<>();
 
@@ -243,39 +241,61 @@ public class RootController extends RootControllerInitializer {
             }
 
         } else if (detectorMsg instanceof SetDeadTimeAnswer answer) {
+            List<SomeCommand> waitingCommand = waitingCommands.getOrDefault(SetDeadTimeAnswer.class, new LinkedList<>());
+
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                if (isDialogShow(1000))
+                if (waitingCommand.isEmpty()) {
                     managementController.showDialogParamIsSet(DEAD_TIME);
+                } else {
+                    sendDetectorCommand(waitingCommand.remove(0));
+                }
             } else {
+                waitingCommand.clear();
                 managementController.showAnswerErrorDialog(DEAD_TIME, getErrorByCode(detectorMsg.data[0]));
             }
 
         } else if (detectorMsg instanceof GetDeadTimeAnswer answer) {
+            List<SomeCommand> waitingCommand = waitingCommands.getOrDefault(GetDeadTimeAnswer.class, new LinkedList<>());
+
             if (detectorMsg.commandStatusCode == SUCCESS) {
                 managementController.setDeadTime(answer.counterIndex, answer.mode, answer.deadTime);
-
-                if (isDialogShow(1000))
+                if (waitingCommand.isEmpty()) {
                     managementController.showDialogParamIsGot(DEAD_TIME);
+                } else {
+                    sendDetectorCommand(waitingCommand.remove(0));
+                }
             } else {
+                waitingCommand.clear();
                 managementController.showAnswerErrorDialog(DEAD_TIME, getErrorByCode(detectorMsg.data[0]));
             }
 
         } else if (detectorMsg instanceof SetCounterCorrectCoeffAnswer answer) {
+            List<SomeCommand> waitingCommand = waitingCommands.getOrDefault(SetCounterCorrectCoeffAnswer.class, new LinkedList<>());
+
             if (detectorMsg.commandStatusCode == SUCCESS) {
-                if (isDialogShow(1000))
+                if (waitingCommand.isEmpty()) {
                     managementController.showDialogParamIsSet(COR_COEF);
+                } else {
+                    sendDetectorCommand(waitingCommand.remove(0));
+                }
             } else {
+                waitingCommand.clear();
                 managementController.showAnswerErrorDialog(COR_COEF, getErrorByCode(detectorMsg.data[0]));
             }
 
         } else if (detectorMsg instanceof GetCounterCorrectCoeffAnswer answer) {
+            List<SomeCommand> waitingCommand = waitingCommands.getOrDefault(GetCounterCorrectCoeffAnswer.class, new LinkedList<>());
+
             if (detectorMsg.commandStatusCode == SUCCESS) {
                 managementController.setCounterCorrectCoeff(answer.counterIndex, answer.mode, answer.counterCorrectCoeff);
 
-                if (isDialogShow(1000))
+                if (waitingCommand.isEmpty()) {
                     managementController.showDialogParamIsGot(COR_COEF);
-
+                } else {
+                    sendDetectorCommand(waitingCommand.remove(0));
+                }
             } else {
+                waitingCommand.clear();
                 managementController.showAnswerErrorDialog(COR_COEF, getErrorByCode(detectorMsg.data[0]));
             }
 
@@ -287,15 +307,6 @@ public class RootController extends RootControllerInitializer {
                 managementController.showAnswerErrorDialog(VER_HARDWARE, getErrorByCode(detectorMsg.data[0]));
             }
         }
-    }
-
-    private long showDialogLastTime = 0;
-
-    private boolean isDialogShow(long deltaMillis) {
-        long showDialogCurrentTime = System.currentTimeMillis();
-        boolean res = showDialogLastTime == 0 || showDialogCurrentTime - showDialogLastTime > deltaMillis;
-        showDialogLastTime = showDialogCurrentTime;
-        return res;
     }
 
     public void startMeasurement() {
@@ -377,6 +388,15 @@ public class RootController extends RootControllerInitializer {
         detectorClient.sendCommand(command);
     }
 
+    private synchronized void addDetectorMsg(DetectorMsg msg) {
+        detectorMsgs.add(msg);
+    }
+
+    public void addWaitingCommand(Class<? extends SomeCommandAnswer> cl, SomeCommand command) {
+        waitingCommands.putIfAbsent(cl, new LinkedList<>());
+        waitingCommands.get(cl).add(command);
+    }
+
     public void saveMeasurements(File file, String fileComment) {
         DoubleProperty progressProperty = new SimpleDoubleProperty(0.0);
         StringProperty statusProperty = new SimpleStringProperty("");
@@ -441,6 +461,7 @@ public class RootController extends RootControllerInitializer {
 
     public void clear() {
         statisticMeasurements.clear();
+        detectorMsgs.clear();
 
         MagazineController magazineController = (MagazineController) getChild(MagazineController.class.getSimpleName());
         magazineController.clear();

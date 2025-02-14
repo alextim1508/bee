@@ -78,13 +78,13 @@ public class ManagementController extends ManagementControllerInitializer {
                 BDInternalMode selectedMode = getSelectedMode();
                 log.info("selectedMode: {}", selectedMode);
 
-                rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID,
-                        0, selectedMode, deadTime1));
+                rootController.addWaitingCommand(
+                        SetDeadTimeAnswer.class,
+                        new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID,1, selectedMode, deadTime2));
 
-                Thread.sleep(100);
+                rootController.sendDetectorCommand(
+                        new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode, deadTime1));
 
-                rootController.sendDetectorCommand(new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID,
-                        1, selectedMode, deadTime2));
             } catch (Exception e) {
                 log.error("setDeadTimeOn: ", e);
                 showParsingErrorDialog(bdParam);
@@ -102,11 +102,14 @@ public class ManagementController extends ManagementControllerInitializer {
 
         deadTime1.setText("-");
         deadTime2.setText("-");
-        rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode));
 
-        Thread.sleep(100);
+        rootController.addWaitingCommand(
+                GetDeadTimeAnswer.class,
+                new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode));
 
-        rootController.sendDetectorCommand(new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode));
+        rootController.sendDetectorCommand(
+                new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode));
+
     }
 
     @FXML
@@ -123,13 +126,12 @@ public class ManagementController extends ManagementControllerInitializer {
                 BDInternalMode selectedMode = getSelectedMode();
                 log.info("selectedMode: {}", selectedMode);
 
-                rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
-                        0, selectedMode, counter1));
+                rootController.addWaitingCommand(
+                        SetCounterCorrectCoeffAnswer.class,
+                        new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode, counter2));
 
-                Thread.sleep(100);
-
-                rootController.sendDetectorCommand(new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
-                        1, selectedMode, counter2));
+                rootController.sendDetectorCommand(
+                        new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode, counter1));
 
             } catch (Exception e) {
                 log.error("setCorrCoefOn: ", e);
@@ -149,13 +151,12 @@ public class ManagementController extends ManagementControllerInitializer {
         counterCoef1.setText("-");
         counterCoef2.setText("-");
 
-        rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
-                0, selectedMode));
+        rootController.addWaitingCommand(
+                GetCounterCorrectCoeffAnswer.class,
+                new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode));
 
-        Thread.sleep(100);
-
-        rootController.sendDetectorCommand(new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID,
-                1, selectedMode));
+        rootController.sendDetectorCommand(
+                new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode));
     }
 
     @FXML
