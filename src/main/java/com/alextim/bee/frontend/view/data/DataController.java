@@ -35,26 +35,26 @@ public class DataController extends DataControllerInitializer {
     public void showStatisticMeas(StatisticMeasurement meas) {
         log.info("ShowStatisticMeas: {}", meas);
 
-        long timestamp = meas.getLocalDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long timestamp = meas.localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         countGraph.addPoint(index, timestamp, meas.getCountSum());
-        averageCountGraph.addPoint(index, timestamp, meas.getAverageCountSum());
-        currentCountGraph.addPoint(index, timestamp, meas.getCurrentCountSum());
+        averageCountGraph.addPoint(index, timestamp, meas.averageCountSum);
+        currentCountGraph.addPoint(index, timestamp, meas.currentCountSum);
 
         index++;
 
         updateTable(meas);
 
         String formattedMeasData = new ValueFormatter(
-                Math.abs(meas.getCurrentMeasDataValue()), meas.getMeasDataUnit(), MEAS_DATA_NUMBER_SING_DIGITS)
+                Math.abs(meas.currentMeasDataValue), meas.measDataUnit, MEAS_DATA_NUMBER_SING_DIGITS)
                 .toString();
 
-        setMeasData(meas.getMeasDataTitle(), (meas.getCurrentMeasDataValue() < 0 ? "-" : "") + formattedMeasData);
+        setMeasData(meas.measDataTitle, (meas.currentMeasDataValue < 0 ? "-" : "") + formattedMeasData);
 
-        setMeasTime(meas.getAccInterval() + " сек");
+        setMeasTime(meas.accInterval + " сек");
 
-        setMode(meas.getMode().title);
+        setMode(meas.mode.title);
 
-        setGeoData(String.format(Locale.US, "%f, %f", meas.getGeoData().lat(), meas.getGeoData().lon()));
+        setGeoData(String.format(Locale.US, "%f, %f", meas.geoData.lat(), meas.geoData.lon()));
     }
 
     @Override

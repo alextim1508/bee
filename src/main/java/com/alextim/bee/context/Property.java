@@ -23,8 +23,6 @@ public class Property {
     public static Float GEO_DATA_START_LON;
 
     public static String COUNTER_NUMBER_FORMAT;
-    public static String MEAS_DATA_NUMBER_FORMAT;
-    public static String OTHER_NUMBER_FORMAT;
     public static Integer MEAS_DATA_NUMBER_SING_DIGITS;
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("H:mm:ss:SSS");
     public static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

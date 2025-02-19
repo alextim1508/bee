@@ -40,13 +40,14 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("Причина: %s%s, IP адрес БД: %s, IP порт БД: %s, IP порт внешних устройств: %s%s",
-                    reason.title,
-                    param != null ? "/" + param.name() : "",
-                    Arrays.toString(detectorIpAddr),
-                    ipPort,
-                    externalDeviceIpPort,
-                    sourceIpAddr != null ? ", IP адрес источника команды перезапуска: " + Arrays.toString(sourceIpAddr) : "");
+            return "Причина: " + reason.title + (param != null ? "/" + param.name() : "") +
+                    " IP адрес БД: " + Arrays.toString(detectorIpAddr) +
+                    " IP порт БД: " + ipPort +
+                    " IP порт внешних устройств: " + externalDeviceIpPort +
+                    (sourceIpAddr != null ?
+                            System.lineSeparator() +
+                                    " IP адрес источника команды перезапуска: " + Arrays.toString(sourceIpAddr) :
+                            "");
         }
     }
 
@@ -58,7 +59,7 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s", UNKNOWN.title);
+            return UNKNOWN.title;
         }
     }
 
@@ -70,8 +71,8 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s" + System.lineSeparator() + "%s",
-                    INITIALIZATION.title, attentionFlags);
+            return INITIALIZATION.title + "." +
+                    System.lineSeparator() + attentionFlags;
         }
     }
 
@@ -87,8 +88,9 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s. Ошибка: %s" + System.lineSeparator() + "%s",
-                    ERROR.title, error.title, attentionFlags);
+            return ERROR.title + "." +
+                    " Ошибка: " + error.title +
+                    System.lineSeparator() + attentionFlags;
         }
     }
 
@@ -106,8 +108,11 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s. Текущее время: %d, Время измерения: %d" + System.lineSeparator() + "%s",
-                    ACCUMULATION.title, curTime, measTime, attentionFlags);
+            return ACCUMULATION.title + "." +
+                    " Текущее время: " + curTime +
+                    ", Время измерения: " + measTime +
+                    System.lineSeparator() + attentionFlags;
+
         }
     }
 
@@ -123,8 +128,9 @@ public class DetectorEvents {
 
         @Override
         public String toString() {
-            return String.format("%s. %s" + System.lineSeparator() + "%s",
-                    MEASUREMENT.title, meas.toString(), attentionFlags);
+            return MEASUREMENT.title + "." +
+                    " " + meas +
+                    System.lineSeparator() + attentionFlags;
         }
     }
 

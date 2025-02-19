@@ -6,9 +6,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Locale;
 
-import static com.alextim.bee.context.Property.COUNTER_NUMBER_FORMAT;
-import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_FORMAT;
-
 @Getter
 @SuperBuilder
 public class BdpnData extends BdData {
@@ -54,22 +51,15 @@ public class BdpnData extends BdData {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                "Текущий ППН: " + MEAS_DATA_NUMBER_FORMAT + " нейтр./см²сек, " +
-                        "Усредненный за время экспозиции ППН: " + MEAS_DATA_NUMBER_FORMAT + " нейтр./см²сек, " +
+                "Текущий ППН: " + currentDensity + " нейтр./см²сек, " +
+                        "Усредненный за время экспозиции ППН: " + averageDensity + " нейтр./см²сек," +
                         System.lineSeparator() +
-                        "Накопленный счет после запуска режима накопления: " + COUNTER_NUMBER_FORMAT + " имп, " +
-                        "Накопленный счет за время работы БД: " + COUNTER_NUMBER_FORMAT + " имп, " +
+                        "Накопленный счет после запуска режима накопления: " + accumulatedScore + " имп, " +
+                        "Накопленный счет за время работы БД: " + accumulatedPowerScore + " имп," +
                         System.lineSeparator() +
-                        "Текущий счет: " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
-                        "Усредненный за время экспозиции счет: " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        "Текущий счет: " + currentScore + " имп/сек, " +
+                        "Усредненный за время экспозиции счет: " + averageScore + " имп/сек," +
                         System.lineSeparator() +
-                        "Интервал времени после запуска режима накопления: %d сек",
-                currentDensity,
-                averageDensity,
-                accumulatedScore,
-                accumulatedPowerScore,
-                currentScore,
-                averageScore,
-                accumulatedTime);
+                        "Интервал времени после запуска режима накопления: " + accumulatedTime + " сек");
     }
 }

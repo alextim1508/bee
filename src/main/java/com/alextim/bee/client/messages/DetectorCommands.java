@@ -9,7 +9,6 @@ import java.util.Arrays;
 import static com.alextim.bee.client.protocol.DetectorCodes.Command;
 import static com.alextim.bee.client.protocol.DetectorCodes.CommandStatus;
 import static com.alextim.bee.client.transfer.UpdDetectorTransfer.wrapToPackage;
-import static com.alextim.bee.context.Property.OTHER_NUMBER_FORMAT;
 
 public class DetectorCommands {
 
@@ -51,7 +50,8 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Версия: %s", Command.GET_VERSION.title, version);
+            return Command.GET_VERSION.title + "." +
+                    " Версия: " + version;
         }
     }
 
@@ -77,7 +77,8 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Времени экспозиции: %d", Command.SET_MEAS_TIME.title, measTime);
+            return Command.SET_MEAS_TIME.title + "." +
+                    " Времени экспозиции: " + measTime;
         }
     }
 
@@ -113,7 +114,8 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Чувствительность: " + OTHER_NUMBER_FORMAT, Command.SET_SENSITIVITY.title, sensitivity);
+            return Command.SET_SENSITIVITY.title + "." +
+                    " Чувствительность: " + sensitivity;
         }
     }
 
@@ -153,7 +155,8 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Чувствительность: " + OTHER_NUMBER_FORMAT, Command.GET_SENSITIVITY.title, sensitivity);
+            return Command.GET_SENSITIVITY.title + "." +
+                    " Чувствительность: " + sensitivity;
         }
     }
 
@@ -184,11 +187,11 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " счетчика %d, Режим %s",
-                    Command.SET_DEAD_TIME.title,
-                    deadTime,
-                    counterIndex,
-                    mode.title);
+            return Command.SET_DEAD_TIME.title + "." +
+                    " Мертвое время: " + deadTime +
+                    " счетчика " + counterIndex + "," +
+                    System.lineSeparator() +
+                    "Режим %s" + mode.title;
         }
     }
 
@@ -226,10 +229,10 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s счетчика %d, Режим: %s",
-                    Command.GET_DEAD_TIME.title,
-                    counterIndex,
-                    mode.title);
+            return Command.GET_DEAD_TIME.title + "." +
+                    " Счетчик " + counterIndex + "," +
+                    System.lineSeparator() +
+                    "Режим: " + mode.title;
         }
     }
 
@@ -251,11 +254,11 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. Мертвое время: " + OTHER_NUMBER_FORMAT + " счетчика %d , Режим: %s",
-                    Command.GET_DEAD_TIME.title,
-                    deadTime,
-                    counterIndex,
-                    mode.title);
+            return Command.GET_DEAD_TIME.title + "." +
+                    " Мертвое время: " + deadTime +
+                    " счетчика " + counterIndex + "," +
+                    System.lineSeparator() +
+                    "Режим: " + mode.title;
         }
     }
 
@@ -286,11 +289,11 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT + " счетчика %d, Режим: %s",
-                    Command.SET_CORRECT_COFF.title,
-                    counterCorrectCoeff,
-                    counterIndex,
-                    mode.title);
+            return Command.SET_CORRECT_COFF.title + "." +
+                    " Корректирующий коэффициент: " + counterCorrectCoeff +
+                    " счетчика " + counterIndex + "," +
+                    System.lineSeparator() +
+                    "Режим: " + mode.title;
         }
     }
 
@@ -317,7 +320,7 @@ public class DetectorCommands {
             this.mode = mode;
         }
 
-        private static byte[] getData(int counterIndex,  BDInternalMode mode) {
+        private static byte[] getData(int counterIndex, BDInternalMode mode) {
             byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
             return new byte[]{
                     arrayCounterIndex[1], arrayCounterIndex[0],
@@ -327,10 +330,10 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s счетчика %d, Режим: %s",
-                    Command.GET_CORRECT_COFF.title,
-                    counterIndex,
-                    mode.title);
+            return Command.GET_CORRECT_COFF.title + "." +
+                    " Счетчик " + counterIndex + "," +
+                    System.lineSeparator() +
+                    "Режим:  " + mode.title;
         }
     }
 
@@ -351,11 +354,11 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s Корректирующий коэффициент: " + OTHER_NUMBER_FORMAT +  " счетчика %d, Режим: %s",
-                    Command.GET_CORRECT_COFF.title,
-                    counterCorrectCoeff,
-                    counterIndex,
-                    mode.title);
+            return Command.GET_CORRECT_COFF.title + "." +
+                    " Корректирующий коэффициент: " + counterCorrectCoeff +
+                    " счетчика " + counterIndex + "," +
+                    System.lineSeparator() +
+                    "Режим: " + mode.title;
         }
     }
 
@@ -383,7 +386,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return Command.SET_GEO_DATA.title + " " + geoData;
+            return Command.SET_GEO_DATA.title + ". " + geoData;
         }
     }
 
@@ -431,8 +434,10 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return String.format("%s. IP адрес: %s, IP порт: %d, IP порт внешних устройств: %d",
-                    Command.SET_IP_ADDR.title, Arrays.toString(ipAddr), ipPort, externalDeviceIpPort);
+            return Command.SET_IP_ADDR.title + "." +
+                    " IP адрес: " + Arrays.toString(ipAddr) +
+                    ", IP порт: " + ipPort +
+                    ", IP порт внешних устройств: " + externalDeviceIpPort;
         }
     }
 

@@ -4,7 +4,6 @@ import com.alextim.bee.client.dto.GeoData;
 import com.alextim.bee.client.dto.InternalData;
 import com.alextim.bee.client.dto.Measurement;
 import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -14,28 +13,27 @@ import static com.alextim.bee.context.Property.DATE_TIME_FORMATTER;
 @Slf4j
 public class StatisticMeasService {
 
-    @Getter
     public static class StatisticMeasurement {
 
-        private static float count1, count2,  countSum;
+        public static float count1, count2,  countSum;
 
-        private float averageCount1, averageCount2, averageCountSum;
+        public float averageCount1, averageCount2, averageCountSum;
 
-        private float currentCount1, currentCount2, currentCountSum;
+        public float currentCount1, currentCount2, currentCountSum;
 
-        private float currentMeasDataValue, averageMeasDataValue;
+        public float currentMeasDataValue, averageMeasDataValue;
 
-        private String measDataTitle, measDataUnit;
+        public String measDataTitle, measDataUnit;
 
-        private GeoData geoData;
+        public GeoData geoData;
 
-        private long accInterval;
+        public long accInterval;
 
-        private long time = -1;
+        public long time = -1;
 
         public BDInternalMode mode;
 
-        private LocalDateTime localDateTime;
+        public LocalDateTime localDateTime;
 
         public static void clear() {
             countSum = count1 = count2 = 0;
@@ -55,7 +53,7 @@ public class StatisticMeasService {
 
         @Override
         public String toString() {
-            return measDataTitle + ": " + currentMeasDataValue + " / " + averageMeasDataValue + " " + measDataUnit + " " +
+            return measDataTitle + ": " + currentMeasDataValue + " / " + averageMeasDataValue + " " + measDataUnit + ", " +
                     "Текущее значение счетчика 1: " + currentCount1 +
                     ", Текущее значение счетчик 2: " + currentCount2 +
                     ", Текущее суммарное значение счетчиков: " + currentCountSum +

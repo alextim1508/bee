@@ -97,6 +97,7 @@
             </AnchorPane>
             <VBox spacing="10.0" style="-fx-border-color: black;">
                <children>
+                  <Label text="Режим работы БД:" />
                   <RadioButton fx:id="highSens" layoutX="1032.0" layoutY="217.0" mnemonicParsing="false" selected="true" text="непрерывный (высокая чувствительность)">
                      <toggleGroup>
                         <ToggleGroup fx:id="modes" />

@@ -25,10 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.alextim.bee.client.messages.DetectorEvents.*;
@@ -52,17 +49,17 @@ public class RootController extends RootControllerInitializer {
         super(appState, mainWindow, detectorClient, statisticMeasService, exportService);
     }
 
-    private final List<DetectorMsg> detectorMsgs = new ArrayList<>();
+    private final List<DetectorMsg> detectorMsgs =  new CopyOnWriteArrayList<>();
 
-    private Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
+    private final Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
 
-    private final Map<Long, StatisticMeasurement> statisticMeasurements = new HashMap<>();
+    private final Map<Long, StatisticMeasurement> statisticMeasurements = new ConcurrentHashMap<>();
 
-    protected final ExecutorService executorService = Executors.newFixedThreadPool(4);
+    protected final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private Future<?> connectTimer;
     private Future<?> geoDataSender;
-    private final AtomicLong time = new AtomicLong();
+    private final AtomicLong lastReceivedMsgTime = new AtomicLong();
 
     @SneakyThrows
     public void listenDetectorClient() {
@@ -81,10 +78,14 @@ public class RootController extends RootControllerInitializer {
                     break;
                 }
 
-                time.set(System.currentTimeMillis());
+                lastReceivedMsgTime.set(System.currentTimeMillis());
 
                 DetectorMsg detectorMsg = parse(msg);
                 log.info("DetectorMsg: {}. {}", detectorMsg.getClass().getSimpleName(), detectorMsg);
+
+                magazineController.addLog(detectorMsg);
+
+                addDetectorMsg(detectorMsg);
 
                 if (detectorMsg instanceof SomeEvent event) {
                     try {
@@ -101,9 +102,7 @@ public class RootController extends RootControllerInitializer {
                     }
                 }
 
-                magazineController.addLog(detectorMsg);
 
-                addDetectorMsg(detectorMsg);
             }
             log.info("queue handle task is done");
         };
@@ -341,14 +340,14 @@ public class RootController extends RootControllerInitializer {
 
         connectTimer = executorService.submit(() -> {
             DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
-            time.set(System.currentTimeMillis());
+            lastReceivedMsgTime.set(System.currentTimeMillis());
 
             try {
                 do {
                     Thread.sleep(1000);
 
                     long cur = System.currentTimeMillis();
-                    if (cur - time.get() > 5000) {
+                    if (cur - lastReceivedMsgTime.get() > 5000) {
                         dataController.setNoConnect();
                     }
                 } while (!Thread.currentThread().isInterrupted());
@@ -423,7 +422,13 @@ public class RootController extends RootControllerInitializer {
                             "Измерения экспортированы в файлы");
                 });
             } catch (Exception e) {
-                log.error("saveMeasurements", e);
+                log.error("saveMeasurements error", e);
+
+                Platform.runLater(() -> {
+                    progressDialog.forcefullyHideDialog();
+
+                    mainWindow.showError(e);
+                });
             }
         });
 
@@ -455,7 +460,12 @@ public class RootController extends RootControllerInitializer {
                         "Измерения экспортированы в файлы");
             });
         } catch (Exception e) {
-            log.error("saveMeasurements", e);
+            log.error("saveMessages", e);
+
+            Platform.runLater(() -> {
+                progressDialog.forcefullyHideDialog();
+                mainWindow.showError(e);
+            });
         }
     }
 

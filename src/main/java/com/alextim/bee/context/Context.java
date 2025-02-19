@@ -115,12 +115,6 @@ public class Context {
         COUNTER_NUMBER_FORMAT = (String) properties.get("app.view.counter-float-number-formatting");
         log.info("COUNTER_NUMBER_FORMAT: {}", COUNTER_NUMBER_FORMAT);
 
-        MEAS_DATA_NUMBER_FORMAT = (String) properties.get("app.view.meas-data-float-number-formatting");
-        log.info("MEAS_DATA_NUMBER_FORMATTING: {}", MEAS_DATA_NUMBER_FORMAT);
-
-        OTHER_NUMBER_FORMAT = (String) properties.get("app.view.other-float-number-formatting");
-        log.info("OTHER_NUMBER_FORMAT: {}", OTHER_NUMBER_FORMAT);
-
         MEAS_DATA_NUMBER_SING_DIGITS = Integer.parseInt((String) properties.get("app.view.meas-data-float-number-sign-digits"));
         log.info("MEAS_DATA_NUMBER_SING_DIGITS: {}", MEAS_DATA_NUMBER_SING_DIGITS);
     }

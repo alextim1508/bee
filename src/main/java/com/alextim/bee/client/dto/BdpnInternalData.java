@@ -4,9 +4,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Locale;
 
-import static com.alextim.bee.context.Property.COUNTER_NUMBER_FORMAT;
-import static com.alextim.bee.context.Property.OTHER_NUMBER_FORMAT;
-
 
 @SuperBuilder
 public class BdpnInternalData extends InternalData {
@@ -17,26 +14,19 @@ public class BdpnInternalData extends InternalData {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                "Версия: %d, " +
-                        "Тип БД: %s, " +
-                        "Время экспозиции: %d, " +
-                        "Режим работы БД: %s, " +
+                "Версия: " + version + ", " +
+                        "Тип БД: " + bdType.title + ", " +
+                        "Время экспозиции: " + measTime + ", " +
+                        "Режим работы БД: " + mode.title + "," +
                         System.lineSeparator() +
                         "Текущие счета счетчиков: " +
-                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        currentScores[0] + " " + currentScores[1] + " имп/сек, " +
                         "Усредненные за время экспозиции счета счетчиков: " +
-                        COUNTER_NUMBER_FORMAT + ", " + COUNTER_NUMBER_FORMAT + " имп/сек, " +
+                        averageScores[0] + " " + averageScores[1] + " имп/сек," +
                         System.lineSeparator() +
-                        "Температура по коду датчика: " + OTHER_NUMBER_FORMAT + " °C, " +
-                        "Высокое напряжение 500V: " + OTHER_NUMBER_FORMAT + " В, " +
-                        "Высокое напряжение 2500V: " + OTHER_NUMBER_FORMAT + " В, " +
-                        "Напряжение питания: " + OTHER_NUMBER_FORMAT + " В ",
-                version,
-                bdType.title,
-                measTime,
-                mode.title,
-                currentScores[0], currentScores[1],
-                averageScores[0], averageScores[1],
-                temperature, voltage500V, voltage2500V, power);
+                        "Температура по коду датчика: " + temperature + " °C, " +
+                        "Высокое напряжение 500V: " + voltage500V + " В, " +
+                        "Высокое напряжение 2500V: " + voltage2500V + " В, " +
+                        "Напряжение питания: " + power + " В ");
     }
 }

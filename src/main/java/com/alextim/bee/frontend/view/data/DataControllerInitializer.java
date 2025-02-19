@@ -317,16 +317,16 @@ public abstract class DataControllerInitializer extends NodeController {
         ObservableList<TableRow> items = table.getItems();
 
         items.get(0).count = meas.getCount1();
-        items.get(0).averageCount = meas.getAverageCount1();
-        items.get(0).currentCount = meas.getCurrentCount1();
+        items.get(0).averageCount = meas.averageCount1;
+        items.get(0).currentCount = meas.currentCount1;
 
         items.get(1).count = meas.getCount2();
-        items.get(1).averageCount = meas.getAverageCount2();
-        items.get(1).currentCount = meas.getCurrentCount2();
+        items.get(1).averageCount = meas.averageCount2;
+        items.get(1).currentCount = meas.currentCount2;
 
         items.get(2).count = meas.getCountSum();
-        items.get(2).averageCount = meas.getAverageCountSum();
-        items.get(2).currentCount = meas.getCurrentCountSum();
+        items.get(2).averageCount = meas.averageCountSum;
+        items.get(2).currentCount = meas.currentCountSum;
 
         table.refresh();
     }

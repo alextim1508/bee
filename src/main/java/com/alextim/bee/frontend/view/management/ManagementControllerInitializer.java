@@ -165,7 +165,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
 
     public void setSensitivity(float sensitivity) {
         Platform.runLater(() -> {
-            this.sensitivity.setText(String.format(Locale.US, "%f", sensitivity));
+            this.sensitivity.setText(String.valueOf(sensitivity));
         });
     }
 
@@ -184,9 +184,9 @@ public abstract class ManagementControllerInitializer extends NodeController {
     public void setCounterCorrectCoeff(int counterIndex, BDInternalMode selectedMode, float counterCorrectCoeff) {
         Platform.runLater(() -> {
             if (counterIndex == 0) {
-                this.counterCoef1.setText(String.format(Locale.US, "%f", counterCorrectCoeff));
+                this.counterCoef1.setText(String.valueOf(counterCorrectCoeff));
             } else if (counterIndex == 1) {
-                this.counterCoef2.setText(String.format(Locale.US, "%f", counterCorrectCoeff));
+                this.counterCoef2.setText(String.valueOf(counterCorrectCoeff));
             }
 
             setSelectedMode(selectedMode);

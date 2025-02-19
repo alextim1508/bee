@@ -18,10 +18,13 @@ public class Measurement {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                "Версия: %d, Тип блока: %s, Время измерение: %d, " + System.lineSeparator() +
-                        "%s" + System.lineSeparator() +
-                        "%s",
-                version, bdType.title, measTime, bdData, geoData);
+                "Версия: " + version + ", " +
+                        "Тип блока: " + bdType.title + ", " +
+                        "Время измерение: " + measTime + "," +
+                        System.lineSeparator() +
+                        bdData +
+                        System.lineSeparator() +
+                        geoData);
     }
 }
 
