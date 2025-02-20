@@ -12,8 +12,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.*;
-import static com.alextim.bee.context.Property.SOFTWARE_VERSION;
-import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
+import static com.alextim.bee.context.Property.*;
 
 @Slf4j
 public class ManagementController extends ManagementControllerInitializer {
@@ -22,7 +21,7 @@ public class ManagementController extends ManagementControllerInitializer {
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
 
-        setSoftwareVersion(SOFTWARE_VERSION);
+        setSoftwareVersion(SOFTWARE_VERSION, DATE_BUILD);
     }
 
     @FXML

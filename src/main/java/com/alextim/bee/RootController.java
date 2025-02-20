@@ -481,6 +481,7 @@ public class RootController extends RootControllerInitializer {
         log.info("close");
 
         try {
+            ((DataController) getChild(DataController.class.getSimpleName())).putStateParam();
             appState.saveParam();
         } catch (Exception e) {
             log.error("SaveParams error", e);

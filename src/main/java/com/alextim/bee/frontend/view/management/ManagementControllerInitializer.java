@@ -81,7 +81,7 @@ public abstract class ManagementControllerInitializer extends NodeController {
     protected Button restartBtn;
 
     @FXML
-    protected Label softwareVersion;
+    protected Label softwareVersion, dateBuild;
 
 
     @Override
@@ -157,9 +157,10 @@ public abstract class ManagementControllerInitializer extends NodeController {
         });
     }
 
-    public void setSoftwareVersion(String text) {
+    public void setSoftwareVersion(String version, String date) {
         Platform.runLater(() -> {
-            softwareVersion.setText(text);
+            softwareVersion.setText(version);
+            dateBuild.setText(date);
         });
     }
 

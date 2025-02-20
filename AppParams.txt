@@ -1,0 +1,2 @@
+data.comment:коммент
+data.measTime:SEC_10

@@ -167,6 +167,11 @@
          </children>
       </HBox>
       <Button fx:id="restartBtn" disable="true" layoutX="23.0" layoutY="600.0" mnemonicParsing="false" onAction="#restartOn" prefHeight="25.0" prefWidth="131.0" text="Перезапустить БД" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="480.0" />
-      <Label fx:id="softwareVersion" layoutX="1604.0" layoutY="678.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+      <VBox AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
+         <children>
+            <Label fx:id="softwareVersion" contentDisplay="CENTER" layoutX="1604.0" layoutY="678.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+            <Label fx:id="dateBuild" contentDisplay="CENTER" />
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

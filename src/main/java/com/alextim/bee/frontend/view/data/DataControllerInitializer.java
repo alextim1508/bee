@@ -88,6 +88,7 @@ public abstract class DataControllerInitializer extends NodeController {
     abstract void clear();
 
     private final String MEAS_TIME_STATE_APP_PARAM = "data.measTime";
+    private final String COMMENT_STATE_APP_PARAM = "data.comment";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -98,6 +99,7 @@ public abstract class DataControllerInitializer extends NodeController {
         tableInitialize();
         fullTable();
         measTimeInit();
+        commentInit();
 
         addGraph();
     }
@@ -219,10 +221,15 @@ public abstract class DataControllerInitializer extends NodeController {
         }
     }
 
+    private void commentInit() {
+        String param = rootController.getAppState().getParam(COMMENT_STATE_APP_PARAM);
+        if (param != null) {
+            fileComment.setText(param);
+        }
+    }
+
     @FXML
     private void measTimeOn(ActionEvent event) {
-        rootController.getAppState().putParam(MEAS_TIME_STATE_APP_PARAM, measTime.getValue().name());
-
         setNewMeasTime(measTime.getValue());
     }
 
@@ -383,5 +390,10 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     void onClear(ActionEvent event) {
         clear();
+    }
+
+    public void putStateParam() {
+        rootController.getAppState().putParam(MEAS_TIME_STATE_APP_PARAM, measTime.getValue().name());
+        rootController.getAppState().putParam(COMMENT_STATE_APP_PARAM, fileComment.getText());
     }
 }
