@@ -88,10 +88,11 @@ public class ValueFormatter {
             return 1_000_000_000_000_000L;
         else if(prefixValue.startsWith("Э"))
             return 1_000_000_000_000_000_000L;
-        else if(prefixValue.startsWith("м"))
-            return 0.001;
+
         else if(prefixValue.startsWith("мк"))
             return 0.000_001;
+        else if(prefixValue.startsWith("м"))
+            return 0.001;
         else if(prefixValue.startsWith("н"))
             return 0.000_000_001;
         else if(prefixValue.startsWith("п"))
@@ -100,6 +101,7 @@ public class ValueFormatter {
             return 0.000_000_000_000_001;
         else if(prefixValue.startsWith("а"))
             return 0.000_000_000_000_000_001;
-        return 1;
+
+        throw new RuntimeException("Unknown prefix: " + prefixValue);
     }
 }

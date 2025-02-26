@@ -215,7 +215,12 @@ public abstract class DataControllerInitializer extends NodeController {
 
         String param = rootController.getAppState().getParam(MEAS_TIME_STATE_APP_PARAM);
         if (param != null) {
-            measTime.getSelectionModel().select(MeasTime.valueOf(param));
+            try {
+                measTime.getSelectionModel().select(MeasTime.valueOf(param));
+            } catch (Exception e) {
+                log.error("", e);
+                measTime.getSelectionModel().select(SEC_10);
+            }
         } else {
             measTime.getSelectionModel().select(SEC_10);
         }

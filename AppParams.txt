@@ -1,2 +1,5 @@
+metrology.realMeasData:590 мк
 data.comment:коммент
+metrology.measAmount:6
 data.measTime:SEC_10
+metrology.cycleAmount:5

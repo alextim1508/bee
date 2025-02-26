@@ -5,6 +5,7 @@ import com.alextim.bee.context.AppState;
 import com.alextim.bee.frontend.MainWindow;
 import com.alextim.bee.frontend.view.NodeController;
 import com.alextim.bee.service.ExportService;
+import com.alextim.bee.service.MetrologyMeasService;
 import com.alextim.bee.service.StatisticMeasService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ public class RootControllerInitializer {
     protected final DetectorClientAbstract detectorClient;
 
     protected final StatisticMeasService statisticMeasService;
+
+    protected final MetrologyMeasService metrologyMeasService;
 
     protected final ExportService exportService;
 

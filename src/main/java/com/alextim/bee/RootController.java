@@ -12,7 +12,10 @@ import com.alextim.bee.frontend.dialog.progress.ProgressDialog;
 import com.alextim.bee.frontend.view.data.DataController;
 import com.alextim.bee.frontend.view.magazine.MagazineController;
 import com.alextim.bee.frontend.view.management.ManagementController;
+import com.alextim.bee.frontend.view.metrology.MetrologyController;
 import com.alextim.bee.service.ExportService;
+import com.alextim.bee.service.MetrologyMeasService;
+import com.alextim.bee.service.MetrologyMeasService.MetrologyMeasurement;
 import com.alextim.bee.service.StatisticMeasService;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -45,11 +48,12 @@ public class RootController extends RootControllerInitializer {
                           MainWindow mainWindow,
                           DetectorClientAbstract detectorClient,
                           StatisticMeasService statisticMeasService,
+                          MetrologyMeasService metrologyMeasService,
                           ExportService exportService) {
-        super(appState, mainWindow, detectorClient, statisticMeasService, exportService);
+        super(appState, mainWindow, detectorClient, statisticMeasService, metrologyMeasService, exportService);
     }
 
-    private final List<DetectorMsg> detectorMsgs =  new CopyOnWriteArrayList<>();
+    private final List<DetectorMsg> detectorMsgs = new CopyOnWriteArrayList<>();
 
     private final Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
 
@@ -68,6 +72,7 @@ public class RootController extends RootControllerInitializer {
             DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
             MagazineController magazineController = (MagazineController) getChild(MagazineController.class.getSimpleName());
             ManagementController managementController = (ManagementController) getChild(ManagementController.class.getSimpleName());
+            MetrologyController metrologyController = (MetrologyController) getChild(MetrologyController.class.getSimpleName());
 
             while (!Thread.currentThread().isInterrupted()) {
                 DetectorMsg msg;
@@ -89,7 +94,7 @@ public class RootController extends RootControllerInitializer {
 
                 if (detectorMsg instanceof SomeEvent event) {
                     try {
-                        handleEvent(dataController, managementController, event);
+                        handleEvent(dataController, metrologyController, managementController, event);
                     } catch (Exception e) {
                         log.error("handleEvent exception", e);
                     }
@@ -110,7 +115,10 @@ public class RootController extends RootControllerInitializer {
         executorService.submit(task);
     }
 
-    private void handleEvent(DataController dataController, ManagementController managementController, SomeEvent detectorMsg) {
+    private void handleEvent(DataController dataController,
+                             MetrologyController metrologyController,
+                             ManagementController managementController,
+                             SomeEvent detectorMsg) {
         if (detectorMsg instanceof RestartDetectorState restartDetectorState) {
             handleRestartDetectorState(managementController, restartDetectorState);
 
@@ -121,7 +129,7 @@ public class RootController extends RootControllerInitializer {
             handleAccumulationDetectorState(dataController, state);
 
         } else if (detectorMsg instanceof MeasurementDetectorState state) {
-            handleMeasDetectorState(dataController, state);
+            handleMeasDetectorState(dataController, metrologyController, state);
 
         } else if (detectorMsg instanceof InternalEvent event) {
             handleInternalEvent(dataController, event);
@@ -171,7 +179,9 @@ public class RootController extends RootControllerInitializer {
         dataController.setImageViewLabel(100 * accStateDetector.curTime / accStateDetector.measTime + "%", "", "");
     }
 
-    private void handleMeasDetectorState(DataController dataController, MeasurementDetectorState measStateDetector) {
+    private void handleMeasDetectorState(DataController dataController,
+                                         MetrologyController metrologyController,
+                                         MeasurementDetectorState measStateDetector) {
         log.info("handleMeasDetectorState time: {}", measStateDetector.time);
 
         if (areThereAttentionFlags(measStateDetector.attentionFlags)) {
@@ -192,6 +202,11 @@ public class RootController extends RootControllerInitializer {
             statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
 
             statisticMeasurements.put(measStateDetector.time, statMeas);
+        }
+
+        if (metrologyMeasService.isRun()) {
+            MetrologyMeasurement metrologyMeasurement = metrologyMeasService.addMeasToMetrology(measStateDetector);
+            metrologyController.showMetrologyMeas(metrologyMeasurement);
         }
     }
 
@@ -358,6 +373,7 @@ public class RootController extends RootControllerInitializer {
         });
 
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(false);
+        ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(false);
     }
 
     public void stopMeasurement() {
@@ -370,6 +386,11 @@ public class RootController extends RootControllerInitializer {
         detectorClient.close();
 
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(true);
+        ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(true);
+    }
+
+    public void startMetrology(int cycleAmount, int measAmount, float realMeasData) {
+        metrologyMeasService.run(cycleAmount, measAmount, realMeasData);
     }
 
     public void sendDetectorCommand(SomeCommand command) {
@@ -482,6 +503,7 @@ public class RootController extends RootControllerInitializer {
 
         try {
             ((DataController) getChild(DataController.class.getSimpleName())).putStateParam();
+            ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).putStateParam();
             appState.saveParam();
         } catch (Exception e) {
             log.error("SaveParams error", e);

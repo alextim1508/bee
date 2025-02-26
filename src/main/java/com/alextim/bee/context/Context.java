@@ -6,6 +6,7 @@ import com.alextim.bee.client.DetectorClient;
 import com.alextim.bee.client.DetectorClientAbstract;
 import com.alextim.bee.frontend.MainWindow;
 import com.alextim.bee.service.ExportService;
+import com.alextim.bee.service.MetrologyMeasService;
 import com.alextim.bee.service.StatisticMeasService;
 import lombok.Cleanup;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class Context {
 
     private DetectorClientAbstract detectorClient;
     private StatisticMeasService statisticMeasService;
+    private MetrologyMeasService metrologyMeasService;
     private ExportService exportService;
     private AppState appState;
 
@@ -140,6 +142,8 @@ public class Context {
 
         statisticMeasService = new StatisticMeasService();
 
+        metrologyMeasService = new MetrologyMeasService();
+
         exportService = new ExportService();
     }
 
@@ -151,6 +155,7 @@ public class Context {
                 mainWindow,
                 detectorClient,
                 statisticMeasService,
+                metrologyMeasService,
                 exportService);
     }
 
