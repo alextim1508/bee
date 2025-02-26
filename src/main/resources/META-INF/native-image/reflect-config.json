@@ -144,6 +144,18 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"com.alextim.bee.frontend.view.metrology.MetrologyController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.alextim.bee.frontend.view.metrology.MetrologyControllerInitializer",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"startOn","parameterTypes":["javafx.event.ActionEvent"] }]
+},
+{
   "name":"com.alextim.bee.frontend.widget.GraphWidget$TimeAxis",
   "allDeclaredFields":true
 },
