@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class MetrologyMeasService {
 
-    private int count;
-    private int cycleAmount;
-    private int measAmount;
-    private float realMeasData;
-    private float aveMeasData;
+    int count;
+    int cycleAmount;
+    int measAmount;
+    float realMeasData;
+    float aveMeasData;
 
     private final AtomicBoolean run = new AtomicBoolean(false);
 
@@ -25,6 +25,7 @@ public class MetrologyMeasService {
     public static class MetrologyMeasurement {
         public int cycle;
         public float measData;
+        public float aveMeasData;
         public String unit;
         public float progress;
         public float error;
@@ -48,12 +49,16 @@ public class MetrologyMeasService {
 
         initAverage(msg.meas.bdData.getCurrentMeasData(), (count % measAmount) + 1);
 
-        float error = calcError();
+        float aveTotalMeasData = calcAveTotalMeasData();
 
+        float error = calcError(aveTotalMeasData);
+
+        /* Проверка, что текущее измерение - измерение нового цикла*/
         if(count % measAmount == 0) {
             aveMeasDataList.add(aveMeasData);
         }
 
+        /* Проверка на последнее измерение*/
         if( (count + 1) / measAmount == cycleAmount) {
             run.set(false);
         }
@@ -61,6 +66,7 @@ public class MetrologyMeasService {
         MetrologyMeasurement meas = new MetrologyMeasurement(
                 count / measAmount + 1,
                 aveMeasData,
+                aveTotalMeasData,
                 msg.meas.bdData.getMeasDataUnit(),
                 1.0f * (count + 1)  / (measAmount * cycleAmount),
                 error
@@ -82,15 +88,19 @@ public class MetrologyMeasService {
         log.info("aveMeasData: {}", aveMeasData);
     }
 
-    public float calcError() {
+    float calcAveTotalMeasData() {
         float aveMeasData = 0;
         for(float v: aveMeasDataList)
             aveMeasData += v;
 
         aveMeasData /= aveMeasDataList.size();
 
-        log.info("calcError: Average meas data: {}", aveMeasData);
-        log.info("realMeasData: {}", realMeasData);
+        return aveMeasData;
+    }
+
+    float calcError(float aveMeasData) {
+        log.info("average meas data: {}", aveMeasData);
+        log.info("real meas data: {}", realMeasData);
 
         float error = 100 * Math.abs(realMeasData - aveMeasData) / realMeasData;
         log.info("error: {}", error);

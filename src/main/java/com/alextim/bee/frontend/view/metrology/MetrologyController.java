@@ -12,6 +12,7 @@ public class MetrologyController extends MetrologyControllerInitializer{
 
     public void showMetrologyMeas(MetrologyMeasurement metrologyMeas) {
         Platform.runLater(() -> {
+            setAveMeasData(metrologyMeas.aveMeasData, metrologyMeas.unit);
             updateTable(metrologyMeas.cycle, metrologyMeas.measData, metrologyMeas.unit);
             setError(metrologyMeas.error);
             setProgress(metrologyMeas.progress);

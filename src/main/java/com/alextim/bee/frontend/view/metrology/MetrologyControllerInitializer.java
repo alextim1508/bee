@@ -6,8 +6,11 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +31,9 @@ public abstract class MetrologyControllerInitializer extends NodeController {
     private final String CYCLE_AMOUNT_STATE_APP_PARAM = "metrology.cycleAmount";
     private final String MEAS_AMOUNT_STATE_APP_PARAM = "metrology.measAmount";
     private final String REAL_MEAS_DATA_STATE_APP_PARAM = "metrology.realMeasData";
+
+    @FXML
+    private AnchorPane pane;
 
     @FXML
     private TextField cycleAmount;
@@ -51,6 +57,9 @@ public abstract class MetrologyControllerInitializer extends NodeController {
     private TableColumn<TableRow, String> aveMeasDataColumn;
 
     @FXML
+    private TextField aveMeasData;
+
+    @FXML
     private Button startBtn;
 
     @AllArgsConstructor
@@ -64,9 +73,15 @@ public abstract class MetrologyControllerInitializer extends NodeController {
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
 
+        paneInit();
         initTable();
         initProgressBar();
         initMetrologyFields();
+    }
+
+    private void paneInit() {
+        /* Bug JavaFX. Other tabs of tabPane get ScrollEvent from current tab */
+        pane.addEventHandler(ScrollEvent.ANY, Event::consume);
     }
 
     private void initTable() {
@@ -113,6 +128,15 @@ public abstract class MetrologyControllerInitializer extends NodeController {
 
     public void setError(double error) {
         this.error.setText(String.format(Locale.US, "%f", error));
+    }
+
+    public void setAveMeasData(float aveMeasData, String unit) {
+        this.aveMeasData.setText(
+                new ValueFormatter(
+                        aveMeasData,
+                        unit,
+                        MEAS_DATA_NUMBER_SING_DIGITS).toString()
+        );
     }
 
     public void updateTable(int cycle, float measData, String unit) {

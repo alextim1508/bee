@@ -1,4 +1,4 @@
-metrology.realMeasData:212 ��
+metrology.realMeasData:212 п
 data.comment:коммент
 metrology.measAmount:6
 data.measTime:SEC_10
