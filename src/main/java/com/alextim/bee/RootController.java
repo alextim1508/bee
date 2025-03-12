@@ -491,6 +491,8 @@ public class RootController extends RootControllerInitializer {
     }
 
     public void clear() {
+        statisticMeasService.clear();
+        
         statisticMeasurements.clear();
         detectorMsgs.clear();
 

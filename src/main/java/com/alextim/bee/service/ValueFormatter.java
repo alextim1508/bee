@@ -44,7 +44,7 @@ public class ValueFormatter {
 
 
     public String toString() {
-        if(value <= 0.0 || Double.isInfinite(value)) {
+        if(value <= 0.0 || Double.isInfinite(value) || Double.isNaN(value)) {
             return value + " "  + unit;
         }
 
