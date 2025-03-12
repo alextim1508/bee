@@ -119,6 +119,9 @@ public class Context {
 
         MEAS_DATA_NUMBER_SING_DIGITS = Integer.parseInt((String) properties.get("app.view.meas-data-float-number-sign-digits"));
         log.info("MEAS_DATA_NUMBER_SING_DIGITS: {}", MEAS_DATA_NUMBER_SING_DIGITS);
+
+        ERROR_NUMBER_SING_DIGITS = Integer.parseInt((String) properties.get("app.view.error-float-number-sign-digits"));
+        log.info("ERROR_NUMBER_SING_DIGITS: {}", ERROR_NUMBER_SING_DIGITS);
     }
 
     void createBeans(MainWindow mainWindow) {

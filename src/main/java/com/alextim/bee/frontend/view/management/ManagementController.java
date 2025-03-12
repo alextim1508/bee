@@ -159,6 +159,47 @@ public class ManagementController extends ManagementControllerInitializer {
     }
 
     @FXML
+    void setImpulseRangeCounterOn(ActionEvent event) {
+        BDParam bdParam = IMPULSE_MODE_RANGE;
+        if (areYouSure(bdParam)) {
+            try {
+                log.info("setImpulseRangeCounterOn");
+
+                float counter1 = Float.parseFloat(this.impulseRangeCounter1.getText());
+                float counter2 = Float.parseFloat(this.impulseRangeCounter2.getText());
+                log.info("setImpulseRangeCounter: {} {}", counter1, counter2);
+
+
+                rootController.addWaitingCommand(
+                        SetImpulseRangeCounterCommandAnswer.class,
+                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
+
+                rootController.sendDetectorCommand(
+                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
+
+            } catch (Exception e) {
+                log.error("setImpulseRangeCounterOn: ", e);
+                showParsingErrorDialog(bdParam);
+            }
+        }
+    }
+
+    @FXML
+    void getImpulseRangeCounterOn(ActionEvent event) {
+        log.info("getImpulseRangeCounter");
+
+        impulseRangeCounter1.setText("-");
+        impulseRangeCounter2.setText("-");
+
+        rootController.addWaitingCommand(
+                GetImpulseRangeCounterCommandAnswer.class,
+                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1));
+
+        rootController.sendDetectorCommand(
+                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0));
+    }
+
+    @FXML
     void setIpOn(ActionEvent event) {
         BDParam bdParam = IP_ADDRESS_PORT;
         if (areYouSure(bdParam)) {

@@ -9,6 +9,19 @@
     <timestamp key="bySecond" datePattern="yyyyMMdd_HHmmss"/>
 
     <!-- ================================================================================== -->
+    <logger name="com.alextim.bee.service.MetrologyMeasService" level="debug">
+        <appender-ref ref="FILE_METROLOGY"/>
+    </logger>
+
+<!--    <appender name="FILE_METROLOGY" class="FileAppender">-->
+<!--        <file>./log/metrology-${bySecond}.txt</file>-->
+<!--        <append>true</append>-->
+<!--        <immediateFlush>true</immediateFlush>-->
+<!--        <encoder class="PatternLayoutEncoder">-->
+<!--            <charset>UTF-8</charset>-->
+<!--            <pattern>%date{HH:mm:ss.SSS} [%thread] %-5level %logger{35} -%kvp- %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
 
     <appender name="FILE_BASE" class="FileAppender">
         <file>./log/baseLog-${bySecond}.txt</file>
@@ -29,7 +42,7 @@
 
     <root level="debug">
         <appender-ref ref="FILE_BASE"/>
-        <appender-ref ref="CONSOLE"/>
+        <!--<appender-ref ref="CONSOLE"/> -->
     </root>
 
 </configuration>

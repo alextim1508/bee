@@ -31,8 +31,8 @@
             </HBox>
             <HBox prefHeight="25.0" prefWidth="239.0">
                <children>
-                  <Label layoutX="569.0" layoutY="113.0" prefHeight="25.0" prefWidth="154.0" text="Действительное значение:" />
-                  <TextField fx:id="realMeasData" layoutX="787.0" layoutY="109.0" prefHeight="25.0" prefWidth="140.0" promptText="значение приставка " />
+                  <Label layoutX="569.0" layoutY="113.0" prefHeight="25.0" prefWidth="173.0" text="Действительное значение:" />
+                  <TextField fx:id="realMeasData" layoutX="787.0" layoutY="109.0" prefHeight="25.0" prefWidth="130.0" promptText="значение приставка " />
                </children>
             </HBox>
             <StackPane>
@@ -43,8 +43,8 @@
             </StackPane>
             <HBox prefHeight="25.0" prefWidth="239.0">
                <children>
-                  <Label layoutX="569.0" layoutY="113.0" prefHeight="25.0" prefWidth="157.0" text="Погрешность, %:" />
-                  <TextField fx:id="error" layoutX="787.0" layoutY="109.0" prefHeight="25.0" prefWidth="140.0" />
+                  <Label layoutX="569.0" layoutY="113.0" prefHeight="25.0" prefWidth="171.0" text="Погрешность, %:" />
+                  <TextField fx:id="error" layoutX="787.0" layoutY="109.0" prefHeight="25.0" prefWidth="130.0" />
                </children>
             </HBox>
             <HBox layoutX="576.0" layoutY="173.0" spacing="10.0">

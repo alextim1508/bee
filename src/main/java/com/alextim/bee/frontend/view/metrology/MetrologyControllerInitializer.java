@@ -18,11 +18,13 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static com.alextim.bee.context.Property.ERROR_NUMBER_SING_DIGITS;
 import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
 import static com.alextim.bee.frontend.MainWindow.PROGRESS_BAR_COLOR;
 import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.ERROR_PARSE_FILED;
 import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.ERROR_PARSE_TITLE;
 import static com.alextim.bee.service.ValueFormatter.parsingValuePrefix;
+import static com.alextim.bee.service.ValueFormatter.sigDigRounder;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 @Slf4j
@@ -88,11 +90,13 @@ public abstract class MetrologyControllerInitializer extends NodeController {
         numberCycleColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().numberCycle));
         aveMeasDataColumn.setCellValueFactory(param ->
                 new ReadOnlyObjectWrapper<>(
-                        new ValueFormatter(
-                                param.getValue().aveMeasData,
-                                param.getValue().unit,
-                                MEAS_DATA_NUMBER_SING_DIGITS).toString()));
+                        Float.isNaN(param.getValue().aveMeasData) || Float.isInfinite(param.getValue().aveMeasData) ? "-" :
+                                new ValueFormatter(
+                                        param.getValue().aveMeasData,
+                                        param.getValue().unit,
+                                        MEAS_DATA_NUMBER_SING_DIGITS).toString()
 
+                ));
         table.setPlaceholder(new Label(""));
         table.setItems(FXCollections.observableArrayList());
     }
@@ -127,15 +131,18 @@ public abstract class MetrologyControllerInitializer extends NodeController {
     }
 
     public void setError(double error) {
-        this.error.setText(String.format(Locale.US, "%f", error));
+        this.error.setText(
+                Double.isNaN(error) || Double.isInfinite(error) ? "-" :
+                        String.valueOf(sigDigRounder(error, ERROR_NUMBER_SING_DIGITS)));
     }
 
     public void setAveMeasData(float aveMeasData, String unit) {
         this.aveMeasData.setText(
-                new ValueFormatter(
-                        aveMeasData,
-                        unit,
-                        MEAS_DATA_NUMBER_SING_DIGITS).toString()
+                Float.isNaN(aveMeasData) || Float.isInfinite(aveMeasData) ? "-" :
+                        new ValueFormatter(
+                                aveMeasData,
+                                unit,
+                                MEAS_DATA_NUMBER_SING_DIGITS).toString()
         );
     }
 
@@ -185,10 +192,10 @@ public abstract class MetrologyControllerInitializer extends NodeController {
             log.debug("value: {}", value);
 
             double prefix = 1;
-            if(split.length == 2) {
+            if (split.length == 2) {
                 String prefixTitle = split[1].trim();
                 log.debug("prefixTitle: {}", prefixTitle);
-                if(!prefixTitle.isEmpty())
+                if (!prefixTitle.isEmpty())
                     prefix = parsingValuePrefix(prefixTitle);
             }
             log.info("prefix: {}", prefix);
@@ -202,7 +209,7 @@ public abstract class MetrologyControllerInitializer extends NodeController {
                     "Действительное значение",
                     "Ошибка преобразования текста в число c приставкой системы СИ" + System.lineSeparator() +
                             e.getMessage() + System.lineSeparator() +
-                    "Пример корректных строк: 1.3 мк, 1.2 м, 1.1, 1.0 К и тд");
+                            "Пример корректных строк: 1.3 мк, 1.2 м, 1.1, 1.0 К и тд");
             return;
         }
 

@@ -41,6 +41,11 @@ public abstract class ManagementControllerInitializer extends NodeController {
     protected TextField sensitivity;
 
     @FXML
+    protected Button setImpulseRangeCounterBtn, getImpulseRangeCounterBtn;
+    @FXML
+    protected TextField impulseRangeCounter1, impulseRangeCounter2;
+
+    @FXML
     private GridPane deadTimePane;
     @FXML
     protected Button setDeadTimeBtn, getDeadTimeBtn;
@@ -194,6 +199,16 @@ public abstract class ManagementControllerInitializer extends NodeController {
         });
     }
 
+    public void setImpulseModeCounter(int counterIndex, float impulseModeCounter) {
+        Platform.runLater(() -> {
+            if (counterIndex == 0) {
+                this.impulseRangeCounter1.setText(String.valueOf(impulseModeCounter));
+            } else if (counterIndex == 1) {
+                this.impulseRangeCounter2.setText(String.valueOf(impulseModeCounter));
+            }
+        });
+    }
+
     public void setHardwareVersion(String version) {
         Platform.runLater(() -> {
             this.versionHardware.setText(version);
@@ -240,6 +255,8 @@ public abstract class ManagementControllerInitializer extends NodeController {
         setMeasTimeBtn.setDisable(b);
         setCounterCoefBtn.setDisable(b);
         getCounterCoefBtn.setDisable(b);
+        setImpulseRangeCounterBtn.setDisable(b);
+        getImpulseRangeCounterBtn.setDisable(b);
         getVersionHardwareBtn.setDisable(b);
         restartBtn.setDisable(b);
         setIpBtn.setDisable(b);

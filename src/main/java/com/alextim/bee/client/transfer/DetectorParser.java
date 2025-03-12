@@ -115,6 +115,14 @@ public class DetectorParser {
             log.debug("SET_SENSITIVITY: {}", getHexString(answer));
             return new SetSensitivityAnswer(answer);
 
+        } else if (answer.commandCode.code == Command.SET_COUNTER_PMINTERVAL.code) {
+            log.debug("SET_COUNTER_PMINTERVAL: {}", getHexString(answer));
+            return new SetCounterCorrectCoeffAnswer(answer);
+
+        } else if (answer.commandCode.code == Command.SET_DEAD_TIME.code) {
+            log.debug("SET_DEAD_TIME: {}", getHexString(answer));
+            return new SetDeadTimeAnswer(answer);
+
         } else if (answer.commandCode.code == Command.GET_SENSITIVITY.code) {
             log.debug("GET_SENSITIVITY: {}", getHexString(answer));
 
@@ -127,9 +135,6 @@ public class DetectorParser {
             log.debug("Sensitivity: {}", sensitivity);
             return new GetSensitivityAnswer(sensitivity, answer);
 
-        } else if (answer.commandCode.code == Command.SET_DEAD_TIME.code) {
-            log.debug("SET_DEAD_TIME: {}", getHexString(answer));
-            return new SetDeadTimeAnswer(answer);
 
         } else if (answer.commandCode.code == Command.GET_DEAD_TIME.code) {
             log.debug("GET_DEAD_TIME: {}", getHexString(answer));
@@ -178,6 +183,25 @@ public class DetectorParser {
             log.debug("CounterCorrectCoff: {}", counterCorrectCoff);
 
             return new GetCounterCorrectCoeffAnswer(counterIndex, mode, counterCorrectCoff, answer);
+
+        } else if (answer.commandCode.code == Command.GET_COUNTER_PMINTERVAL.code) {
+            log.debug("GET_COUNTER_PMINTERVAL: {}", getHexString(answer));
+
+            int counterIndex = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 1],
+                            answer.data[DATA.shift]})
+                    .getShort());
+            log.debug("CounterIndex: {}", counterIndex);
+
+            float impulseRangeCounter = ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 7],
+                            answer.data[DATA.shift + 6],
+                            answer.data[DATA.shift + 5],
+                            answer.data[DATA.shift + 4]})
+                    .getFloat();
+            log.debug("impulseRangeCounter: {}", impulseRangeCounter);
+
+            return new GetImpulseRangeCounterCommandAnswer(counterIndex, impulseRangeCounter, answer);
 
         } else if (answer.commandCode.code == Command.SET_GEO_DATA.code) {
             log.debug("SET_GEO_DATA: {}", getHexString(answer));

@@ -49,19 +49,14 @@ public class MetrologyMeasService {
 
         initAverage(msg.meas.bdData.getCurrentMeasData(), (count % measAmount) + 1);
 
-        float aveTotalMeasData = calcAveTotalMeasData();
-
-        float error = calcError(aveTotalMeasData);
-
-        /* Проверка, что текущее измерение - измерение нового цикла*/
-        if(count % measAmount == 0) {
+        /* Проверка, что следующее измерение - измерение нового цикла*/
+        if( (count + 1) % measAmount == 0) {
             aveMeasDataList.add(aveMeasData);
         }
 
-        /* Проверка на последнее измерение*/
-        if( (count + 1) / measAmount == cycleAmount) {
-            run.set(false);
-        }
+        float aveTotalMeasData = calcAveTotalMeasData();
+
+        float error = calcError(aveTotalMeasData);
 
         MetrologyMeasurement meas = new MetrologyMeasurement(
                 count / measAmount + 1,
@@ -71,6 +66,11 @@ public class MetrologyMeasService {
                 1.0f * (count + 1)  / (measAmount * cycleAmount),
                 error
         );
+
+        /* Проверка на самое последнее измерение*/
+        if( (count + 1) / measAmount == cycleAmount) {
+            run.set(false);
+        }
 
         count++;
 
@@ -89,13 +89,17 @@ public class MetrologyMeasService {
     }
 
     float calcAveTotalMeasData() {
-        float aveMeasData = 0;
-        for(float v: aveMeasDataList)
-            aveMeasData += v;
+        log.info("calcAveTotalMeasData");
+        float aveTotalMeasData = 0;
+        for(int i = 0; i <aveMeasDataList.size(); i++) {
+            aveTotalMeasData += aveMeasDataList.get(i);
+            log.info("{}) aveMeasData: {}", i , aveMeasDataList.get(i));
+        }
 
-        aveMeasData /= aveMeasDataList.size();
+        aveTotalMeasData /= aveMeasDataList.size();
+        log.info("aveTotalMeasData: {}", aveTotalMeasData);
 
-        return aveMeasData;
+        return aveTotalMeasData;
     }
 
     float calcError(float aveMeasData) {

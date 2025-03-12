@@ -263,6 +263,97 @@ public class DetectorCommands {
     }
 
 
+    public static class SetImpulseRangeCounterCommand extends SomeCommand {
+        public final int counterIndex;
+        public float impulseRangeCounter;
+
+        public SetImpulseRangeCounterCommand(int detectorID, int counterIndex, float impulseRangeCounter) {
+            super(detectorID, 0, Command.SET_DEAD_TIME,
+                    wrapToPackage(detectorID, 0, Command.SET_COUNTER_PMINTERVAL, getData(counterIndex, impulseRangeCounter)));
+
+            this.counterIndex = counterIndex;
+            this.impulseRangeCounter = impulseRangeCounter;
+        }
+
+        private static byte[] getData(int counterIndex, float deadTime) {
+            byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
+            byte[] arrayDeadTime = ByteBuffer.allocate(4).putFloat(deadTime).array();
+            return new byte[]{
+                    arrayCounterIndex[1], arrayCounterIndex[0],
+                    0, 0,
+                    arrayDeadTime[3], arrayDeadTime[2], arrayDeadTime[1], arrayDeadTime[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_COUNTER_PMINTERVAL.title + "." +
+                    " Интервала импульсного режима : " + impulseRangeCounter +
+                    " счетчика " + counterIndex;
+        }
+    }
+
+    public static class SetImpulseRangeCounterCommandAnswer extends SomeCommandAnswer {
+
+        public SetImpulseRangeCounterCommandAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_COUNTER_PMINTERVAL.title;
+        }
+    }
+
+
+    public static class GetImpulseRangeCounterCommand extends SomeCommand {
+
+        public final int counterIndex;
+
+        public GetImpulseRangeCounterCommand(int detectorID, int counterIndex) {
+            super(detectorID, 0, Command.GET_DEAD_TIME,
+                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, getData(counterIndex)));
+            this.counterIndex = counterIndex;
+        }
+
+        private static byte[] getData(int counterIndex) {
+            byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
+
+            return new byte[]{
+                    arrayCounterIndex[1], arrayCounterIndex[0],
+                    0, 0
+            };
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_COUNTER_PMINTERVAL.title + "." +
+                    " Счетчик " + counterIndex;
+        }
+    }
+
+    public static class GetImpulseRangeCounterCommandAnswer extends SomeCommandAnswer {
+
+        public final int counterIndex;
+        public float impulseRangeCounter;
+
+        public GetImpulseRangeCounterCommandAnswer(int counterIndex,
+                                 float impulseRangeCounter,
+                                 SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+            this.impulseRangeCounter = impulseRangeCounter;
+            this.counterIndex = counterIndex;
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_COUNTER_PMINTERVAL.title + "." +
+                    " Интервала импульсного режима : " + impulseRangeCounter +
+                    " счетчика " + counterIndex;
+        }
+    }
+
+
     public static class SetCounterCorrectCoeffCommand extends SomeCommand {
         public final int counterIndex;
         public final BDInternalMode mode;
