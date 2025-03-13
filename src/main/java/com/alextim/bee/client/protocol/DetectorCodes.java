@@ -161,11 +161,14 @@ public final class DetectorCodes {
         SET_CORRECT_COFF((byte) 0x81, "Команда задания корректирующего коэффициента счетчика"),
         SET_DEAD_TIME((byte) 0x82, "Команда задания мертвого времени"),
         SET_COUNTER_PMINTERVAL((byte) 0x83, "Команда установка интервала импульсного режима счетчика"),
+        SET_IP_ADDR((byte) 0xC0, "Команда смены IP адреса БД"),
+        SET_DEBUG_SETTINGS((byte) 0xF0, " Команда установка параметров отладки"),
+
         GET_SENSITIVITY((byte) 0xA0, "Команда чтения коэффициента чувствительности"),
         GET_CORRECT_COFF((byte) 0xA1, "Команда чтения корректирующего коэффициента счетчика"),
         GET_DEAD_TIME((byte) 0xA2, "Команда чтения мертвого времени"),
         GET_COUNTER_PMINTERVAL((byte) 0xA3, "Команда чтение интервала импульсного режима счетчика"),
-        SET_IP_ADDR((byte) 0xC0, "Команда смены IP адреса БД");
+        GET_DEBUG_SETTINGS((byte) 0xF8, " Команда чтения параметров отладки");
 
         public final byte code;
         public final String title;
@@ -240,7 +243,8 @@ public final class DetectorCodes {
         IMPULSE_MODE_RANGE("Интервала импульсного режима счетчика"),
         IP_ADDRESS_PORT("IP адрес, IP порт и IP порт внешних устройств"),
         VER_HARDWARE("Версия прошивки"),
-        GEO_DATA("Геоданные");
+        GEO_DATA("Геоданные"),
+        DEBUG_SETTING("Настройки отладки");
 
         public final String title;
     }

@@ -12,6 +12,7 @@ module com.alextim.bee {
     opens com.alextim.bee.frontend.view.magazine to javafx.fxml;
     opens com.alextim.bee.frontend.view.management to javafx.fxml;
     opens com.alextim.bee.frontend.view.metrology to javafx.fxml;
+    opens com.alextim.bee.frontend.view.setting to javafx.fxml;
     opens com.alextim.bee.frontend.dialog.progress to javafx.fxml;
     opens com.alextim.bee.frontend.dialog.error to javafx.fxml;
 

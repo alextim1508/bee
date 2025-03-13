@@ -72,6 +72,12 @@ public class Context {
         TITLE_APP = (String) properties.get("app.title");
         log.info("TITLE_APP: {}", TITLE_APP);
 
+        Object userProperty = properties.get("app.user");
+        if(userProperty != null) {
+            USER_APP = (String)userProperty;
+        }
+        log.info("USER_APP: {}", USER_APP);
+
         initTransferProperties(properties);
 
         initGeoDataProperties(properties);

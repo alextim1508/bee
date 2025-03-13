@@ -117,11 +117,15 @@ public class DetectorParser {
 
         } else if (answer.commandCode.code == Command.SET_COUNTER_PMINTERVAL.code) {
             log.debug("SET_COUNTER_PMINTERVAL: {}", getHexString(answer));
-            return new SetCounterCorrectCoeffAnswer(answer);
+            return new SetImpulseRangeCounterCommandAnswer(answer);
 
         } else if (answer.commandCode.code == Command.SET_DEAD_TIME.code) {
             log.debug("SET_DEAD_TIME: {}", getHexString(answer));
             return new SetDeadTimeAnswer(answer);
+
+        } else if (answer.commandCode.code == Command.SET_DEBUG_SETTINGS.code) {
+            log.debug("SET_DEBUG_SETTINGS: {}", getHexString(answer));
+            return new SetDebugSettingAnswer(answer);
 
         } else if (answer.commandCode.code == Command.GET_SENSITIVITY.code) {
             log.debug("GET_SENSITIVITY: {}", getHexString(answer));
@@ -157,6 +161,74 @@ public class DetectorParser {
             log.debug("deadTime: {}", deadTime);
 
             return new GetDeadTimeAnswer(counterIndex, mode, deadTime, answer);
+
+        } else if (answer.commandCode.code == Command.GET_DEBUG_SETTINGS.code) { //todo
+            log.debug("GET_DEBUG_SETTINGS: {}", getHexString(answer));
+
+            int version = ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 3],
+                            answer.data[DATA.shift + 2],
+                            answer.data[DATA.shift + 1],
+                            answer.data[DATA.shift]})
+                    .getInt();
+            log.debug("version: {}", version);
+
+            boolean enabled = answer.data[DATA.shift + 4] == 1;
+            log.debug("enabled: {}", enabled);
+
+            BDInternalMode mode = BDInternalMode.getBDInternalModeByCode(answer.data[DATA.shift + 5]);
+            log.debug("BDInternalMode: {}", mode);
+
+            long chmQuench = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 12],
+                            answer.data[DATA.shift + 11],
+                            answer.data[DATA.shift + 10],
+                            answer.data[DATA.shift + 9]})
+                    .getInt());
+            log.debug("chmQuench: {}", chmQuench);
+
+            long clmQuench = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 16],
+                            answer.data[DATA.shift + 15],
+                            answer.data[DATA.shift + 14],
+                            answer.data[DATA.shift + 13]})
+                    .getInt());
+            log.debug("clmQuench: {}", clmQuench);
+
+            long pmInterval = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 20],
+                            answer.data[DATA.shift + 19],
+                            answer.data[DATA.shift + 18],
+                            answer.data[DATA.shift + 17]})
+                    .getInt());
+            log.debug("pmInterval: {}", pmInterval);
+
+            long pmQuench = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 24],
+                            answer.data[DATA.shift + 23],
+                            answer.data[DATA.shift + 22],
+                            answer.data[DATA.shift + 21]})
+                    .getInt());
+            log.debug("pmQuench: {}", pmQuench);
+
+            long pmHiUp = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
+                            answer.data[DATA.shift + 28],
+                            answer.data[DATA.shift + 27],
+                            answer.data[DATA.shift + 26],
+                            answer.data[DATA.shift + 25]})
+                    .getInt());
+            log.debug("pmHiUp: {}", pmHiUp);
+
+            DebugSetting debugSetting = DebugSetting.builder()
+                    .mode(mode)
+                    .chmQuench(chmQuench)
+                    .clmQuench(clmQuench)
+                    .pmInterval(pmInterval)
+                    .pmQuench(pmQuench)
+                    .pmHiUp(pmHiUp)
+                    .build();
+
+            return new GetDebugSettingAnswer(debugSetting, answer);
 
         } else if (answer.commandCode.code == Command.SET_CORRECT_COFF.code) {
             log.debug("SET_CORRECT_COFF: {}", getHexString(answer));

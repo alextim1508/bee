@@ -128,11 +128,13 @@
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"getCorrCoefOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"getDeadTimeOn","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"getImpulseRangeCounterOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"getSensitivityOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"getVersionHardwareOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"restartOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"setCorrCoefOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"setDeadTimeOn","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"setImpulseRangeCounterOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"setIpOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"setMeasTimeOn","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"setSensitivityOn","parameterTypes":["javafx.event.ActionEvent"] }
@@ -154,6 +156,21 @@
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"startOn","parameterTypes":["javafx.event.ActionEvent"] }]
+},
+{
+  "name":"com.alextim.bee.frontend.view.setting.SettingController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getDebugSettingOn","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"setDebugSettingOn","parameterTypes":["javafx.event.ActionEvent"] }
+  ]
+},
+{
+  "name":"com.alextim.bee.frontend.view.setting.SettingControllerInitializer",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.alextim.bee.frontend.widget.GraphWidget$TimeAxis",
@@ -489,7 +506,8 @@
     {"name":"setContentDisplay","parameterTypes":["javafx.scene.control.ContentDisplay"] }, 
     {"name":"setFont","parameterTypes":["javafx.scene.text.Font"] }, 
     {"name":"setMnemonicParsing","parameterTypes":["boolean"] }, 
-    {"name":"setText","parameterTypes":["java.lang.String"] }
+    {"name":"setText","parameterTypes":["java.lang.String"] }, 
+    {"name":"setTextAlignment","parameterTypes":["javafx.scene.text.TextAlignment"] }
   ]
 },
 {
@@ -617,6 +635,7 @@
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"setHgrow","parameterTypes":["javafx.scene.layout.Priority"] }, 
+    {"name":"setMaxWidth","parameterTypes":["double"] }, 
     {"name":"setMinWidth","parameterTypes":["double"] }, 
     {"name":"setPrefWidth","parameterTypes":["double"] }
   ]
@@ -668,6 +687,7 @@
   "methods":[
     {"name":"setMinHeight","parameterTypes":["double"] }, 
     {"name":"setMinWidth","parameterTypes":["double"] }, 
+    {"name":"setOpaqueInsets","parameterTypes":["javafx.geometry.Insets"] }, 
     {"name":"setPadding","parameterTypes":["javafx.geometry.Insets"] }, 
     {"name":"setPrefHeight","parameterTypes":["double"] }, 
     {"name":"setPrefWidth","parameterTypes":["double"] }
@@ -732,6 +752,10 @@
 },
 {
   "name":"javafx.scene.text.Text"
+},
+{
+  "name":"javafx.scene.text.TextAlignment",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"javafx.scene.transform.Transform"

@@ -169,13 +169,12 @@ public class ManagementController extends ManagementControllerInitializer {
                 float counter2 = Float.parseFloat(this.impulseRangeCounter2.getText());
                 log.info("setImpulseRangeCounter: {} {}", counter1, counter2);
 
-
                 rootController.addWaitingCommand(
                         SetImpulseRangeCounterCommandAnswer.class,
-                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
+                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
 
                 rootController.sendDetectorCommand(
-                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
+                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
 
             } catch (Exception e) {
                 log.error("setImpulseRangeCounterOn: ", e);
@@ -193,10 +192,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
         rootController.addWaitingCommand(
                 GetImpulseRangeCounterCommandAnswer.class,
-                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1));
+                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0));
 
         rootController.sendDetectorCommand(
-                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0));
+                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1));
     }
 
     @FXML

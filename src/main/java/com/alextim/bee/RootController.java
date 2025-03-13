@@ -13,6 +13,7 @@ import com.alextim.bee.frontend.view.data.DataController;
 import com.alextim.bee.frontend.view.magazine.MagazineController;
 import com.alextim.bee.frontend.view.management.ManagementController;
 import com.alextim.bee.frontend.view.metrology.MetrologyController;
+import com.alextim.bee.frontend.view.setting.SettingController;
 import com.alextim.bee.service.ExportService;
 import com.alextim.bee.service.MetrologyMeasService;
 import com.alextim.bee.service.MetrologyMeasService.MetrologyMeasurement;
@@ -73,6 +74,7 @@ public class RootController extends RootControllerInitializer {
             MagazineController magazineController = (MagazineController) getChild(MagazineController.class.getSimpleName());
             ManagementController managementController = (ManagementController) getChild(ManagementController.class.getSimpleName());
             MetrologyController metrologyController = (MetrologyController) getChild(MetrologyController.class.getSimpleName());
+            SettingController settingController = (SettingController) getChild(SettingController.class.getSimpleName());
 
             while (!Thread.currentThread().isInterrupted()) {
                 DetectorMsg msg;
@@ -101,7 +103,7 @@ public class RootController extends RootControllerInitializer {
 
                 } else if (detectorMsg instanceof SomeCommandAnswer answer) {
                     try {
-                        handleCommandAnswer(managementController, answer);
+                        handleCommandAnswer(managementController, settingController, answer);
                     } catch (Exception e) {
                         log.error("handleCommandAnswer exception", e);
                     }
@@ -231,7 +233,11 @@ public class RootController extends RootControllerInitializer {
         return attentionFlags.equals(new AttentionFlags(Set.of(NO_ATTENTION)));
     }
 
-    private void handleCommandAnswer(ManagementController managementController, SomeCommandAnswer detectorMsg) {
+    private void handleCommandAnswer(ManagementController managementController,
+                                     SettingController settingController,
+                                     SomeCommandAnswer detectorMsg) {
+        log.info("handleCommandAnswer: {}", detectorMsg);
+
         if (detectorMsg instanceof SetMeasTimeAnswer answer) {
             if (detectorMsg.commandStatusCode == SUCCESS) {
                 managementController.showDialogParamIsSet(MEAS_TIME);
@@ -252,6 +258,21 @@ public class RootController extends RootControllerInitializer {
                 managementController.showDialogParamIsGot(SENSITIVITY);
             } else {
                 managementController.showAnswerErrorDialog(SENSITIVITY, getErrorByCode(detectorMsg.data[0]));
+            }
+
+        } else if (detectorMsg instanceof SetDebugSettingAnswer answer) {
+            if (detectorMsg.commandStatusCode == SUCCESS) {
+                settingController.showDialogParamIsSet(DEBUG_SETTING);
+            } else {
+                settingController.showAnswerErrorDialog(DEBUG_SETTING, getErrorByCode(detectorMsg.data[0]));
+            }
+
+        } else if (detectorMsg instanceof GetDebugSettingAnswer answer) {
+            if (detectorMsg.commandStatusCode == SUCCESS) {
+                settingController.setDebugSetting(answer.debugSetting);
+                settingController.showDialogParamIsGot(DEBUG_SETTING);
+            } else {
+                settingController.showAnswerErrorDialog(DEBUG_SETTING, getErrorByCode(detectorMsg.data[0]));
             }
 
         } else if (detectorMsg instanceof SetDeadTimeAnswer answer) {
@@ -281,6 +302,37 @@ public class RootController extends RootControllerInitializer {
             } else {
                 waitingCommand.clear();
                 managementController.showAnswerErrorDialog(DEAD_TIME, getErrorByCode(detectorMsg.data[0]));
+            }
+
+        } else if (detectorMsg instanceof SetImpulseRangeCounterCommandAnswer answer) {
+            List<SomeCommand> waitingCommand =
+                    waitingCommands.getOrDefault(SetImpulseRangeCounterCommandAnswer.class, new LinkedList<>());
+
+            if (detectorMsg.commandStatusCode == SUCCESS) {
+                if (waitingCommand.isEmpty()) {
+                    managementController.showDialogParamIsSet(IMPULSE_MODE_RANGE);
+                } else {
+                    sendDetectorCommand(waitingCommand.remove(0));
+                }
+            } else {
+                waitingCommand.clear();
+                managementController.showAnswerErrorDialog(IMPULSE_MODE_RANGE, getErrorByCode(detectorMsg.data[0]));
+            }
+
+        } else if (detectorMsg instanceof GetImpulseRangeCounterCommandAnswer answer) {
+            List<SomeCommand> waitingCommand =
+                    waitingCommands.getOrDefault(GetImpulseRangeCounterCommandAnswer.class, new LinkedList<>());
+
+            if (detectorMsg.commandStatusCode == SUCCESS) {
+                managementController.setImpulseModeCounter(answer.counterIndex, answer.impulseRangeCounter);
+                if (waitingCommand.isEmpty()) {
+                    managementController.showDialogParamIsGot(IMPULSE_MODE_RANGE);
+                } else {
+                    sendDetectorCommand(waitingCommand.remove(0));
+                }
+            } else {
+                waitingCommand.clear();
+                managementController.showAnswerErrorDialog(IMPULSE_MODE_RANGE, getErrorByCode(detectorMsg.data[0]));
             }
 
         } else if (detectorMsg instanceof SetCounterCorrectCoeffAnswer answer) {
@@ -374,6 +426,7 @@ public class RootController extends RootControllerInitializer {
 
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(false);
         ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(false);
+        ((SettingController) getChild(SettingController.class.getSimpleName())).setDisableAllButtons(false);
     }
 
     public void stopMeasurement() {
@@ -387,6 +440,7 @@ public class RootController extends RootControllerInitializer {
 
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(true);
         ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(true);
+        ((SettingController) getChild(SettingController.class.getSimpleName())).setDisableAllButtons(true);
     }
 
     public void startMetrology(int cycleAmount, int measAmount, float realMeasData) {
@@ -492,7 +546,7 @@ public class RootController extends RootControllerInitializer {
 
     public void clear() {
         statisticMeasService.clear();
-        
+
         statisticMeasurements.clear();
         detectorMsgs.clear();
 

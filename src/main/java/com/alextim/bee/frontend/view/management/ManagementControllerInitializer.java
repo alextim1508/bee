@@ -202,9 +202,9 @@ public abstract class ManagementControllerInitializer extends NodeController {
     public void setImpulseModeCounter(int counterIndex, float impulseModeCounter) {
         Platform.runLater(() -> {
             if (counterIndex == 0) {
-                this.impulseRangeCounter1.setText(String.valueOf(impulseModeCounter));
+                this.impulseRangeCounter1.setText(String.format(Locale.US, "%f", impulseModeCounter));
             } else if (counterIndex == 1) {
-                this.impulseRangeCounter2.setText(String.valueOf(impulseModeCounter));
+                this.impulseRangeCounter2.setText(String.format(Locale.US, "%f", impulseModeCounter));
             }
         });
     }

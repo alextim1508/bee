@@ -1,5 +1,6 @@
 package com.alextim.bee.client.messages;
 
+import com.alextim.bee.client.dto.DebugSetting;
 import com.alextim.bee.client.dto.GeoData;
 import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
 
@@ -268,20 +269,20 @@ public class DetectorCommands {
         public float impulseRangeCounter;
 
         public SetImpulseRangeCounterCommand(int detectorID, int counterIndex, float impulseRangeCounter) {
-            super(detectorID, 0, Command.SET_DEAD_TIME,
+            super(detectorID, 0, Command.SET_COUNTER_PMINTERVAL,
                     wrapToPackage(detectorID, 0, Command.SET_COUNTER_PMINTERVAL, getData(counterIndex, impulseRangeCounter)));
 
             this.counterIndex = counterIndex;
             this.impulseRangeCounter = impulseRangeCounter;
         }
 
-        private static byte[] getData(int counterIndex, float deadTime) {
+        private static byte[] getData(int counterIndex, float impulseRangeCounter) {
             byte[] arrayCounterIndex = ByteBuffer.allocate(2).putShort((short) counterIndex).array();
-            byte[] arrayDeadTime = ByteBuffer.allocate(4).putFloat(deadTime).array();
+            byte[] arrayImpulseRangeCounter = ByteBuffer.allocate(4).putFloat(impulseRangeCounter).array();
             return new byte[]{
                     arrayCounterIndex[1], arrayCounterIndex[0],
                     0, 0,
-                    arrayDeadTime[3], arrayDeadTime[2], arrayDeadTime[1], arrayDeadTime[0]
+                    arrayImpulseRangeCounter[3], arrayImpulseRangeCounter[2], arrayImpulseRangeCounter[1], arrayImpulseRangeCounter[0]
             };
         }
 
@@ -311,8 +312,8 @@ public class DetectorCommands {
         public final int counterIndex;
 
         public GetImpulseRangeCounterCommand(int detectorID, int counterIndex) {
-            super(detectorID, 0, Command.GET_DEAD_TIME,
-                    wrapToPackage(detectorID, 0, Command.GET_DEAD_TIME, getData(counterIndex)));
+            super(detectorID, 0, Command.GET_COUNTER_PMINTERVAL,
+                    wrapToPackage(detectorID, 0, Command.GET_COUNTER_PMINTERVAL, getData(counterIndex)));
             this.counterIndex = counterIndex;
         }
 
@@ -338,8 +339,8 @@ public class DetectorCommands {
         public float impulseRangeCounter;
 
         public GetImpulseRangeCounterCommandAnswer(int counterIndex,
-                                 float impulseRangeCounter,
-                                 SomeCommandAnswer answer) {
+                                                   float impulseRangeCounter,
+                                                   SomeCommandAnswer answer) {
             super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
             this.impulseRangeCounter = impulseRangeCounter;
             this.counterIndex = counterIndex;
@@ -350,6 +351,86 @@ public class DetectorCommands {
             return Command.GET_COUNTER_PMINTERVAL.title + "." +
                     " Интервала импульсного режима : " + impulseRangeCounter +
                     " счетчика " + counterIndex;
+        }
+    }
+
+
+    public static class SetDebugSettingCommand extends SomeCommand {
+        public final DebugSetting debugSetting;
+
+        public SetDebugSettingCommand(int detectorID, DebugSetting debugSetting) {
+            super(detectorID, 0, Command.SET_DEBUG_SETTINGS,
+                    wrapToPackage(detectorID, 0, Command.SET_DEBUG_SETTINGS, getData(debugSetting)));
+
+            this.debugSetting = debugSetting;
+        }
+
+        private static byte[] getData(DebugSetting debugSetting) {
+            byte[] modeArray = ByteBuffer.allocate(4).putInt(debugSetting.mode.code).array();
+            byte[] chmQuenchArray = ByteBuffer.allocate(4).putInt((int) debugSetting.chmQuench).array();
+            byte[] clmQuenchArray = ByteBuffer.allocate(4).putInt((int) debugSetting.clmQuench).array();
+            byte[] pmIntervalArray = ByteBuffer.allocate(4).putInt((int) debugSetting.pmInterval).array();
+            byte[] pmQuenchArray = ByteBuffer.allocate(4).putInt((int) debugSetting.pmQuench).array();
+            byte[] pmHiUpArray = ByteBuffer.allocate(4).putInt((int) debugSetting.pmHiUp).array();
+
+            return new byte[]{
+                    1, 0, 0, 0, //version
+                    1, //enabled
+                    modeArray[3], modeArray[2], modeArray[1], modeArray[0],
+                    chmQuenchArray[3], chmQuenchArray[2], chmQuenchArray[1], chmQuenchArray[0],
+                    clmQuenchArray[3], clmQuenchArray[2], clmQuenchArray[1], clmQuenchArray[0],
+                    pmIntervalArray[3], pmIntervalArray[2], pmIntervalArray[1], pmIntervalArray[0],
+                    pmQuenchArray[3], pmQuenchArray[2], pmQuenchArray[1], pmQuenchArray[0],
+                    pmHiUpArray[3], pmHiUpArray[2], pmHiUpArray[1], pmHiUpArray[0]
+            };
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_DEBUG_SETTINGS.title + "." +
+                    debugSetting;
+        }
+    }
+
+    public static class SetDebugSettingAnswer extends SomeCommandAnswer {
+        public SetDebugSettingAnswer(SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+        }
+
+        @Override
+        public String toString() {
+            return Command.SET_DEBUG_SETTINGS.title;
+        }
+    }
+
+
+    public static class GetDebugSettingCommand extends SomeCommand {
+
+        public GetDebugSettingCommand(int detectorID) {
+            super(detectorID, 0, Command.GET_DEBUG_SETTINGS,
+                    wrapToPackage(detectorID, 0, Command.GET_DEBUG_SETTINGS, new byte[0]));
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_DEBUG_SETTINGS.title;
+        }
+    }
+
+    public static class GetDebugSettingAnswer extends SomeCommandAnswer {
+
+        public final DebugSetting debugSetting;
+
+        public GetDebugSettingAnswer(DebugSetting debugSetting,
+                                     SomeCommandAnswer answer) {
+            super(answer.detectorID, answer.time, answer.commandCode, answer.commandStatusCode, answer.data);
+            this.debugSetting = debugSetting;
+        }
+
+        @Override
+        public String toString() {
+            return Command.GET_DEBUG_SETTINGS.title + "." +
+                    debugSetting;
         }
     }
 

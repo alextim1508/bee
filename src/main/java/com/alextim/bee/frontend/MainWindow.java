@@ -8,6 +8,7 @@ import com.alextim.bee.frontend.view.data.DataView;
 import com.alextim.bee.frontend.view.magazine.MagazineView;
 import com.alextim.bee.frontend.view.management.ManagementView;
 import com.alextim.bee.frontend.view.metrology.MetrologyView;
+import com.alextim.bee.frontend.view.setting.SettingView;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -31,6 +32,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+
+import static com.alextim.bee.context.Property.SUPER_USER;
+import static com.alextim.bee.context.Property.USER_APP;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -120,6 +124,11 @@ public class MainWindow {
                 new Tab("Журнал", new MagazineView().getView(bundle)),
                 new Tab("Параметры", new ManagementView().getView(bundle))
         );
+
+        if(USER_APP != null && USER_APP.equalsIgnoreCase(SUPER_USER)) {
+            tabPane.getTabs().add(new Tab("Настройка", new SettingView().getView(bundle)));
+        }
+
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         log.info("basePane is built");
 
