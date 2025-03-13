@@ -36,13 +36,15 @@ public class DataController extends DataControllerInitializer {
         log.info("ShowStatisticMeas: {}", meas);
 
         long timestamp = meas.localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        countGraph.addPoint(index, timestamp, meas.getCountSum());
-        averageCountGraph.addPoint(index, timestamp, meas.averageCountSum);
-        currentCountGraph.addPoint(index, timestamp, meas.currentCountSum);
+        currentMeasDataGraph.addPoint(index, timestamp, meas.currentMeasDataValue);
+        averageMeasDataGraph.addPoint(index, timestamp, meas.averageMeasDataValue);
+        accumulatedMeasDataGraph.addPoint(index, timestamp, meas.accumulatedMeasDataValue);
+        accumulatedPowerMeasDataGraph.addPoint(index, timestamp, meas.accumulatedPowerMeasDataValue);
 
         index++;
 
         updateTable(meas);
+        setCounts(meas);
 
         String formattedMeasData = new ValueFormatter(
                 Math.abs(meas.currentMeasDataValue), meas.measDataUnit, MEAS_DATA_NUMBER_SING_DIGITS)
@@ -85,9 +87,10 @@ public class DataController extends DataControllerInitializer {
     void clear() {
         index = 0;
 
-        countGraph.clear();
-        averageCountGraph.clear();
-        currentCountGraph.clear();
+        currentMeasDataGraph.clear();
+        averageMeasDataGraph.clear();
+        accumulatedMeasDataGraph.clear();
+        accumulatedPowerMeasDataGraph.clear();
 
         rootController.clear();
     }

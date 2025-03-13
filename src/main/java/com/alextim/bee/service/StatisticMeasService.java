@@ -21,7 +21,7 @@ public class StatisticMeasService {
 
         public float currentCount1, currentCount2, currentCountSum;
 
-        public float currentMeasDataValue, averageMeasDataValue;
+        public float currentMeasDataValue, averageMeasDataValue, accumulatedMeasDataValue, accumulatedPowerMeasDataValue;
 
         public String measDataTitle, measDataUnit;
 
@@ -85,6 +85,8 @@ public class StatisticMeasService {
         statMeas.averageCountSum = meas.bdData.getAverageScore();
         statMeas.currentMeasDataValue = meas.bdData.getCurrentMeasData();
         statMeas.averageMeasDataValue = meas.bdData.getAverageMeasData();
+        statMeas.accumulatedMeasDataValue = meas.bdData.getAccumulatedMeasData();
+        statMeas.accumulatedPowerMeasDataValue = meas.bdData.getAccumulatedPowerMeasData();
         statMeas.measDataTitle = meas.bdData.getTitle();
         statMeas.measDataUnit = meas.bdData.getMeasDataUnit();
         statMeas.accInterval = meas.bdData.getAccumulatedTime();

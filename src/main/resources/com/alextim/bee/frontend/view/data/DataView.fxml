@@ -106,16 +106,65 @@
                         </HBox>
                      </children>
                   </VBox>
-                  <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="147.0" prefWidth="476.0" style="-fx-border-color: black;">
+                  <AnchorPane layoutY="10.0" prefHeight="147.0" prefWidth="476.0" style="-fx-border-color: black;" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="10.0">
                      <children>
-                        <TableView fx:id="table" layoutX="7.0" layoutY="7.0" prefHeight="98.0" prefWidth="464.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
-                          <columns>
-                            <TableColumn fx:id="comment" editable="false" prefWidth="150.0" sortable="false" />
-                              <TableColumn fx:id="count" editable="false" prefWidth="100.0" sortable="false" text="Счет" />
-                              <TableColumn fx:id="averageCount" editable="false" prefWidth="100.0" sortable="false" text="Средний" />
-                            <TableColumn fx:id="currentCount" editable="false" prefWidth="100.0" sortable="false" text="Текущий" />
-                          </columns>
-                        </TableView>
+                        <StackPane fx:id="stackPane" layoutX="7.0" layoutY="7.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <TableView fx:id="table" layoutX="7.0" layoutY="7.0" prefHeight="98.0" prefWidth="464.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="6.0">
+                                <columns>
+                                  <TableColumn fx:id="comment" editable="false" prefWidth="100.0" sortable="false" />
+                                    <TableColumn fx:id="count" prefWidth="100.0" text="Счет" />
+                                    <TableColumn fx:id="averageCount" editable="false" prefWidth="100.0" sortable="false" text="Средний" />
+                                  <TableColumn fx:id="currentCount" editable="false" prefWidth="100.0" sortable="false" text="Текущий" />
+                                </columns>
+                                 <StackPane.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </StackPane.margin>
+                              </TableView>
+                              <AnchorPane fx:id="simpleUserPane" prefHeight="98.0" prefWidth="442.0">
+                                 <children>
+                                    <VBox layoutX="33.0" layoutY="23.0" prefHeight="70.0" prefWidth="409.0" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <HBox layoutX="33.0" layoutY="23.0" spacing="10.0">
+                                             <children>
+                                                <Label layoutX="33.0" layoutY="23.0" text="Текущий счет:">
+                                                   <font>
+                                                      <Font size="24.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label fx:id="curCount" layoutX="212.0" layoutY="32.0" text="-">
+                                                   <font>
+                                                      <Font size="24.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                             <padding>
+                                                <Insets left="10.0" />
+                                             </padding>
+                                          </HBox>
+                                          <HBox layoutX="55.0" layoutY="72.0" spacing="10.0">
+                                             <children>
+                                                <Label layoutX="55.0" layoutY="72.0" text="Средний счет:">
+                                                   <font>
+                                                      <Font size="24.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label fx:id="aveCount" layoutX="212.0" layoutY="72.0" text="-">
+                                                   <font>
+                                                      <Font size="24.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                             <padding>
+                                                <Insets left="10.0" />
+                                             </padding>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </StackPane>
                         <HBox layoutX="50.0" layoutY="118.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
                            <children>
                               <Label layoutX="60.0" layoutY="157.0" prefHeight="34.0" prefWidth="60.0" text="Режим:">

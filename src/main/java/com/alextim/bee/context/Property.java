@@ -9,6 +9,9 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Property {
     public static String TITLE_APP;
+    public static String DETECTOR_APP;
+    public static String MG_DETECTOR_APP = "MG";
+    public static String PN_DETECTOR_APP = "PN";
     public static String USER_APP;
     public static String SUPER_USER = "RTC";
     public static String DATE_BUILD = "13 03 2025";

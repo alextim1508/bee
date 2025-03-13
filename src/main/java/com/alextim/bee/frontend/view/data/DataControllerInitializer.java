@@ -1,5 +1,7 @@
 package com.alextim.bee.frontend.view.data;
 
+import com.alextim.bee.client.dto.BdmgData;
+import com.alextim.bee.client.dto.BdpnData;
 import com.alextim.bee.frontend.view.NodeController;
 import com.alextim.bee.frontend.widget.GraphWidget;
 import com.alextim.bee.frontend.widget.graphs.SimpleGraph;
@@ -14,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import lombok.AllArgsConstructor;
@@ -24,7 +27,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
-import static com.alextim.bee.context.Property.COUNTER_NUMBER_FORMAT;
+import static com.alextim.bee.context.Property.*;
 import static com.alextim.bee.frontend.view.data.DataControllerInitializer.MeasTime.SEC_10;
 
 @Slf4j
@@ -40,12 +43,20 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     private ComboBox<MeasTime> measTime;
 
+
+    @FXML
+    private StackPane stackPane;
+    @FXML
+    private AnchorPane simpleUserPane;
+    @FXML
+    private Label curCount, aveCount;
+
     @FXML
     private TableView<TableRow> table;
     @FXML
-    private TableColumn<TableRow, String> comment;
-    @FXML
     private TableColumn<TableRow, Float> count;
+    @FXML
+    private TableColumn<TableRow, String> comment;
     @FXML
     private TableColumn<TableRow, Float> averageCount;
     @FXML
@@ -68,9 +79,10 @@ public abstract class DataControllerInitializer extends NodeController {
     private TextField fileComment;
 
     protected GraphWidget graphWidget;
-    protected SimpleGraph countGraph;
-    protected SimpleGraph currentCountGraph;
-    protected SimpleGraph averageCountGraph;
+    protected SimpleGraph currentMeasDataGraph;
+    protected SimpleGraph averageMeasDataGraph;
+    protected SimpleGraph accumulatedMeasDataGraph;
+    protected SimpleGraph accumulatedPowerMeasDataGraph;
 
     @FXML
     private ImageView imageView;
@@ -96,9 +108,18 @@ public abstract class DataControllerInitializer extends NodeController {
 
         initPane();
         initChart();
+
         tableInitialize();
+
+        if(USER_APP != null && USER_APP.equalsIgnoreCase(SUPER_USER)) {
+            simpleUserPane.setVisible(false);
+        } else {
+            table.setVisible(false);
+        }
+
         fullTable();
         measTimeInit();
+        measDataTitleInit();
         commentInit();
 
         addGraph();
@@ -109,7 +130,7 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     private void initChart() {
-        graphWidget = new GraphWidget("Счет");
+        graphWidget = new GraphWidget("Значение");
         AnchorPane spectrumPane = graphWidget.getPane();
         graphPane.getChildren().add(spectrumPane);
         AnchorPane.setTopAnchor(spectrumPane, 5.0);
@@ -166,12 +187,31 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     private void addGraph() {
-        countGraph = new SimpleGraph(new SimpleStringProperty("Счет"), new SimpleStringProperty(""));
-        averageCountGraph = new SimpleGraph(new SimpleStringProperty("Средний счет"), new SimpleStringProperty(""));
-        currentCountGraph = new SimpleGraph(new SimpleStringProperty("Текущий счет"), new SimpleStringProperty(""));
-        graphWidget.addGraph(countGraph);
-        graphWidget.addGraph(averageCountGraph);
-        graphWidget.addGraph(currentCountGraph);
+        if(DETECTOR_APP.equals(MG_DETECTOR_APP)) {
+            currentMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Текущая МАЭД"),
+                    new SimpleStringProperty(""));
+            averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненная за время экспозиции МАЭД"),
+                    new SimpleStringProperty(""));
+            accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД после запуска режима накопления"),
+                    new SimpleStringProperty(""));
+            accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД за время работы БД"),
+                    new SimpleStringProperty(""));
+
+        } else if(DETECTOR_APP.equals(PN_DETECTOR_APP)) {
+            currentMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Текущий ППН"),
+                    new SimpleStringProperty(""));
+            averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненный ППН за время экспозиции"),
+                    new SimpleStringProperty(""));
+            accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН после запуска режима накопления"),
+                    new SimpleStringProperty(""));
+            accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН за время работы БД"),
+                    new SimpleStringProperty(""));
+        }
+
+        graphWidget.addGraph(currentMeasDataGraph);
+        graphWidget.addGraph(averageMeasDataGraph);
+        graphWidget.addGraph(accumulatedMeasDataGraph);
+        graphWidget.addGraph(accumulatedPowerMeasDataGraph);
     }
 
     @RequiredArgsConstructor
@@ -223,6 +263,16 @@ public abstract class DataControllerInitializer extends NodeController {
             }
         } else {
             measTime.getSelectionModel().select(SEC_10);
+        }
+    }
+
+    public void measDataTitleInit() {
+        if(DETECTOR_APP.equals(MG_DETECTOR_APP)) {
+            Platform.runLater(() -> {
+                measDataTitle.setText(BdmgData.title);
+            });
+        } else if(DETECTOR_APP.equals(PN_DETECTOR_APP)) {
+            measDataTitle.setText(BdpnData.title);
         }
     }
 
@@ -341,6 +391,13 @@ public abstract class DataControllerInitializer extends NodeController {
         items.get(2).currentCount = meas.currentCountSum;
 
         table.refresh();
+    }
+
+    public void setCounts(StatisticMeasurement meas) {
+        Platform.runLater(() -> {
+            this.curCount.setText(String.valueOf(meas.currentCountSum));
+            this.aveCount.setText(String.valueOf(meas.averageCountSum));
+        });
     }
 
     public void setMode(String title) {
