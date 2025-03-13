@@ -1,14 +1,14 @@
 package com.alextim.bee.frontend.widget.graphs;
 
 
+import com.alextim.bee.service.ValueFormatter;
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static com.alextim.bee.context.Property.DATE_FORMAT;
+import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
 
 public class SimpleGraph extends AbstractGraph {
 
@@ -20,12 +20,10 @@ public class SimpleGraph extends AbstractGraph {
         scoresDataSet = new DoubleDataSet(title.get());
     }
 
-
-    private final String promptFormat = "%s Номер: %d Счет: %.1f Время: %s";
-
-    public void addPoint(int index, long x, double y) {
+    public void addPoint(int index, long x, double y, String measValueTitle, String unit) {
         scoresDataSet.add(x, y);
-        scoresDataSet.addDataLabel(index, String.format(promptFormat, title.get(), index, y, DATE_FORMAT.format(new Date(x))));
+        scoresDataSet.addDataLabel(index, title.get() + ". " + measValueTitle + ": " +
+                new ValueFormatter(y, unit, MEAS_DATA_NUMBER_SING_DIGITS));
     }
 
     public void clear() {

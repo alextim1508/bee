@@ -97,6 +97,7 @@ public class GraphWidget {
 
             forceToRedraw();
         });
+        checkBox.setSelected(graph.isShow());
 
         ColorPicker colorPicker = new ColorPicker(Color.web(graph.getColor()));
         colorPicker.setMaxWidth(30);

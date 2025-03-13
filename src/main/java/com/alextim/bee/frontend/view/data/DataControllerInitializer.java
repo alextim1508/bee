@@ -189,23 +189,27 @@ public abstract class DataControllerInitializer extends NodeController {
     private void addGraph() {
         if(DETECTOR_APP.equals(MG_DETECTOR_APP)) {
             currentMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Текущая МАЭД"),
-                    new SimpleStringProperty(""));
+                    null);
             averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненная за время экспозиции МАЭД"),
-                    new SimpleStringProperty(""));
+                    null);
             accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД после запуска режима накопления"),
-                    new SimpleStringProperty(""));
+                    null);
+            accumulatedMeasDataGraph.setShow(false);
             accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД за время работы БД"),
-                    new SimpleStringProperty(""));
+                    null);
+            accumulatedPowerMeasDataGraph.setShow(false);
 
         } else if(DETECTOR_APP.equals(PN_DETECTOR_APP)) {
             currentMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Текущий ППН"),
-                    new SimpleStringProperty(""));
+                    null);
             averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненный ППН за время экспозиции"),
-                    new SimpleStringProperty(""));
+                    null);
             accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН после запуска режима накопления"),
-                    new SimpleStringProperty(""));
+                    null);
+            accumulatedMeasDataGraph.setShow(false);
             accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН за время работы БД"),
-                    new SimpleStringProperty(""));
+                    null);
+            accumulatedPowerMeasDataGraph.setShow(false);
         }
 
         graphWidget.addGraph(currentMeasDataGraph);
@@ -395,8 +399,8 @@ public abstract class DataControllerInitializer extends NodeController {
 
     public void setCounts(StatisticMeasurement meas) {
         Platform.runLater(() -> {
-            this.curCount.setText(String.valueOf(meas.currentCountSum));
-            this.aveCount.setText(String.valueOf(meas.averageCountSum));
+            this.curCount.setText(String.format("%.0f", meas.currentCountSum));
+            this.aveCount.setText(String.format("%.1f", meas.averageCountSum));
         });
     }
 

@@ -36,10 +36,10 @@ public class DataController extends DataControllerInitializer {
         log.info("ShowStatisticMeas: {}", meas);
 
         long timestamp = meas.localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        currentMeasDataGraph.addPoint(index, timestamp, meas.currentMeasDataValue);
-        averageMeasDataGraph.addPoint(index, timestamp, meas.averageMeasDataValue);
-        accumulatedMeasDataGraph.addPoint(index, timestamp, meas.accumulatedMeasDataValue);
-        accumulatedPowerMeasDataGraph.addPoint(index, timestamp, meas.accumulatedPowerMeasDataValue);
+        currentMeasDataGraph.addPoint(index, timestamp, meas.currentMeasDataValue, meas.measDataTitle, meas.measDataUnit);
+        averageMeasDataGraph.addPoint(index, timestamp, meas.averageMeasDataValue, meas.measDataTitle, meas.measDataUnit);
+        accumulatedMeasDataGraph.addPoint(index, timestamp, meas.accumulatedMeasDataValue, meas.measDataTitle, meas.measDataUnit);
+        accumulatedPowerMeasDataGraph.addPoint(index, timestamp, meas.accumulatedPowerMeasDataValue, meas.measDataTitle, meas.measDataUnit);
 
         index++;
 
