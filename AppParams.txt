@@ -1,5 +1,6 @@
-metrology.realMeasData:280 мк
+metrology.realMeasData:280
 data.comment:коммент
 metrology.measAmount:5
+metrology.realMeasDataUnitIndex:4
 data.measTime:SEC_10
 metrology.cycleAmount:4

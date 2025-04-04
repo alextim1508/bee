@@ -18,8 +18,8 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static com.alextim.bee.context.Property.ERROR_NUMBER_SING_DIGITS;
-import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
+import static com.alextim.bee.context.Property.*;
+import static com.alextim.bee.context.Property.MG_DETECTOR_APP;
 import static com.alextim.bee.frontend.MainWindow.PROGRESS_BAR_COLOR;
 import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.ERROR_PARSE_FILED;
 import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.ERROR_PARSE_TITLE;
@@ -88,15 +88,29 @@ public abstract class MetrologyControllerInitializer extends NodeController {
 
     private void initTable() {
         numberCycleColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().numberCycle));
-        aveMeasDataColumn.setCellValueFactory(param ->
-                new ReadOnlyObjectWrapper<>(
-                        Float.isNaN(param.getValue().aveMeasData) || Float.isInfinite(param.getValue().aveMeasData) ? "-" :
-                                new ValueFormatter(
-                                        param.getValue().aveMeasData,
-                                        param.getValue().unit,
-                                        MEAS_DATA_NUMBER_SING_DIGITS).toString()
+        aveMeasDataColumn.setCellValueFactory(param -> {
+            if(Float.isNaN(param.getValue().aveMeasData) || Float.isInfinite(param.getValue().aveMeasData)){
+                return new ReadOnlyObjectWrapper<>("-");
+            }
 
-                ));
+            if (DETECTOR_APP.equals(MG_DETECTOR_APP)) {
+                String s = new ValueFormatter(
+                        param.getValue().aveMeasData,
+                        param.getValue().unit,
+                        MEAS_DATA_NUMBER_SING_DIGITS).toString();
+
+                return new ReadOnlyObjectWrapper<>(s);
+
+            } else if (DETECTOR_APP.equals(PN_DETECTOR_APP)) {
+                String s =
+                    sigDigRounder(param.getValue().aveMeasData, MEAS_DATA_NUMBER_SING_DIGITS) + " " + param.getValue().unit;
+
+                return new ReadOnlyObjectWrapper<>(s);
+            }
+
+            return new ReadOnlyObjectWrapper<>();
+        });
+
         table.setPlaceholder(new Label(""));
         table.setItems(FXCollections.observableArrayList());
     }
@@ -137,13 +151,19 @@ public abstract class MetrologyControllerInitializer extends NodeController {
     }
 
     public void setAveMeasData(float aveMeasData, String unit) {
-        this.aveMeasData.setText(
-                Float.isNaN(aveMeasData) || Float.isInfinite(aveMeasData) ? "-" :
+        if(Float.isNaN(aveMeasData) || Float.isInfinite(aveMeasData)) {
+            this.aveMeasData.setText("-");
+        } else {
+            if (DETECTOR_APP.equals(MG_DETECTOR_APP)) {
+                this.aveMeasData.setText(
                         new ValueFormatter(
                                 aveMeasData,
                                 unit,
-                                MEAS_DATA_NUMBER_SING_DIGITS).toString()
-        );
+                                MEAS_DATA_NUMBER_SING_DIGITS).toString());
+            } else if (DETECTOR_APP.equals(PN_DETECTOR_APP)) {
+                this.aveMeasData.setText(sigDigRounder(aveMeasData, MEAS_DATA_NUMBER_SING_DIGITS) + " " + unit);
+            }
+        }
     }
 
     public void updateTable(int cycle, float measData, String unit) {

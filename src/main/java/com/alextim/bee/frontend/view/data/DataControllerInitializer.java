@@ -400,7 +400,7 @@ public abstract class DataControllerInitializer extends NodeController {
     public void setCounts(StatisticMeasurement meas) {
         Platform.runLater(() -> {
             this.curCount.setText(String.format("%.0f", meas.currentCountSum));
-            this.aveCount.setText(String.format("%.1f", meas.averageCountSum));
+            this.aveCount.setText(String.format(COUNTER_NUMBER_FORMAT, meas.averageCountSum));
         });
     }
 

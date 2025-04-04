@@ -11,8 +11,9 @@ import java.time.ZoneId;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
-import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
+import static com.alextim.bee.context.Property.*;
+import static com.alextim.bee.context.Property.MG_DETECTOR_APP;
+import static com.alextim.bee.service.ValueFormatter.sigDigRounder;
 
 
 @Slf4j
@@ -46,11 +47,17 @@ public class DataController extends DataControllerInitializer {
         updateTable(meas);
         setCounts(meas);
 
-        String formattedMeasData = new ValueFormatter(
-                Math.abs(meas.currentMeasDataValue), meas.measDataUnit, MEAS_DATA_NUMBER_SING_DIGITS)
-                .toString();
+        if (DETECTOR_APP.equals(MG_DETECTOR_APP)) {
+            String formattedMeasData = new ValueFormatter(
+                    Math.abs(meas.currentMeasDataValue), meas.measDataUnit, MEAS_DATA_NUMBER_SING_DIGITS)
+                    .toString();
 
-        setMeasData(meas.measDataTitle, (meas.currentMeasDataValue < 0 ? "-" : "") + formattedMeasData);
+            setMeasData(meas.measDataTitle, (meas.currentMeasDataValue < 0 ? "-" : "") + formattedMeasData);
+
+        } else if (DETECTOR_APP.equals(PN_DETECTOR_APP)) {
+            setMeasData(meas.measDataTitle,
+                    sigDigRounder(meas.currentMeasDataValue, MEAS_DATA_NUMBER_SING_DIGITS) + " " + meas.measDataUnit);
+        }
 
         setMeasTime(meas.accInterval + " сек");
 
