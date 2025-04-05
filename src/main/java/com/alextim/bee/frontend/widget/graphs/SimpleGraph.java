@@ -8,7 +8,8 @@ import javafx.beans.property.SimpleStringProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.alextim.bee.context.Property.MEAS_DATA_NUMBER_SING_DIGITS;
+import static com.alextim.bee.context.Property.*;
+import static com.alextim.bee.service.ValueFormatter.sigDigRounder;
 
 public class SimpleGraph extends AbstractGraph {
 
@@ -20,10 +21,30 @@ public class SimpleGraph extends AbstractGraph {
         scoresDataSet = new DoubleDataSet(title.get());
     }
 
-    public void addPoint(int index, long x, double y, String measValueTitle, String unit) {
+    private final String format = "%s. %s %s. Счета: " + COUNTER_NUMBER_FORMAT + " " + COUNTER_NUMBER_FORMAT;
+
+    public void addPoint(int index, long x, double y, String measValueTitle, String unit, float c1, float c2) {
         scoresDataSet.add(x, y);
-        scoresDataSet.addDataLabel(index, title.get() + ". " + measValueTitle + ": " +
-                new ValueFormatter(y, unit, MEAS_DATA_NUMBER_SING_DIGITS));
+
+        if (DETECTOR_APP.equals(MG_DETECTOR_APP)) {
+            String label = String.format(format,
+                    title.get(),
+                    measValueTitle,
+                    new ValueFormatter(y, unit, MEAS_DATA_NUMBER_SING_DIGITS),
+                    c1, c2);
+
+            scoresDataSet.addDataLabel(index, label);
+
+        } else if (DETECTOR_APP.equals(PN_DETECTOR_APP)) {
+            String label = String.format(format,
+                    title.get(),
+                    measValueTitle,
+                    sigDigRounder(y, MEAS_DATA_NUMBER_SING_DIGITS) + " " + unit,
+                    c1, c2);
+
+            scoresDataSet.addDataLabel(index,  label);
+        }
+
     }
 
     public void clear() {

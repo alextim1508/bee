@@ -37,10 +37,14 @@ public class DataController extends DataControllerInitializer {
         log.info("ShowStatisticMeas: {}", meas);
 
         long timestamp = meas.localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        currentMeasDataGraph.addPoint(index, timestamp, meas.currentMeasDataValue, meas.measDataTitle, meas.measDataUnit);
-        averageMeasDataGraph.addPoint(index, timestamp, meas.averageMeasDataValue, meas.measDataTitle, meas.measDataUnit);
-        accumulatedMeasDataGraph.addPoint(index, timestamp, meas.accumulatedMeasDataValue, meas.measDataTitle, meas.measDataUnit);
-        accumulatedPowerMeasDataGraph.addPoint(index, timestamp, meas.accumulatedPowerMeasDataValue, meas.measDataTitle, meas.measDataUnit);
+        currentMeasDataGraph.addPoint(index, timestamp, meas.currentMeasDataValue, meas.measDataTitle, meas.measDataUnit,
+                meas.currentCount1, meas.currentCount2);
+        averageMeasDataGraph.addPoint(index, timestamp, meas.averageMeasDataValue, meas.measDataTitle, meas.measDataUnit,
+                meas.averageCount1, meas.averageCount2);
+        accumulatedMeasDataGraph.addPoint(index, timestamp, meas.accumulatedMeasDataValue, meas.measDataTitle, meas.measDataUnit,
+                meas.averageCount1, meas.averageCount2);
+        accumulatedPowerMeasDataGraph.addPoint(index, timestamp, meas.accumulatedPowerMeasDataValue, meas.measDataTitle,
+                meas.measDataUnit, meas.averageCount1, meas.averageCount2);
 
         index++;
 
