@@ -69,6 +69,7 @@
                                     <Font size="24.0" />
                                  </font>
                               </Label>
+                              <Label alignment="BOTTOM_LEFT" prefHeight="35.0" prefWidth="25.0" text="(тек)" />
                               <Label prefHeight="35.0" prefWidth="13.0" text=": ">
                                  <font>
                                     <Font size="24.0" />
@@ -183,7 +184,7 @@
                   </AnchorPane>
                   <AnchorPane layoutX="1273.0" layoutY="33.0" prefHeight="92.0" prefWidth="423.0" style="-fx-border-color: black;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                      <children>
-                        <HBox layoutX="8.0" layoutY="52.0" prefHeight="25.0" prefWidth="403.0" spacing="10.0" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="7.0">
+                        <HBox layoutX="8.0" layoutY="52.0" prefHeight="25.0" prefWidth="403.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0">
                            <children>
                               <Button layoutX="1273.0" layoutY="85.0" mnemonicParsing="false" onAction="#onSave" prefHeight="25.0" prefWidth="100.0" text="Сохранить" />
                               <Button mnemonicParsing="false" onAction="#onClear" prefHeight="25.0" prefWidth="100.0" text="Очистить" />
@@ -196,6 +197,45 @@
                               <Button fx:id="stopBtn" disable="true" layoutX="1400.0" layoutY="33.0" mnemonicParsing="false" onAction="#onDisconnectFromDetector" prefHeight="25.0" prefWidth="100.0" text="Отключиться" />
                               <Label prefHeight="25.0" prefWidth="73.0" text="Экспозиция:" />
                               <ComboBox fx:id="measTime" onAction="#measTimeOn" prefHeight="25.0" prefWidth="100.0" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+                  <AnchorPane layoutX="1690.0" layoutY="106.0" prefHeight="76.0" prefWidth="423.0" style="-fx-border-color: black;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="110.0">
+                     <children>
+                        <HBox layoutX="14.0" layoutY="9.0" spacing="10.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+                           <children>
+                              <Button fx:id="accBtn" disable="true" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#onAccumulate" prefHeight="25.0" prefWidth="100.0" text="Накопить" />
+                              <Label prefHeight="24.0" prefWidth="109.0" text="Время экспозиции:" />
+                              <TextField fx:id="accTime" layoutX="97.0" layoutY="9.0" prefHeight="25.0" prefWidth="75.0" promptText="сек" />
+                              <StackPane prefHeight="17.0" prefWidth="93.0">
+                                 <children>
+                                    <ProgressBar fx:id="progressBar" layoutX="488.0" layoutY="438.0" prefHeight="23.0" prefWidth="98.0" progress="0.0" />
+                                    <Label fx:id="progressLabel" layoutX="587.0" layoutY="413.0" text="-" />
+                                 </children>
+                              </StackPane>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="148.0" layoutY="34.0" prefHeight="35.0" prefWidth="300.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
+                           <children>
+                              <Label fx:id="accMeasDataTitle" layoutX="557.0" layoutY="167.0" prefHeight="35.0" text="-">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </Label>
+                              <Label prefHeight="35.0" prefWidth="13.0" text=": ">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="accMeadDataValue" layoutX="659.0" layoutY="150.0" prefHeight="35.0" text="-">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
                            </children>
                         </HBox>
                      </children>

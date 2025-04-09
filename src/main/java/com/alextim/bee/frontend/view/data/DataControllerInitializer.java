@@ -24,11 +24,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 
 import static com.alextim.bee.context.Property.*;
+import static com.alextim.bee.frontend.MainWindow.PROGRESS_BAR_COLOR;
 import static com.alextim.bee.frontend.view.data.DataControllerInitializer.MeasTime.SEC_10;
+import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.ERROR_PARSE_FILED;
+import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.ERROR_PARSE_TITLE;
+import static javafx.scene.control.Alert.AlertType.ERROR;
 
 @Slf4j
 public abstract class DataControllerInitializer extends NodeController {
@@ -73,7 +78,7 @@ public abstract class DataControllerInitializer extends NodeController {
     private Label geoData;
 
     @FXML
-    private Button startBtn, stopBtn;
+    private Button startBtn, stopBtn, accBtn;
 
     @FXML
     private TextField fileComment;
@@ -89,6 +94,15 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     private Label imageViewLabel1, imageViewLabel2, imageViewLabel3;
 
+    @FXML
+    private Label accMeasDataTitle, accMeadDataValue;
+    @FXML
+    private TextField accTime;
+    @FXML
+    private Label progressLabel;
+    @FXML
+    private ProgressBar progressBar;
+
     abstract void start(long measTime);
 
     abstract void stop();
@@ -99,7 +113,10 @@ public abstract class DataControllerInitializer extends NodeController {
 
     abstract void clear();
 
+    abstract void startAccumulate(int accTime);
+
     private final String MEAS_TIME_STATE_APP_PARAM = "data.measTime";
+    private final String ACC_MEAS_TIME_STATE_APP_PARAM = "data.accMeasTime";
     private final String COMMENT_STATE_APP_PARAM = "data.comment";
 
     @Override
@@ -121,6 +138,7 @@ public abstract class DataControllerInitializer extends NodeController {
         measTimeInit();
         measDataTitleInit();
         commentInit();
+        initProgressBar();
 
         addGraph();
     }
@@ -137,6 +155,15 @@ public abstract class DataControllerInitializer extends NodeController {
         AnchorPane.setLeftAnchor(spectrumPane, 5.0);
         AnchorPane.setRightAnchor(spectrumPane, 60.0);
         AnchorPane.setBottomAnchor(spectrumPane, 5.0);
+    }
+
+    private void initProgressBar() {
+        progressBar.setStyle("-fx-accent: " + PROGRESS_BAR_COLOR);
+    }
+
+    public void setProgress(double progress) {
+        progressBar.setProgress(progress);
+        progressLabel.setText(String.format(Locale.US, " %.1f%%", 100 * progress));
     }
 
     public void setGrayCircle() {
@@ -192,30 +219,36 @@ public abstract class DataControllerInitializer extends NodeController {
                     null);
             averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненная за время экспозиции МАЭД"),
                     null);
+/*
             accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД после запуска режима накопления"),
                     null);
             accumulatedMeasDataGraph.setShow(false);
             accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД за время работы БД"),
                     null);
             accumulatedPowerMeasDataGraph.setShow(false);
+*/
 
         } else if(DETECTOR_APP.equals(PN_DETECTOR_APP)) {
             currentMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Текущий ППН"),
                     null);
             averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненный ППН за время экспозиции"),
                     null);
+/*
             accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН после запуска режима накопления"),
                     null);
             accumulatedMeasDataGraph.setShow(false);
             accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН за время работы БД"),
                     null);
             accumulatedPowerMeasDataGraph.setShow(false);
+*/
         }
 
         graphWidget.addGraph(currentMeasDataGraph);
         graphWidget.addGraph(averageMeasDataGraph);
+/*
         graphWidget.addGraph(accumulatedMeasDataGraph);
         graphWidget.addGraph(accumulatedPowerMeasDataGraph);
+*/
     }
 
     @RequiredArgsConstructor
@@ -268,15 +301,26 @@ public abstract class DataControllerInitializer extends NodeController {
         } else {
             measTime.getSelectionModel().select(SEC_10);
         }
+
+        param = rootController.getAppState().getParam(ACC_MEAS_TIME_STATE_APP_PARAM);
+        if (param != null) {
+            try {
+                accTime.setText(param);
+            } catch (Exception e) {
+                log.error("", e);
+            }
+        }
     }
 
     public void measDataTitleInit() {
         if(DETECTOR_APP.equals(MG_DETECTOR_APP)) {
             Platform.runLater(() -> {
                 measDataTitle.setText(BdmgData.title);
+                accMeasDataTitle.setText(BdmgData.title);
             });
         } else if(DETECTOR_APP.equals(PN_DETECTOR_APP)) {
             measDataTitle.setText(BdpnData.title);
+            accMeasDataTitle.setText(BdpnData.title);
         }
     }
 
@@ -417,6 +461,12 @@ public abstract class DataControllerInitializer extends NodeController {
         });
     }
 
+    public void setAccMeasData(String value) {
+        Platform.runLater(() -> {
+            accMeadDataValue.setText(value);
+        });
+    }
+
     public void setMeasTime(String text) {
         Platform.runLater(() -> currentMeasTime.setText(text));
     }
@@ -431,6 +481,7 @@ public abstract class DataControllerInitializer extends NodeController {
 
     protected void changeDisableStartStopBtn(boolean res) {
         startBtn.setDisable(res);
+        accBtn.setDisable(!res);
         stopBtn.setDisable(!res);
     }
 
@@ -449,6 +500,23 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     @FXML
+    void onAccumulate(ActionEvent event) {
+        log.info("onAccumulate");
+
+        int accTime;
+        try {
+            accTime = Integer.parseInt(this.accTime.getText());
+            log.info("accTime: {}", accTime);
+        } catch (Exception e) {
+            log.error("onAccumulate accTime parsing", e);
+            showParsingErrorDialog("Время накопления");
+            return;
+        }
+
+        startAccumulate(accTime);
+    }
+
+    @FXML
     void onSave(ActionEvent event) {
         save();
     }
@@ -459,7 +527,14 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     public void putStateParam() {
+        rootController.getAppState().putParam(ACC_MEAS_TIME_STATE_APP_PARAM, accTime.getText());
         rootController.getAppState().putParam(MEAS_TIME_STATE_APP_PARAM, measTime.getValue().name());
         rootController.getAppState().putParam(COMMENT_STATE_APP_PARAM, fileComment.getText());
+    }
+
+    protected void showParsingErrorDialog(String field) {
+        mainWindow.showDialog(ERROR, "Ошибка",
+                String.format(ERROR_PARSE_FILED, field),
+                ERROR_PARSE_TITLE);
     }
 }

@@ -103,6 +103,7 @@
   "queryAllDeclaredMethods":true,
   "methods":[
     {"name":"measTimeOn","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"onAccumulate","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onClear","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onConnectToDetector","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onDisconnectFromDetector","parameterTypes":["javafx.event.ActionEvent"] }, 
@@ -707,7 +708,10 @@
   "name":"javafx.scene.layout.StackPane",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setMargin","parameterTypes":["javafx.scene.Node","javafx.geometry.Insets"] }
+  ]
 },
 {
   "name":"javafx.scene.layout.VBox",

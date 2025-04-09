@@ -50,7 +50,7 @@ public class MetrologyMeasService {
         initAverage(msg.meas.bdData.getCurrentMeasData(), (count % measAmount) + 1);
 
         /* Проверка, что следующее измерение - измерение нового цикла*/
-        if( (count + 1) % measAmount == 0) {
+        if ((count + 1) % measAmount == 0) {
             aveMeasDataList.add(aveMeasData);
         }
 
@@ -63,12 +63,12 @@ public class MetrologyMeasService {
                 aveMeasData,
                 aveTotalMeasData,
                 msg.meas.bdData.getMeasDataUnit(),
-                1.0f * (count + 1)  / (measAmount * cycleAmount),
+                1.0f * (count + 1) / (measAmount * cycleAmount),
                 error
         );
 
         /* Проверка на самое последнее измерение*/
-        if( (count + 1) / measAmount == cycleAmount) {
+        if ((count + 1) / measAmount == cycleAmount) {
             run.set(false);
         }
 
@@ -91,9 +91,9 @@ public class MetrologyMeasService {
     float calcAveTotalMeasData() {
         log.info("calcAveTotalMeasData");
         float aveTotalMeasData = 0;
-        for(int i = 0; i <aveMeasDataList.size(); i++) {
+        for (int i = 0; i < aveMeasDataList.size(); i++) {
             aveTotalMeasData += aveMeasDataList.get(i);
-            log.info("{}) aveMeasData: {}", i , aveMeasDataList.get(i));
+            log.info("{}) aveMeasData: {}", i, aveMeasDataList.get(i));
         }
 
         aveTotalMeasData /= aveMeasDataList.size();

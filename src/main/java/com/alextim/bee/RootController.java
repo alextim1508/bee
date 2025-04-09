@@ -14,6 +14,8 @@ import com.alextim.bee.frontend.view.magazine.MagazineController;
 import com.alextim.bee.frontend.view.management.ManagementController;
 import com.alextim.bee.frontend.view.metrology.MetrologyController;
 import com.alextim.bee.frontend.view.setting.SettingController;
+import com.alextim.bee.service.AccumulationMeasService;
+import com.alextim.bee.service.AccumulationMeasService.AccumulatedMeasurement;
 import com.alextim.bee.service.ExportService;
 import com.alextim.bee.service.MetrologyMeasService;
 import com.alextim.bee.service.MetrologyMeasService.MetrologyMeasurement;
@@ -50,8 +52,15 @@ public class RootController extends RootControllerInitializer {
                           DetectorClientAbstract detectorClient,
                           StatisticMeasService statisticMeasService,
                           MetrologyMeasService metrologyMeasService,
+                          AccumulationMeasService accumulationMeasService,
                           ExportService exportService) {
-        super(appState, mainWindow, detectorClient, statisticMeasService, metrologyMeasService, exportService);
+        super(appState,
+                mainWindow,
+                detectorClient,
+                statisticMeasService,
+                metrologyMeasService,
+                accumulationMeasService,
+                exportService);
     }
 
     private final List<DetectorMsg> detectorMsgs = new CopyOnWriteArrayList<>();
@@ -209,6 +218,11 @@ public class RootController extends RootControllerInitializer {
         if (metrologyMeasService.isRun()) {
             MetrologyMeasurement metrologyMeasurement = metrologyMeasService.addMeasToMetrology(measStateDetector);
             metrologyController.showMetrologyMeas(metrologyMeasurement);
+        }
+
+        if (accumulationMeasService.isRun()) {
+            AccumulatedMeasurement accumulatedMeasurement = accumulationMeasService.addMeasToAccumulation(measStateDetector);
+            dataController.showAccumulatedMeas(accumulatedMeasurement);
         }
     }
 
@@ -445,6 +459,10 @@ public class RootController extends RootControllerInitializer {
 
     public void startMetrology(int cycleAmount, int measAmount, float realMeasData) {
         metrologyMeasService.run(cycleAmount, measAmount, realMeasData);
+    }
+
+    public void startAccumulation(int measAmount) {
+        accumulationMeasService.run(measAmount);
     }
 
     public void sendDetectorCommand(SomeCommand command) {

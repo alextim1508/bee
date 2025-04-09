@@ -5,6 +5,7 @@ import com.alextim.bee.RootController;
 import com.alextim.bee.client.DetectorClient;
 import com.alextim.bee.client.DetectorClientAbstract;
 import com.alextim.bee.frontend.MainWindow;
+import com.alextim.bee.service.AccumulationMeasService;
 import com.alextim.bee.service.ExportService;
 import com.alextim.bee.service.MetrologyMeasService;
 import com.alextim.bee.service.StatisticMeasService;
@@ -29,6 +30,7 @@ public class Context {
     private DetectorClientAbstract detectorClient;
     private StatisticMeasService statisticMeasService;
     private MetrologyMeasService metrologyMeasService;
+    private AccumulationMeasService accumulationMeasService;
     private ExportService exportService;
     private AppState appState;
 
@@ -156,6 +158,8 @@ public class Context {
 
         metrologyMeasService = new MetrologyMeasService();
 
+        accumulationMeasService = new AccumulationMeasService();
+
         exportService = new ExportService();
     }
 
@@ -168,6 +172,7 @@ public class Context {
                 detectorClient,
                 statisticMeasService,
                 metrologyMeasService,
+                accumulationMeasService,
                 exportService);
     }
 
