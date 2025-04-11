@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.alextim.bee.context.Property.*;
 import static com.alextim.bee.service.ValueFormatter.sigDigRounder;
@@ -27,7 +28,7 @@ public class SimpleGraph extends AbstractGraph {
         scoresDataSet.add(x, y);
 
         if (DETECTOR_APP.equals(MG_DETECTOR_APP)) {
-            String label = String.format(format,
+            String label = String.format(Locale.US, format,
                     title.get(),
                     measValueTitle,
                     new ValueFormatter(y, unit, MEAS_DATA_NUMBER_SING_DIGITS),
@@ -36,7 +37,7 @@ public class SimpleGraph extends AbstractGraph {
             scoresDataSet.addDataLabel(index, label);
 
         } else if (DETECTOR_APP.equals(PN_DETECTOR_APP)) {
-            String label = String.format(format,
+            String label = String.format(Locale.US, format,
                     title.get(),
                     measValueTitle,
                     sigDigRounder(y, MEAS_DATA_NUMBER_SING_DIGITS) + " " + unit,
