@@ -131,9 +131,11 @@ public class DataController extends DataControllerInitializer {
 
         currentMeasDataGraph.clear();
         averageMeasDataGraph.clear();
+        clearTable();
+/*
         accumulatedMeasDataGraph.clear();
         accumulatedPowerMeasDataGraph.clear();
-
+*/
         rootController.clear();
     }
 

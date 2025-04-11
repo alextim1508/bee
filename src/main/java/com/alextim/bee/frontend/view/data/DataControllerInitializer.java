@@ -86,8 +86,10 @@ public abstract class DataControllerInitializer extends NodeController {
     protected GraphWidget graphWidget;
     protected SimpleGraph currentMeasDataGraph;
     protected SimpleGraph averageMeasDataGraph;
+/*
     protected SimpleGraph accumulatedMeasDataGraph;
     protected SimpleGraph accumulatedPowerMeasDataGraph;
+*/
 
     @FXML
     private ImageView imageView;
@@ -437,6 +439,24 @@ public abstract class DataControllerInitializer extends NodeController {
         items.get(2).count = meas.getCountSum();
         items.get(2).averageCount = meas.averageCountSum;
         items.get(2).currentCount = meas.currentCountSum;
+
+        table.refresh();
+    }
+
+    public void clearTable() {
+        ObservableList<TableRow> items = table.getItems();
+
+        items.get(0).count = 0;
+        items.get(0).averageCount = 0;
+        items.get(0).currentCount = 0;
+
+        items.get(1).count = 0;
+        items.get(1).averageCount = 0;
+        items.get(1).currentCount = 0;
+
+        items.get(2).count = 0;
+        items.get(2).averageCount = 0;
+        items.get(2).currentCount = 0;
 
         table.refresh();
     }
