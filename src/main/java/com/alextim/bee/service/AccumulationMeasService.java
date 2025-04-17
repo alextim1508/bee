@@ -1,9 +1,10 @@
 package com.alextim.bee.service;
 
-import com.alextim.bee.client.messages.DetectorEvents.MeasurementDetectorState;
+import com.alextim.bee.service.StatisticMeasService.StatisticMeasurement;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -17,9 +18,13 @@ public class AccumulationMeasService {
 
     @AllArgsConstructor
     public static class AccumulatedMeasurement {
+        public String measDataTitle;
         public float aveMeasData;
-        public String unit;
+        public String measDataUnit;
         public float progress;
+        public float curPower;
+        public LocalDateTime localDateTime;
+        public int count;
     }
 
     public void run(int measAmount) {
@@ -32,15 +37,19 @@ public class AccumulationMeasService {
         return run.get();
     }
 
-    public AccumulatedMeasurement addMeasToAccumulation(MeasurementDetectorState msg) {
+    public AccumulatedMeasurement addMeasToAccumulation(StatisticMeasurement msg) {
         log.info("addMeasToAccumulation count: {}", count);
 
-        initAverage(msg.meas.bdData.getCurrentMeasData(), count + 1);
+        initAverage(msg.currentMeasDataValue, count + 1);
 
         AccumulatedMeasurement meas = new AccumulatedMeasurement(
+                msg.measDataTitle,
                 aveMeasData,
-                msg.meas.bdData.getMeasDataUnit(),
-                1.0f * (count + 1) / measAmount
+                msg.measDataUnit,
+                1.0f * (count + 1) / measAmount,
+                msg.power,
+                msg.localDateTime,
+                count
         );
 
         if (count + 1 == measAmount) {

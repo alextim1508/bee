@@ -1,6 +1,6 @@
 package com.alextim.bee.service;
 
-import com.alextim.bee.client.messages.DetectorEvents.MeasurementDetectorState;
+import com.alextim.bee.service.StatisticMeasService.StatisticMeasurement;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,10 +44,10 @@ public class MetrologyMeasService {
         return run.get();
     }
 
-    public MetrologyMeasurement addMeasToMetrology(MeasurementDetectorState msg) {
+    public MetrologyMeasurement addMeasToMetrology(StatisticMeasurement msg) {
         log.info("addMeasToMetrology count: {}", count);
 
-        initAverage(msg.meas.bdData.getCurrentMeasData(), (count % measAmount) + 1);
+        initAverage(msg.currentMeasDataValue, (count % measAmount) + 1);
 
         /* Проверка, что следующее измерение - измерение нового цикла*/
         if ((count + 1) % measAmount == 0) {
@@ -62,7 +62,7 @@ public class MetrologyMeasService {
                 count / measAmount + 1,
                 aveMeasData,
                 aveTotalMeasData,
-                msg.meas.bdData.getMeasDataUnit(),
+                msg.measDataUnit,
                 1.0f * (count + 1) / (measAmount * cycleAmount),
                 error
         );

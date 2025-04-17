@@ -33,6 +33,8 @@ public class StatisticMeasService {
 
         public BDInternalMode mode;
 
+        public float power;
+
         public LocalDateTime localDateTime;
 
         public static void clear() {
@@ -109,6 +111,8 @@ public class StatisticMeasService {
         statMeas.averageCount2 = internalData.averageScores[1];
 
         statMeas.mode = internalData.mode;
+
+        statMeas.power = internalData.power;
 
         if (statMeas.time == time) {
             sumCounts(statMeas);

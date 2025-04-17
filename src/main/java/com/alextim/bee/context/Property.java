@@ -31,4 +31,5 @@ public class Property {
     public static Integer MEAS_DATA_NUMBER_SING_DIGITS;
     public static Integer ERROR_NUMBER_SING_DIGITS;
     public static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static DateTimeFormatter DATE_TIME_FILE_NAME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 }

@@ -77,7 +77,7 @@ public class DataController extends DataControllerInitializer {
         Platform.runLater(() -> {
             if (DETECTOR_APP.equals(MG_DETECTOR_APP)) {
                 String formattedMeasData = new ValueFormatter(
-                        Math.abs(accumulatedMeasurement.aveMeasData), accumulatedMeasurement.unit, MEAS_DATA_NUMBER_SING_DIGITS)
+                        Math.abs(accumulatedMeasurement.aveMeasData), accumulatedMeasurement.measDataUnit, MEAS_DATA_NUMBER_SING_DIGITS)
                         .toString();
 
                 setAccMeasData((accumulatedMeasurement.aveMeasData < 0 ? "-" : "") + formattedMeasData);
@@ -85,7 +85,7 @@ public class DataController extends DataControllerInitializer {
             } else if (DETECTOR_APP.equals(PN_DETECTOR_APP)) {
                 setAccMeasData(
                         sigDigRounder(accumulatedMeasurement.aveMeasData,
-                                MEAS_DATA_NUMBER_SING_DIGITS) + " " + accumulatedMeasurement.unit);
+                                MEAS_DATA_NUMBER_SING_DIGITS) + " " + accumulatedMeasurement.measDataUnit);
 
 
             }

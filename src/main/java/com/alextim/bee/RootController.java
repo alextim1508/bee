@@ -30,6 +30,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -67,7 +71,9 @@ public class RootController extends RootControllerInitializer {
 
     private final Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
 
-    private final Map<Long, StatisticMeasurement> statisticMeasurements = new ConcurrentHashMap<>();
+    private final Map<Long, StatisticMeasurement> statisticMsg = new ConcurrentHashMap<>();
+
+    private final List<AccumulatedMeasurement> accumulatedMsg = new CopyOnWriteArrayList<>();
 
     protected final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -143,7 +149,7 @@ public class RootController extends RootControllerInitializer {
             handleMeasDetectorState(dataController, metrologyController, state);
 
         } else if (detectorMsg instanceof InternalEvent event) {
-            handleInternalEvent(dataController, event);
+            handleInternalEvent(dataController, metrologyController, event);
 
         } else if (detectorMsg instanceof ErrorDetectorState errorDetectorState) {
             handleErrorDetectorState(dataController, errorDetectorState);
@@ -202,44 +208,74 @@ public class RootController extends RootControllerInitializer {
         }
         dataController.setImageViewLabel("", "", "");
 
-        if (statisticMeasurements.containsKey(measStateDetector.time)) {
-            StatisticMeasurement statMeas = statisticMeasurements.get(measStateDetector.time);
+        if (statisticMsg.containsKey(measStateDetector.time)) {
+            StatisticMeasurement statMeas = statisticMsg.get(measStateDetector.time);
 
             statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
-
             dataController.showStatisticMeas(statMeas);
+
+            handleMetrology(metrologyController, statMeas);
+            handleAccumulation(dataController, statMeas);
+
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
             statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
 
-            statisticMeasurements.put(measStateDetector.time, statMeas);
-        }
-
-        if (metrologyMeasService.isRun()) {
-            MetrologyMeasurement metrologyMeasurement = metrologyMeasService.addMeasToMetrology(measStateDetector);
-            metrologyController.showMetrologyMeas(metrologyMeasurement);
-        }
-
-        if (accumulationMeasService.isRun()) {
-            AccumulatedMeasurement accumulatedMeasurement = accumulationMeasService.addMeasToAccumulation(measStateDetector);
-            dataController.showAccumulatedMeas(accumulatedMeasurement);
+            statisticMsg.put(measStateDetector.time, statMeas);
         }
     }
 
-    private void handleInternalEvent(DataController dataController, InternalEvent internalEvent) {
+    private void handleInternalEvent(DataController dataController,
+                                     MetrologyController metrologyController,
+                                     InternalEvent internalEvent) {
         log.info("handleInternalEvent time: {}", internalEvent.time);
 
-        if (statisticMeasurements.containsKey(internalEvent.time)) {
-            StatisticMeasurement statMeas = statisticMeasurements.get(internalEvent.time);
+        if (statisticMsg.containsKey(internalEvent.time)) {
+            StatisticMeasurement statMeas = statisticMsg.get(internalEvent.time);
 
             statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
             dataController.showStatisticMeas(statMeas);
+
+            handleMetrology(metrologyController, statMeas);
+            handleAccumulation(dataController, statMeas);
+
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
             statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
-            statisticMeasurements.put(internalEvent.time, statMeas);
+            statisticMsg.put(internalEvent.time, statMeas);
+        }
+    }
+
+    private void handleAccumulation(DataController dataController, StatisticMeasurement statMeas) {
+        if (accumulationMeasService.isRun()) {
+            AccumulatedMeasurement accumulatedMeasurement = accumulationMeasService.addMeasToAccumulation(statMeas);
+            dataController.showAccumulatedMeas(accumulatedMeasurement);
+
+            accumulatedMsg.add(accumulatedMeasurement);
+
+            if(accumulatedMeasurement.progress >= 1.0) {
+                log.info("Export accumulatedMeasurement");
+                try {
+                    Files.createDirectories(Paths.get("export"));
+                } catch (IOException e) {
+                    log.error("cant create directory export");
+                    return;
+                }
+
+                String fileName =  "./export/" +
+                        LocalDateTime.now().format(DATE_TIME_FILE_NAME_FORMATTER) + "_accumulation.txt";
+
+                saveAccumulatedDetectorMessages(new File(fileName));
+            }
+        }
+    }
+
+    private void handleMetrology(MetrologyController metrologyController, StatisticMeasurement statMeas) {
+        if (metrologyMeasService.isRun()) {
+            MetrologyMeasurement metrologyMeasurement = metrologyMeasService.addMeasToMetrology(statMeas);
+            metrologyController.showMetrologyMeas(metrologyMeasurement);
         }
     }
 
@@ -499,7 +535,7 @@ public class RootController extends RootControllerInitializer {
             log.info("export to selected file {}", file);
 
             try {
-                exportService.exportMeasurements(statisticMeasurements.values(), fileComment, file, (n, progress) ->
+                exportService.exportMeasurements(statisticMsg.values(), fileComment, file, (n, progress) ->
                         Platform.runLater(() -> {
                             progressProperty.set(progress);
                             statusProperty.set("Экспорт измерения " + n);
@@ -524,8 +560,6 @@ public class RootController extends RootControllerInitializer {
                 });
             }
         });
-
-
     }
 
     public void saveDetectorMessages(File file) {
@@ -534,38 +568,55 @@ public class RootController extends RootControllerInitializer {
 
         final ProgressDialog progressDialog = mainWindow.showProgressDialog(progressProperty, statusProperty);
 
-        log.info("export to selected file {}", file);
+        executorService.submit(() -> {
+            log.info("export to selected file {}", file);
 
-        try {
-            exportService.exportDetectorMsgs(detectorMsgs, file, (n, progress) ->
-                    Platform.runLater(() -> {
-                        progressProperty.set(progress);
-                        statusProperty.set("Экспорт измерения " + n);
-                    })
-            );
+            try {
+                exportService.exportDetectorMsgs(detectorMsgs, file, (n, progress) ->
+                        Platform.runLater(() -> {
+                            progressProperty.set(progress);
+                            statusProperty.set("Экспорт измерения " + n);
+                        })
+                );
 
-            Platform.runLater(() -> {
-                progressDialog.forcefullyHideDialog();
+                Platform.runLater(() -> {
+                    progressDialog.forcefullyHideDialog();
 
-                mainWindow.showDialog(Alert.AlertType.INFORMATION,
-                        "Экспорт",
-                        "Измерение",
-                        "Измерения экспортированы в файлы");
-            });
-        } catch (Exception e) {
-            log.error("saveMessages", e);
+                    mainWindow.showDialog(Alert.AlertType.INFORMATION,
+                            "Экспорт",
+                            "Измерение",
+                            "Измерения экспортированы в файлы");
+                });
+            } catch (Exception e) {
+                log.error("saveMessages", e);
 
-            Platform.runLater(() -> {
-                progressDialog.forcefullyHideDialog();
-                mainWindow.showError(e);
-            });
-        }
+                Platform.runLater(() -> {
+                    progressDialog.forcefullyHideDialog();
+                    mainWindow.showError(e);
+                });
+            }
+        });
+    }
+
+    public void saveAccumulatedDetectorMessages(File file) {
+        executorService.submit(() -> {
+            log.info("export to selected file {}", file);
+            try {
+                exportService.exportAccumulatedDetectorMsgs(accumulatedMsg, file);
+                accumulatedMsg.clear();
+
+            } catch (Exception e) {
+                log.error("saveMessages", e);
+            }
+        });
+
     }
 
     public void clear() {
         statisticMeasService.clear();
 
-        statisticMeasurements.clear();
+        accumulatedMsg.clear();
+        statisticMsg.clear();
         detectorMsgs.clear();
 
         MagazineController magazineController = (MagazineController) getChild(MagazineController.class.getSimpleName());
