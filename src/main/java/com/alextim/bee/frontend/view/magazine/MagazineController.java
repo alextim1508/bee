@@ -21,6 +21,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static com.alextim.bee.context.Property.QUEUE_CAPACITY;
+
 public class MagazineController extends NodeController {
 
     @FXML
@@ -153,9 +155,12 @@ public class MagazineController extends NodeController {
 
     public void addLog(DetectorMsg msg) {
         table.getItems().add(0, msg);
+        if (table.getItems().size() > QUEUE_CAPACITY) {
+            table.getItems().remove(table.getItems().size() - 1);
+        }
     }
 
-    public void clear() {
+    public void clearTable() {
         table.getItems().clear();
     }
 

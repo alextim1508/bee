@@ -31,6 +31,9 @@
             <charset>UTF-8</charset>
             <pattern>%date{HH:mm:ss.SSS} [%thread] %-5level %logger{35} -%kvp- %msg%n</pattern>
         </encoder>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
     </appender>
 
     <appender name="CONSOLE" class="ConsoleAppender">

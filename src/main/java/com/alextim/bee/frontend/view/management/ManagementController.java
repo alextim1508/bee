@@ -33,7 +33,7 @@ public class ManagementController extends ManagementControllerInitializer {
             try {
                 int measTime = Integer.parseInt(this.measTime.getText());
                 log.info("setMeasTime: {}", measTime);
-                rootController.sendDetectorCommand(new SetMeasTimeCommand(TRANSFER_TO_DETECTOR_ID, measTime));
+                rootController.sendDetectorCommand(new SetMeasTimeCommand(TRANSFER_ID, measTime));
             } catch (Exception e) {
                 showParsingErrorDialog(bdParam);
             }
@@ -49,7 +49,7 @@ public class ManagementController extends ManagementControllerInitializer {
 
                 float sensitivity = Float.parseFloat(this.sensitivity.getText());
                 log.info("setSensitivity: {}", sensitivity);
-                rootController.sendDetectorCommand(new SetSensitivityCommand(TRANSFER_TO_DETECTOR_ID, sensitivity));
+                rootController.sendDetectorCommand(new SetSensitivityCommand(TRANSFER_ID, sensitivity));
             } catch (Exception e) {
                 showParsingErrorDialog(bdParam);
             }
@@ -60,7 +60,7 @@ public class ManagementController extends ManagementControllerInitializer {
     void getSensitivityOn(ActionEvent event) {
         log.info("getSensitivity");
         sensitivity.setText("-");
-        rootController.sendDetectorCommand(new GetSensitivityCommand(TRANSFER_TO_DETECTOR_ID));
+        rootController.sendDetectorCommand(new GetSensitivityCommand(TRANSFER_ID));
     }
 
     @FXML
@@ -79,10 +79,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
                 rootController.addWaitingCommand(
                         SetDeadTimeAnswer.class,
-                        new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID,1, selectedMode, deadTime2));
+                        new SetDeadTimeCommand(TRANSFER_ID,1, selectedMode, deadTime2));
 
                 rootController.sendDetectorCommand(
-                        new SetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode, deadTime1));
+                        new SetDeadTimeCommand(TRANSFER_ID, 0, selectedMode, deadTime1));
 
             } catch (Exception e) {
                 log.error("setDeadTimeOn: ", e);
@@ -104,10 +104,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
         rootController.addWaitingCommand(
                 GetDeadTimeAnswer.class,
-                new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode));
+                new GetDeadTimeCommand(TRANSFER_ID, 1, selectedMode));
 
         rootController.sendDetectorCommand(
-                new GetDeadTimeCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode));
+                new GetDeadTimeCommand(TRANSFER_ID, 0, selectedMode));
 
     }
 
@@ -127,10 +127,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
                 rootController.addWaitingCommand(
                         SetCounterCorrectCoeffAnswer.class,
-                        new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode, counter2));
+                        new SetCounterCorrectCoeffCommand(TRANSFER_ID, 1, selectedMode, counter2));
 
                 rootController.sendDetectorCommand(
-                        new SetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode, counter1));
+                        new SetCounterCorrectCoeffCommand(TRANSFER_ID, 0, selectedMode, counter1));
 
             } catch (Exception e) {
                 log.error("setCorrCoefOn: ", e);
@@ -152,10 +152,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
         rootController.addWaitingCommand(
                 GetCounterCorrectCoeffAnswer.class,
-                new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 1, selectedMode));
+                new GetCounterCorrectCoeffCommand(TRANSFER_ID, 1, selectedMode));
 
         rootController.sendDetectorCommand(
-                new GetCounterCorrectCoeffCommand(TRANSFER_TO_DETECTOR_ID, 0, selectedMode));
+                new GetCounterCorrectCoeffCommand(TRANSFER_ID, 0, selectedMode));
     }
 
     @FXML
@@ -171,10 +171,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
                 rootController.addWaitingCommand(
                         SetImpulseRangeCounterCommandAnswer.class,
-                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0, counter1));
+                        new SetImpulseRangeCounterCommand(TRANSFER_ID, 0, counter1));
 
                 rootController.sendDetectorCommand(
-                        new SetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1, counter2));
+                        new SetImpulseRangeCounterCommand(TRANSFER_ID, 1, counter2));
 
             } catch (Exception e) {
                 log.error("setImpulseRangeCounterOn: ", e);
@@ -192,10 +192,10 @@ public class ManagementController extends ManagementControllerInitializer {
 
         rootController.addWaitingCommand(
                 GetImpulseRangeCounterCommandAnswer.class,
-                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 0));
+                new GetImpulseRangeCounterCommand(TRANSFER_ID, 0));
 
         rootController.sendDetectorCommand(
-                new GetImpulseRangeCounterCommand(TRANSFER_TO_DETECTOR_ID, 1));
+                new GetImpulseRangeCounterCommand(TRANSFER_ID, 1));
     }
 
     @FXML
@@ -219,7 +219,7 @@ public class ManagementController extends ManagementControllerInitializer {
 
                 log.info("setIp: {} {} {}", ipAddress, ipPort, externalDeviceIpPort);
 
-                rootController.sendDetectorCommand(new ChangeIpCommand(TRANSFER_TO_DETECTOR_ID, ipAddress, ipPort, externalDeviceIpPort));
+                rootController.sendDetectorCommand(new ChangeIpCommand(TRANSFER_ID, ipAddress, ipPort, externalDeviceIpPort));
 
             } catch (Exception e) {
                 showParsingErrorDialog(bdParam);
@@ -237,7 +237,7 @@ public class ManagementController extends ManagementControllerInitializer {
             ipAddress4.setText("-");
             externalDeviceIpPort.setText("-");
             ipPort.setText("-");
-            rootController.sendDetectorCommand(new RestartDetectorCommand(TRANSFER_TO_DETECTOR_ID));
+            rootController.sendDetectorCommand(new RestartDetectorCommand(TRANSFER_ID));
         }
     }
 
@@ -245,6 +245,6 @@ public class ManagementController extends ManagementControllerInitializer {
     void getVersionHardwareOn(ActionEvent event) {
         log.info("getVersionHardwareOn");
         versionHardware.setText("-");
-        rootController.sendDetectorCommand(new GetVersionCommand(TRANSFER_TO_DETECTOR_ID));
+        rootController.sendDetectorCommand(new GetVersionCommand(TRANSFER_ID));
     }
 }

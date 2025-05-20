@@ -50,7 +50,6 @@ public class DetectorClient extends DetectorClientAbstract {
                             bytes[ID.shift + 1],
                             bytes[ID.shift]})
                     .getInt();
-            log.info("DetectorID: {}", detectorID);
 
             long time = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                             bytes[TIME.shift + 3],
@@ -58,20 +57,20 @@ public class DetectorClient extends DetectorClientAbstract {
                             bytes[TIME.shift + 1],
                             bytes[TIME.shift]})
                     .getInt());
-            log.info("Time: {}", time);
 
             try {
                 if (bytes[TYPE.shift] == EVENT_TYPE.code) {
                     Event eventByCode = Event.getEventByCode(bytes[EVT_ANS_CMD.shift]);
-                    log.info("Event: {}", eventByCode.title);
+                    log.info("ID: {} Time: {} Event: {}",
+                            detectorID, time, eventByCode.title);
 
                     queue.add(new SomeEvent(detectorID, time, eventByCode, bytes));
                 } else {
                     Command commandByCode = Command.getCommandByCode(bytes[TYPE.shift]);
-                    log.info("Command: {}", commandByCode.title);
-
                     CommandStatus statusByCode = CommandStatus.getCommandStatusByCode(bytes[EVT_ANS_CMD.shift]);
-                    log.info("Status: {}", statusByCode.title);
+
+                    log.info("ID: {} Time: {} Command: {} Status: {}",
+                            detectorID, time, commandByCode.title, statusByCode.title);
 
                     queue.add(new SomeCommandAnswer(detectorID, time, commandByCode, statusByCode, bytes));
                 }

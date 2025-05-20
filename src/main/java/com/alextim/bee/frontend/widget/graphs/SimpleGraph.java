@@ -45,7 +45,10 @@ public class SimpleGraph extends AbstractGraph {
 
             scoresDataSet.addDataLabel(index,  label);
         }
+    }
 
+    public void remove(int index) {
+        scoresDataSet.remove( index);
     }
 
     public void clear() {
@@ -65,6 +68,6 @@ public class SimpleGraph extends AbstractGraph {
 
     @Override
     public int size() {
-        return 0;
+        return scoresDataSet.getDataCount();
     }
 }

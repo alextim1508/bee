@@ -32,24 +32,22 @@ public class DataController extends DataControllerInitializer {
         changeDisableStartStopBtn(false);
     }
 
-    private int index;
+
 
     public void showStatisticMeas(StatisticMeasurement meas) {
-        log.info("ShowStatisticMeas: {}", meas);
-
         long timestamp = meas.localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        currentMeasDataGraph.addPoint(index, timestamp, meas.currentMeasDataValue, meas.measDataTitle, meas.measDataUnit,
-                meas.currentCount1, meas.currentCount2);
-        averageMeasDataGraph.addPoint(index, timestamp, meas.averageMeasDataValue, meas.measDataTitle, meas.measDataUnit,
-                meas.averageCount1, meas.averageCount2);
-/*
-        accumulatedMeasDataGraph.addPoint(index, timestamp, meas.accumulatedMeasDataValue, meas.measDataTitle, meas.measDataUnit,
-                meas.averageCount1, meas.averageCount2);
-        accumulatedPowerMeasDataGraph.addPoint(index, timestamp, meas.accumulatedPowerMeasDataValue, meas.measDataTitle,
-                meas.measDataUnit, meas.averageCount1, meas.averageCount2);
-*/
 
-        index++;
+        currentMeasDataGraph.addPoint(graphIndex, timestamp, meas.currentMeasDataValue, meas.measDataTitle, meas.measDataUnit,
+                meas.currentCount1, meas.currentCount2);
+        if(currentMeasDataGraph.size() > QUEUE_CAPACITY)
+            currentMeasDataGraph.remove(0);
+
+        averageMeasDataGraph.addPoint(graphIndex, timestamp, meas.averageMeasDataValue, meas.measDataTitle, meas.measDataUnit,
+                meas.averageCount1, meas.averageCount2);
+        if(averageMeasDataGraph.size() > QUEUE_CAPACITY)
+            averageMeasDataGraph.remove(0);
+
+        graphIndex++;
 
         updateTable(meas);
         setCounts(meas);
@@ -92,12 +90,11 @@ public class DataController extends DataControllerInitializer {
 
             setProgress(accumulatedMeasurement.progress);
         });
-
     }
 
     @Override
     void start(long measTime) {
-        index = 0;
+        graphIndex = 0;
         rootController.startMeasurement();
     }
 
@@ -122,20 +119,11 @@ public class DataController extends DataControllerInitializer {
 
     @Override
     void setNewMeasTime(MeasTime measTime) {
-        rootController.sendDetectorCommand(new SetMeasTimeCommand(TRANSFER_TO_DETECTOR_ID, measTime.seconds));
+        rootController.sendDetectorCommand(new SetMeasTimeCommand(TRANSFER_ID, measTime.seconds));
     }
 
     @Override
     void clear() {
-        index = 0;
-
-        currentMeasDataGraph.clear();
-        averageMeasDataGraph.clear();
-        clearTable();
-/*
-        accumulatedMeasDataGraph.clear();
-        accumulatedPowerMeasDataGraph.clear();
-*/
         rootController.clear();
     }
 

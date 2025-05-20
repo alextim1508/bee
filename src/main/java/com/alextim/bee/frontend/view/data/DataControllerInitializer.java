@@ -86,10 +86,6 @@ public abstract class DataControllerInitializer extends NodeController {
     protected GraphWidget graphWidget;
     protected SimpleGraph currentMeasDataGraph;
     protected SimpleGraph averageMeasDataGraph;
-/*
-    protected SimpleGraph accumulatedMeasDataGraph;
-    protected SimpleGraph accumulatedPowerMeasDataGraph;
-*/
 
     @FXML
     private ImageView imageView;
@@ -120,6 +116,8 @@ public abstract class DataControllerInitializer extends NodeController {
     private final String MEAS_TIME_STATE_APP_PARAM = "data.measTime";
     private final String ACC_MEAS_TIME_STATE_APP_PARAM = "data.accMeasTime";
     private final String COMMENT_STATE_APP_PARAM = "data.comment";
+
+    int graphIndex;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -204,6 +202,10 @@ public abstract class DataControllerInitializer extends NodeController {
         Platform.runLater(() -> imageView.setImage(mainWindow.getNoConnectImage()));
     }
 
+    public void setEmptyCircle() {
+        Platform.runLater(() -> imageView.setImage(null));
+    }
+
     public void setImageViewLabel(String text1, String text2, String text3) {
         Platform.runLater(() -> {
             if (text1 != null)
@@ -221,36 +223,19 @@ public abstract class DataControllerInitializer extends NodeController {
                     null);
             averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненная за время экспозиции МАЭД"),
                     null);
-/*
-            accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД после запуска режима накопления"),
-                    null);
-            accumulatedMeasDataGraph.setShow(false);
-            accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленная МАЭД за время работы БД"),
-                    null);
-            accumulatedPowerMeasDataGraph.setShow(false);
-*/
+
 
         } else if(DETECTOR_APP.equals(PN_DETECTOR_APP)) {
             currentMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Текущий ППН"),
                     null);
             averageMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Усредненный ППН за время экспозиции"),
                     null);
-/*
-            accumulatedMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН после запуска режима накопления"),
-                    null);
-            accumulatedMeasDataGraph.setShow(false);
-            accumulatedPowerMeasDataGraph = new SimpleGraph(new SimpleStringProperty("Накопленный ППН за время работы БД"),
-                    null);
-            accumulatedPowerMeasDataGraph.setShow(false);
-*/
+
         }
 
         graphWidget.addGraph(currentMeasDataGraph);
         graphWidget.addGraph(averageMeasDataGraph);
-/*
-        graphWidget.addGraph(accumulatedMeasDataGraph);
-        graphWidget.addGraph(accumulatedPowerMeasDataGraph);
-*/
+
     }
 
     @RequiredArgsConstructor
@@ -475,6 +460,7 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     public void setMeasData(String title, String value) {
+        log.info("Meas data: {} {}", title, value);
         Platform.runLater(() -> {
             measDataTitle.setText(title);
             meadDataValue.setText(value);
@@ -482,6 +468,7 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     public void setAccMeasData(String value) {
+        log.info("Accumulated meas data: {}", value);
         Platform.runLater(() -> {
             accMeadDataValue.setText(value);
         });
@@ -497,6 +484,14 @@ public abstract class DataControllerInitializer extends NodeController {
 
     public String getFileComment() {
         return fileComment.getText();
+    }
+
+    public void clearGraphAndTableData() {
+        graphIndex = 0;
+
+        currentMeasDataGraph.clear();
+        averageMeasDataGraph.clear();
+        clearTable();
     }
 
     protected void changeDisableStartStopBtn(boolean res) {

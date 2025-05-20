@@ -30,10 +30,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -67,13 +63,12 @@ public class RootController extends RootControllerInitializer {
                 exportService);
     }
 
-    private final List<DetectorMsg> detectorMsgs = new CopyOnWriteArrayList<>();
+    private final ConcurrentLinkedQueue<DetectorMsg> detectorMsgs = new ConcurrentLinkedQueue<>();
+
+    private final ConcurrentLinkedQueue<StatisticMeasurement> statisticMsg = new ConcurrentLinkedQueue<>();
+    private final Map<Long, StatisticMeasurement> statisticMsgMap = new HashMap<>();
 
     private final Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
-
-    private final Map<Long, StatisticMeasurement> statisticMsg = new ConcurrentHashMap<>();
-
-    private final List<AccumulatedMeasurement> accumulatedMsg = new CopyOnWriteArrayList<>();
 
     protected final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -103,7 +98,7 @@ public class RootController extends RootControllerInitializer {
                 lastReceivedMsgTime.set(System.currentTimeMillis());
 
                 DetectorMsg detectorMsg = parse(msg);
-                log.info("DetectorMsg: {}. {}", detectorMsg.getClass().getSimpleName(), detectorMsg);
+                log.info("DetectorMsg: {}" + System.lineSeparator() + "{}", detectorMsg.getClass().getSimpleName(), detectorMsg);
 
                 magazineController.addLog(detectorMsg);
 
@@ -199,7 +194,7 @@ public class RootController extends RootControllerInitializer {
     private void handleMeasDetectorState(DataController dataController,
                                          MetrologyController metrologyController,
                                          MeasurementDetectorState measStateDetector) {
-        log.info("handleMeasDetectorState time: {}", measStateDetector.time);
+        log.info("handleMeasDetectorState. detector time: {}", measStateDetector.time);
 
         if (areThereAttentionFlags(measStateDetector.attentionFlags)) {
             dataController.setGreenCircle();
@@ -208,8 +203,8 @@ public class RootController extends RootControllerInitializer {
         }
         dataController.setImageViewLabel("", "", "");
 
-        if (statisticMsg.containsKey(measStateDetector.time)) {
-            StatisticMeasurement statMeas = statisticMsg.get(measStateDetector.time);
+        if (statisticMsgMap.containsKey(measStateDetector.time)) {
+            StatisticMeasurement statMeas = statisticMsgMap.remove(measStateDetector.time);
 
             statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
             dataController.showStatisticMeas(statMeas);
@@ -217,21 +212,22 @@ public class RootController extends RootControllerInitializer {
             handleMetrology(metrologyController, statMeas);
             handleAccumulation(dataController, statMeas);
 
+            addStatisticMsg(statMeas);
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
             statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
 
-            statisticMsg.put(measStateDetector.time, statMeas);
+            statisticMsgMap.put(measStateDetector.time, statMeas);
         }
     }
 
     private void handleInternalEvent(DataController dataController,
                                      MetrologyController metrologyController,
                                      InternalEvent internalEvent) {
-        log.info("handleInternalEvent time: {}", internalEvent.time);
+        log.info("handleInternalEvent. detector time: {}", internalEvent.time);
 
-        if (statisticMsg.containsKey(internalEvent.time)) {
-            StatisticMeasurement statMeas = statisticMsg.get(internalEvent.time);
+        if (statisticMsgMap.containsKey(internalEvent.time)) {
+            StatisticMeasurement statMeas = statisticMsgMap.remove(internalEvent.time);
 
             statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
@@ -240,11 +236,12 @@ public class RootController extends RootControllerInitializer {
             handleMetrology(metrologyController, statMeas);
             handleAccumulation(dataController, statMeas);
 
+            addStatisticMsg(statMeas);
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
             statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
-            statisticMsg.put(internalEvent.time, statMeas);
+            statisticMsgMap.put(internalEvent.time, statMeas);
         }
     }
 
@@ -252,23 +249,6 @@ public class RootController extends RootControllerInitializer {
         if (accumulationMeasService.isRun()) {
             AccumulatedMeasurement accumulatedMeasurement = accumulationMeasService.addMeasToAccumulation(statMeas);
             dataController.showAccumulatedMeas(accumulatedMeasurement);
-
-            accumulatedMsg.add(accumulatedMeasurement);
-
-            if(accumulatedMeasurement.progress >= 1.0) {
-                log.info("Export accumulatedMeasurement");
-                try {
-                    Files.createDirectories(Paths.get("export"));
-                } catch (IOException e) {
-                    log.error("cant create directory export");
-                    return;
-                }
-
-                String fileName =  "./export/" +
-                        LocalDateTime.now().format(DATE_TIME_FILE_NAME_FORMATTER) + "_accumulation.txt";
-
-                saveAccumulatedDetectorMessages(new File(fileName));
-            }
         }
     }
 
@@ -427,6 +407,8 @@ public class RootController extends RootControllerInitializer {
 
     public void startMeasurement() {
         statisticMeasService.clear();
+        statisticMsg.clear();
+
         executorService.submit(() -> {
             try {
                 detectorClient.connect();
@@ -446,7 +428,7 @@ public class RootController extends RootControllerInitializer {
                         curLon += GEO_DATA_DELTA;
 
                         log.info("Send geo data: {} {}", curLat, curLon);
-                        sendDetectorCommand(new SetGeoDataCommand(TRANSFER_TO_DETECTOR_ID, new GeoData(curLat, curLon)));
+                        sendDetectorCommand(new SetGeoDataCommand(TRANSFER_ID, new GeoData(curLat, curLon)));
                     } while (!Thread.currentThread().isInterrupted());
                     log.info("geoDataSender canceled");
                 } catch (Exception e) {
@@ -488,6 +470,8 @@ public class RootController extends RootControllerInitializer {
 
         detectorClient.close();
 
+        ((DataController) getChild(DataController.class.getSimpleName())).setEmptyCircle();
+
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(true);
         ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(true);
         ((SettingController) getChild(SettingController.class.getSimpleName())).setDisableAllButtons(true);
@@ -516,8 +500,16 @@ public class RootController extends RootControllerInitializer {
         detectorClient.sendCommand(command);
     }
 
-    private synchronized void addDetectorMsg(DetectorMsg msg) {
+    private void addDetectorMsg(DetectorMsg msg) {
         detectorMsgs.add(msg);
+        if(detectorMsgs.size() > QUEUE_CAPACITY)
+            detectorMsgs.poll();
+    }
+
+    private void addStatisticMsg(StatisticMeasurement msg) {
+        statisticMsg.add(msg);
+        if(statisticMsg.size() > QUEUE_CAPACITY)
+            statisticMsg.poll();
     }
 
     public void addWaitingCommand(Class<? extends SomeCommandAnswer> cl, SomeCommand command) {
@@ -535,7 +527,7 @@ public class RootController extends RootControllerInitializer {
             log.info("export to selected file {}", file);
 
             try {
-                exportService.exportMeasurements(statisticMsg.values(), fileComment, file, (n, progress) ->
+                exportService.exportMeasurements(statisticMsg, fileComment, file, (n, progress) ->
                         Platform.runLater(() -> {
                             progressProperty.set(progress);
                             statusProperty.set("Экспорт измерения " + n);
@@ -598,29 +590,19 @@ public class RootController extends RootControllerInitializer {
         });
     }
 
-    public void saveAccumulatedDetectorMessages(File file) {
-        executorService.submit(() -> {
-            log.info("export to selected file {}", file);
-            try {
-                exportService.exportAccumulatedDetectorMsgs(accumulatedMsg, file);
-                accumulatedMsg.clear();
-
-            } catch (Exception e) {
-                log.error("saveMessages", e);
-            }
-        });
-
-    }
-
     public void clear() {
-        statisticMeasService.clear();
-
-        accumulatedMsg.clear();
-        statisticMsg.clear();
         detectorMsgs.clear();
 
+        statisticMsg.clear();
+        statisticMsgMap.clear();
+
+        statisticMeasService.clear();
+
+        DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
+        dataController.clearGraphAndTableData();
+
         MagazineController magazineController = (MagazineController) getChild(MagazineController.class.getSimpleName());
-        magazineController.clear();
+        magazineController.clearTable();
     }
 
     public void close() {

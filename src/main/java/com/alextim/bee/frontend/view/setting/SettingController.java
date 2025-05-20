@@ -13,7 +13,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import static com.alextim.bee.client.protocol.DetectorCodes.BDParam.DEBUG_SETTING;
-import static com.alextim.bee.context.Property.TRANSFER_TO_DETECTOR_ID;
+import static com.alextim.bee.context.Property.TRANSFER_ID;
 
 @Slf4j
 public class SettingController extends SettingControllerInitializer {
@@ -49,7 +49,7 @@ public class SettingController extends SettingControllerInitializer {
                 log.info("debugSetting: {}", debugSetting);
 
                 rootController.sendDetectorCommand(
-                        new SetDebugSettingCommand(TRANSFER_TO_DETECTOR_ID, debugSetting));
+                        new SetDebugSettingCommand(TRANSFER_ID, debugSetting));
 
             } catch (Exception e) {
                 log.error("setDebugSettingOn: ", e);
@@ -63,6 +63,6 @@ public class SettingController extends SettingControllerInitializer {
         log.info("getDebugSetting");
 
         rootController.sendDetectorCommand(
-                new GetDebugSettingCommand(TRANSFER_TO_DETECTOR_ID));
+                new GetDebugSettingCommand(TRANSFER_ID));
     }
 }

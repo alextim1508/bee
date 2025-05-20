@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 
@@ -26,9 +25,7 @@ public class ExportService {
                                    BiConsumer<Integer, Double> progress) {
         log.info("export to file");
 
-        Iterator<StatisticMeasurement> iterator = measurements.stream()
-                .sorted(Comparator.comparingLong(o -> o.time))
-                .toList().iterator();
+        Iterator<StatisticMeasurement> iterator = measurements.iterator();
 
         @Cleanup
         FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8);
@@ -119,7 +116,7 @@ public class ExportService {
             }
 
             fileWriter
-                    .append("Номер :" + (next.count + 1)).append("\t")
+                    .append("Номер: " + (next.count + 1)).append("\t")
                     .append("Дата: " + DATE_TIME_FORMATTER.format(next.localDateTime)).append("\t")
                     .append(next.measDataTitle + ": " + next.aveMeasData + " " + next.measDataUnit).append("\t")
                     .append(DETECTOR_APP.equals(MG_DETECTOR_APP) ? "Округленная " :  "Округленный ")

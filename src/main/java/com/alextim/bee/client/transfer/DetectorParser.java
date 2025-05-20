@@ -43,7 +43,7 @@ public class DetectorParser {
     }
 
     static DetectorMsg parseEvent(SomeEvent event) {
-        log.debug("EventCode.code {}", event.eventCode);
+        log.debug("EventCode {}", event.eventCode);
 
         if (event.eventCode.code == Event.RESTART.code) {
             return getRestartDetectorState(event);
@@ -55,10 +55,9 @@ public class DetectorParser {
             log.debug("State: {}", state);
 
             byte attentionFlagCode = event.data[DATA.shift + 2];
-            log.debug("attentionFlagCode: {}", attentionFlagCode);
             AttentionFlags attentionFlag = new AttentionFlags(
                     AttentionFlag.getAttentionFlagByCode(attentionFlagCode));
-            log.debug("AttentionFlag: {}", attentionFlag);
+            log.debug("AttentionFlag (code: {}): {}", attentionFlagCode, attentionFlag);
 
             switch (state) {
                 case UNKNOWN -> {
@@ -162,7 +161,7 @@ public class DetectorParser {
 
             return new GetDeadTimeAnswer(counterIndex, mode, deadTime, answer);
 
-        } else if (answer.commandCode.code == Command.GET_DEBUG_SETTINGS.code) { //todo
+        } else if (answer.commandCode.code == Command.GET_DEBUG_SETTINGS.code) {
             log.debug("GET_DEBUG_SETTINGS: {}", getHexString(answer));
 
             int version = ByteBuffer.wrap(new byte[]{
@@ -287,7 +286,7 @@ public class DetectorParser {
         log.debug("RESTART EVENT: {}", getHexString(event));
 
         RestartReason reason = RestartReason.getRestartReasonByCode(event.data[DATA.shift]);
-        log.debug("Reason: {}", reason);
+        log.debug("DetectorTime: {} - Reason: {}", event.time, reason);
 
         RestartParam param = null;
         int[] sourceIpAddr = null;
@@ -299,11 +298,11 @@ public class DetectorParser {
                     Byte.toUnsignedInt(event.data[DATA.shift + 6]),
                     Byte.toUnsignedInt(event.data[DATA.shift + 7])
             };
-            log.debug("sourceIpAddr: {}", sourceIpAddr);
+            log.debug("DetectorTime: {} - sourceIpAddr: {}", event.time, sourceIpAddr);
 
         } else if (reason == RESTART_ERROR) {
             param = RestartParam.getRestartParamByCode(event.data[DATA.shift + 4]);
-            log.debug("Param: {}", param);
+            log.debug("DetectorTime: {} - Param: {}", event.time, param);
         }
 
         int[] detectorIpAddr = new int[]{
@@ -312,19 +311,19 @@ public class DetectorParser {
                 Byte.toUnsignedInt(event.data[DATA.shift + 10]),
                 Byte.toUnsignedInt(event.data[DATA.shift + 11])
         };
-        log.debug("detectorIpAddr: {}", detectorIpAddr);
+        log.debug("DetectorTime: {} - detectorIpAddr: {}", event.time, detectorIpAddr);
 
         int ipPort = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 13],
                         event.data[DATA.shift + 12]})
                 .getShort());
-        log.debug("IpPort: {}", ipPort);
+        log.debug("DetectorTime: {} - IpPort: {}", event.time, ipPort);
 
         int ipPortExtDevice = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 15],
                         event.data[DATA.shift + 14]})
                 .getShort());
-        log.debug("IpPortExtDevice: {}", ipPortExtDevice);
+        log.debug("DetectorTime: {} - IpPortExtDevice: {}", event.time, ipPortExtDevice);
 
         return new RestartDetectorState(reason, param, detectorIpAddr, sourceIpAddr, ipPort, ipPortExtDevice, event);
     }
@@ -333,7 +332,7 @@ public class DetectorParser {
         log.debug("ERROR EVENT: {}", getHexString(event));
 
         Error error = Error.getErrorByCode(event.data[DATA.shift + 4]);
-        log.debug("Error: {}", error);
+        log.debug("DetectorTime: {} - Error: {}", event.time, error);
         return new ErrorDetectorState(error, event);
     }
 
@@ -346,7 +345,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 5],
                         event.data[DATA.shift + 4]})
                 .getInt());
-        log.debug("CutTime: {}", curTime);
+        log.debug("DetectorTime: {} - CutTime: {}", event.time, curTime);
 
         long measTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 11],
@@ -354,7 +353,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 9],
                         event.data[DATA.shift + 8]})
                 .getInt());
-        log.debug("MeasTime: {}", measTime);
+        log.debug("DetectorTime: {} - MeasTime: {}", event.time, measTime);
 
         return new AccumulationDetectorState(curTime, measTime, event);
     }
@@ -366,14 +365,14 @@ public class DetectorParser {
                         event.data[DATA.shift + 5],
                         event.data[DATA.shift + 4]})
                 .getShort());
-        log.debug("StructVersion: {}", structVersion);
+        log.debug("DetectorTime: {} - StructVersion: {}", event.time, structVersion);
 
         BDType bdType = BDType.getBDTypeByCode((byte) ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 7],
                         event.data[DATA.shift + 6]})
                 .getShort()
         );
-        log.debug("BdType: {}", bdType);
+        log.debug("DetectorTime: {} - BdType: {}", event.time, bdType);
 
         long measTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 11],
@@ -381,7 +380,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 9],
                         event.data[DATA.shift + 8]})
                 .getInt());
-        log.debug("MeasTime: {}", measTime);
+        log.debug("DetectorTime: {} - MeasTime: {}", event.time, measTime);
 
         long geoTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 15],
@@ -389,13 +388,13 @@ public class DetectorParser {
                         event.data[DATA.shift + 13],
                         event.data[DATA.shift + 12]})
                 .getInt());
-        log.debug("GeoTime: {}", geoTime);
+        log.debug("DetectorTime: {} - GeoTime: {}", event.time, geoTime);
 
         int geoDataSize = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 17],
                         event.data[DATA.shift + 16]})
                 .getShort());
-        log.debug("geoDataSize: {}", geoDataSize);
+        log.debug("DetectorTime: {} - geoDataSize: {}", event.time, geoDataSize);
 
         float lat = 0, lon = 0;
         if (geoDataSize == 8) {
@@ -405,14 +404,14 @@ public class DetectorParser {
                             event.data[DATA.shift + 18 + 1],
                             event.data[DATA.shift + 18]})
                     .getFloat();
-            log.debug("lat: {}", lat);
+            log.debug("DetectorTime: {} - lat: {}", event.time, lat);
             lon = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 18 + 7],
                             event.data[DATA.shift + 18 + 6],
                             event.data[DATA.shift + 18 + 5],
                             event.data[DATA.shift + 18 + 4]})
                     .getFloat();
-            log.debug("lon: {}", lon);
+            log.debug("DetectorTime: {} - lon: {}", event.time, lon);
         }
 
         GeoData geoData = new GeoData(lat, lon);
@@ -423,7 +422,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 19 + geoDataSize],
                         event.data[DATA.shift + 18 + geoDataSize]})
                 .getFloat();
-        log.debug("CurScore: {}", curScore);
+        log.debug("DetectorTime: {} - CurScore: {}", event.time, curScore);
 
         float aveScore = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 25 + geoDataSize],
@@ -431,7 +430,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 23 + geoDataSize],
                         event.data[DATA.shift + 22 + geoDataSize]})
                 .getFloat();
-        log.debug("AveScore: {}", aveScore);
+        log.debug("DetectorTime: {} - AveScore: {}", event.time, aveScore);
 
         float curMeasData = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 29 + geoDataSize],
@@ -439,7 +438,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 27 + geoDataSize],
                         event.data[DATA.shift + 26 + geoDataSize]})
                 .getFloat();
-        log.debug("CurMeasData: {}", curMeasData);
+        log.debug("DetectorTime: {} - CurMeasData: {}", event.time, curMeasData);
 
         float aveMeasData = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 33 + geoDataSize],
@@ -447,7 +446,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 31 + geoDataSize],
                         event.data[DATA.shift + 30 + geoDataSize]})
                 .getFloat();
-        log.debug("AveMeasData: {}", aveMeasData);
+        log.debug("DetectorTime: {} - AveMeasData: {}", event.time, aveMeasData);
 
         long accInterval = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 37 + geoDataSize],
@@ -455,7 +454,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 35 + geoDataSize],
                         event.data[DATA.shift + 34 + geoDataSize]})
                 .getInt());
-        log.debug("AccInterval: {}", accInterval);
+        log.debug("DetectorTime: {} - AccInterval: {}", event.time, accInterval);
 
         float accMeasDataT = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 41 + geoDataSize],
@@ -463,7 +462,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 39 + geoDataSize],
                         event.data[DATA.shift + 38 + geoDataSize]})
                 .getFloat();
-        log.debug("AccMeasDataT: {}", accMeasDataT);
+        log.debug("DetectorTime: {} - AccMeasDataT: {}", event.time, accMeasDataT);
 
         float accMeasDataP = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 45 + geoDataSize],
@@ -471,7 +470,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 43 + geoDataSize],
                         event.data[DATA.shift + 42 + geoDataSize]})
                 .getFloat();
-        log.debug("AccMeasDataP: {}", accMeasDataP);
+        log.debug("DetectorTime: {} - AccMeasDataP: {}", event.time, accMeasDataP);
 
         BdData bdData;
         if (bdType == BDType.GAMMA) {
@@ -516,14 +515,14 @@ public class DetectorParser {
                         event.data[DATA.shift + 1],
                         event.data[DATA.shift]})
                 .getShort());
-        log.debug("structVersion: {}", structVersion);
+        log.debug("DetectorTime: {} - structVersion: {}", event.time, structVersion);
 
         BDType bdType = BDType.getBDTypeByCode((byte) ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 3],
                         event.data[DATA.shift + 2]})
                 .getShort()
         );
-        log.debug("BdType: {}", bdType);
+        log.debug("DetectorTime: {} - BdType: {}", event.time, bdType);
 
         long measTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 7],
@@ -531,7 +530,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 5],
                         event.data[DATA.shift + 4]})
                 .getInt());
-        log.debug("MeasTime: {}", measTime);
+        log.debug("DetectorTime: {} - MeasTime: {}", event.time, measTime);
 
         BDInternalMode bdInternalMode = BDInternalMode.getBDInternalModeByCode(
                 (byte) ByteBuffer.wrap(new byte[]{
@@ -539,13 +538,13 @@ public class DetectorParser {
                                 event.data[DATA.shift + 8]})
                         .getShort()
         );
-        log.debug("BdInternalMode: {}", bdInternalMode);
+        log.debug("DetectorTime: {} - BdInternalMode: {}", event.time, bdInternalMode);
 
         int reserve = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 11],
                         event.data[DATA.shift + 10]})
                 .getShort());
-        log.debug("Reserve: {}", reserve);
+        log.debug("DetectorTime: {} - Reserve: {}", event.time, reserve);
 
         float curScores1 = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 15],
@@ -553,7 +552,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 13],
                         event.data[DATA.shift + 12]})
                 .getFloat();
-        log.debug("CurScores1: {}", curScores1);
+        log.debug("DetectorTime: {} - CurScores1: {}", event.time, curScores1);
 
         float curScores2 = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 19],
@@ -561,7 +560,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 17],
                         event.data[DATA.shift + 16]})
                 .getFloat();
-        log.debug("CurScores2: {}", curScores2);
+        log.debug("DetectorTime: {} - CurScores2: {}", event.time, curScores2);
 
         float aveScores1 = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 23],
@@ -569,7 +568,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 21],
                         event.data[DATA.shift + 20]})
                 .getFloat();
-        log.debug("AveScores1: {}", aveScores1);
+        log.debug("DetectorTime: {} - AveScores1: {}", event.time, aveScores1);
 
         float aveScores2 = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 27],
@@ -577,7 +576,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 25],
                         event.data[DATA.shift + 24]})
                 .getFloat();
-        log.debug("AveScores2: {}", aveScores2);
+        log.debug("DetectorTime: {} - AveScores2: {}", event.time, aveScores2);
 
         float temperature = ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 31],
@@ -585,7 +584,7 @@ public class DetectorParser {
                         event.data[DATA.shift + 29],
                         event.data[DATA.shift + 28]})
                 .getFloat();
-        log.debug("Temperature: {}", temperature);
+        log.debug("DetectorTime: {} - Temperature: {}", event.time, temperature);
 
         if (bdType == BDType.GAMMA) {
             float voltage400V = ByteBuffer.wrap(new byte[]{
@@ -594,7 +593,7 @@ public class DetectorParser {
                             event.data[DATA.shift + 33],
                             event.data[DATA.shift + 32]})
                     .getFloat();
-            log.debug("Voltage400V: {}", voltage400V);
+            log.debug("DetectorTime: {} - Voltage400V: {}", event.time, voltage400V);
 
             float power = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 39],
@@ -602,7 +601,7 @@ public class DetectorParser {
                             event.data[DATA.shift + 37],
                             event.data[DATA.shift + 36]})
                     .getFloat();
-            log.debug("power: {}", power);
+            log.debug("DetectorTime: {} - power: {}", event.time, power);
 
             BdmgInternalData bdmgInternalData = BdmgInternalData.builder()
                     .voltage400V(voltage400V)
@@ -624,7 +623,7 @@ public class DetectorParser {
                             event.data[DATA.shift + 33],
                             event.data[DATA.shift + 32]})
                     .getFloat();
-            log.debug("Voltage500V: {}", voltage500V);
+            log.debug("DetectorTime: {} - Voltage500V: {}", event.time, voltage500V);
 
             float voltage2500V = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 39],
@@ -632,7 +631,7 @@ public class DetectorParser {
                             event.data[DATA.shift + 37],
                             event.data[DATA.shift + 36]})
                     .getFloat();
-            log.debug("Voltage2500V: {}", voltage2500V);
+            log.debug("DetectorTime: {} - Voltage2500V: {}", event.time, voltage2500V);
 
             float power = ByteBuffer.wrap(new byte[]{
                             event.data[DATA.shift + 43],
@@ -640,7 +639,7 @@ public class DetectorParser {
                             event.data[DATA.shift + 41],
                             event.data[DATA.shift + 40]})
                     .getFloat();
-            log.debug("power: {}", power);
+            log.debug("DetectorTime: {} - Power: {}", event.time, power);
 
             BdpnInternalData bdpnInternalData = BdpnInternalData.builder()
                     .voltage500V(voltage500V)

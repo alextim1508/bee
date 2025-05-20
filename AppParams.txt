@@ -1,5 +1,5 @@
 metrology.realMeasData:280
-data.accMeasTime:10
+data.accMeasTime:100
 data.comment:коммент
 metrology.measAmount:5
 metrology.realMeasDataUnitIndex:4

@@ -83,6 +83,9 @@ public class Context {
         }
         log.info("USER_APP: {}", USER_APP);
 
+        QUEUE_CAPACITY =Integer.parseInt((String) properties.get("app.queue-capacity"));
+        log.info("QUEUE_CAPACITY: {}", QUEUE_CAPACITY);
+
         initTransferProperties(properties);
 
         initGeoDataProperties(properties);
@@ -91,8 +94,8 @@ public class Context {
     }
 
     private void initTransferProperties(Properties properties) {
-        TRANSFER_TO_DETECTOR_ID = Integer.parseInt((String) properties.get("app.transfer.detector-id"), 16);
-        log.info(String.format("TRANSFER_TO_DETECTOR_ID (hex): %x", TRANSFER_TO_DETECTOR_ID));
+        TRANSFER_ID = Integer.parseInt((String) properties.get("app.transfer.detector-id"), 16);
+        log.info(String.format("TRANSFER_TO_DETECTOR_ID (hex): %x", TRANSFER_ID));
 
         TRANSFER_IP = (String) properties.get("app.transfer.ip");
         log.info("TRANSFER_IP: {}", TRANSFER_IP);
