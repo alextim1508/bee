@@ -5,6 +5,7 @@ import com.alextim.bee.client.messages.DetectorEvents;
 import com.alextim.bee.client.messages.DetectorMsg;
 import com.alextim.bee.client.messages.ExceptionMessage;
 import com.alextim.bee.frontend.view.NodeController;
+import com.alextim.bee.service.MilliSecondFormatter;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -33,7 +34,7 @@ public class MagazineController extends NodeController {
     @FXML
     private TableColumn<DetectorMsg, Integer> serialNumber;
     @FXML
-    private TableColumn<DetectorMsg, Long> time;
+    private TableColumn<DetectorMsg, String> time;
     @FXML
     private TableColumn<DetectorMsg, String> type;
     @FXML
@@ -74,7 +75,8 @@ public class MagazineController extends NodeController {
             }
         });
 
-        time.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().time));
+        time.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(
+                param.getValue().time==0 ? "" : MilliSecondFormatter.toString(param.getValue().time)));
 
         type.setCellValueFactory(param -> {
             if (param.getValue() instanceof DetectorEvents.SomeEvent) {

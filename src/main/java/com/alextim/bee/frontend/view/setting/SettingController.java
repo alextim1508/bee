@@ -36,9 +36,11 @@ public class SettingController extends SettingControllerInitializer {
                 long pmInterval = Long.parseLong(this.pmInterval.getText());
                 long pmQuench = Long.parseLong(this.pmQuench.getText());
                 long pmHiUp = Long.parseLong(this.pmHiUp.getText());
+                boolean isDebugEnable = this.isDebugEnable.isSelected();
 
                 DebugSetting debugSetting = DebugSetting.builder()
                         .mode(mode)
+                        .isDebugEnable(isDebugEnable)
                         .chmQuench(chmQuench)
                         .clmQuench(clmQuench)
                         .pmInterval(pmInterval)

@@ -6,10 +6,7 @@ import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
 import com.alextim.bee.frontend.view.NodeController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -31,11 +28,13 @@ public class SettingControllerInitializer  extends NodeController {
     protected TextField pmQuench;
     @FXML
     protected TextField pmInterval;
+    @FXML
+    protected CheckBox isDebugEnable;
 
     @FXML
     protected ToggleGroup modes;
     @FXML
-    protected RadioButton highSens, lowSens, pulse;
+    protected RadioButton highSens, lowSens, pulse, disable;
 
     @FXML
     private Button getDebugSettingBtn, setDebugSettingBtn;
@@ -87,6 +86,7 @@ public class SettingControllerInitializer  extends NodeController {
     public void setDebugSetting(DebugSetting debugSetting) {
         Platform.runLater(() -> {
             setSelectedMode(debugSetting.mode);
+            this.isDebugEnable.setSelected(debugSetting.isDebugEnable);
             this.chmQuench.setText(String.valueOf(debugSetting.chmQuench));
             this.clmQuench.setText(String.valueOf(debugSetting.clmQuench));
             this.pmInterval.setText(String.valueOf(debugSetting.pmInterval));
@@ -102,6 +102,8 @@ public class SettingControllerInitializer  extends NodeController {
             return BD_MODE_CONTINUOUS_LOW_SENS;
         if (modes.getSelectedToggle() == pulse)
             return BD_MODE_PULSE;
+        if (modes.getSelectedToggle() == disable)
+            return BD_MODE_COUNTERS_OFF;
         return null;
     }
 
@@ -112,6 +114,8 @@ public class SettingControllerInitializer  extends NodeController {
             modes.selectToggle(lowSens);
         if (BD_MODE_PULSE == mode)
             modes.selectToggle(pulse);
+        if (BD_MODE_COUNTERS_OFF == mode)
+            modes.selectToggle(disable);
     }
 
     public void setDisableAllButtons(boolean b) {

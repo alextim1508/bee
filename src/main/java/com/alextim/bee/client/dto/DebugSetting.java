@@ -5,7 +5,8 @@ import lombok.Builder;
 
 @Builder
 public class DebugSetting {
-    public BDInternalMode mode;       // режим работы БД при отладке (enabled=TRUE)
+    public BDInternalMode mode;
+    public boolean isDebugEnable;
     public long chmQuench;  // длительность сигнала гашения для непрерывного режима высокой чувствительности, мксек
     public long clmQuench;  // длительность сигнала гашения для непрерывного режима низкой чувствительности, мксек
     public long pmInterval; // период сигнала гашения для импульсного режима, мксек
@@ -14,8 +15,9 @@ public class DebugSetting {
 
     @Override
     public String toString() {
-        return "Параметров отладки: " +
-                "mode: " + mode +
+        return "Параметров отладки. " +
+                "Режим: " + mode +
+                ", Отладка разрешена: " + isDebugEnable +
                 ", chmQuench: " + chmQuench +
                 ", clmQuench: " + clmQuench +
                 ", pmInterval: " + pmInterval +

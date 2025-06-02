@@ -375,7 +375,7 @@ public class DetectorCommands {
 
             return new byte[]{
                     1, 0, 0, 0, //version
-                    1, //enabled
+                    debugSetting.isDebugEnable ? (byte)0x1 : 0,
                     modeArray[3], modeArray[2], modeArray[1], modeArray[0],
                     chmQuenchArray[3], chmQuenchArray[2], chmQuenchArray[1], chmQuenchArray[0],
                     clmQuenchArray[3], clmQuenchArray[2], clmQuenchArray[1], clmQuenchArray[0],
@@ -429,7 +429,7 @@ public class DetectorCommands {
 
         @Override
         public String toString() {
-            return Command.GET_DEBUG_SETTINGS.title + "." +
+            return Command.GET_DEBUG_SETTINGS.title + ". " +
                     debugSetting;
         }
     }

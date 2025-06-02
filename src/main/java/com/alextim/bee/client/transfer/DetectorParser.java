@@ -3,6 +3,7 @@ package com.alextim.bee.client.transfer;
 import com.alextim.bee.client.dto.*;
 import com.alextim.bee.client.messages.DetectorMsg;
 import com.alextim.bee.client.messages.ExceptionMessage;
+import com.alextim.bee.service.MilliSecondFormatter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteBuffer;
@@ -43,21 +44,23 @@ public class DetectorParser {
     }
 
     static DetectorMsg parseEvent(SomeEvent event) {
-        log.debug("EventCode {}", event.eventCode);
+        log.debug("DetectorTime: {} - EventCode {}", event.time, event.eventCode);
 
         if (event.eventCode.code == Event.RESTART.code) {
             return getRestartDetectorState(event);
 
         } else if (event.eventCode.code == Event.STATE.code) {
-            byte zero = event.data[DATA.shift]; // зарезервировано, д.б. 0
+            byte zero = event.data[DATA.shift];
+
+            log.debug("DetectorTime: {} - FormattedMilliSecond: {}", event.time, MilliSecondFormatter.toString(event.time));
 
             State state = State.getStateByCode(event.data[DATA.shift + 1]);
-            log.debug("State: {}", state);
+            log.debug("DetectorTime: {} - State: {}", event.time, state);
 
             byte attentionFlagCode = event.data[DATA.shift + 2];
             AttentionFlags attentionFlag = new AttentionFlags(
                     AttentionFlag.getAttentionFlagByCode(attentionFlagCode));
-            log.debug("AttentionFlag (code: {}): {}", attentionFlagCode, attentionFlag);
+            log.debug("DetectorTime: {} - AttentionFlag (code: {}): {}", event.time, attentionFlagCode, attentionFlag);
 
             switch (state) {
                 case UNKNOWN -> {
@@ -220,6 +223,7 @@ public class DetectorParser {
 
             DebugSetting debugSetting = DebugSetting.builder()
                     .mode(mode)
+                    .isDebugEnable(enabled)
                     .chmQuench(chmQuench)
                     .clmQuench(clmQuench)
                     .pmInterval(pmInterval)
@@ -283,7 +287,7 @@ public class DetectorParser {
     }
 
     static RestartDetectorState getRestartDetectorState(SomeEvent event) {
-        log.debug("RESTART EVENT: {}", getHexString(event));
+        log.debug("DetectorTime: {} - RESTART EVENT: {}", event.time, getHexString(event));
 
         RestartReason reason = RestartReason.getRestartReasonByCode(event.data[DATA.shift]);
         log.debug("DetectorTime: {} - Reason: {}", event.time, reason);
@@ -329,7 +333,7 @@ public class DetectorParser {
     }
 
     static ErrorDetectorState getErrorDetectorState(DetectorStateEvent event) {
-        log.debug("ERROR EVENT: {}", getHexString(event));
+        log.debug("DetectorTime: {} - ERROR EVENT: {}", event.time, getHexString(event));
 
         Error error = Error.getErrorByCode(event.data[DATA.shift + 4]);
         log.debug("DetectorTime: {} - Error: {}", event.time, error);
@@ -337,7 +341,7 @@ public class DetectorParser {
     }
 
     static AccumulationDetectorState getAccumulationDetectorState(DetectorStateEvent event) {
-        log.debug("ACCUMULATION EVENT: {}", getHexString(event));
+        log.debug("DetectorTime: {} - ACCUMULATION EVENT: {}",  event.time, getHexString(event));
 
         long curTime = Integer.toUnsignedLong(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 7],
@@ -359,7 +363,7 @@ public class DetectorParser {
     }
 
     static MeasurementDetectorState getMeasurementStateDetector(DetectorStateEvent event) {
-        log.debug("MEASUREMENT EVENT : {}", getHexString(event));
+        log.debug("DetectorTime: {} - MEASUREMENT EVENT : {}", event.time, getHexString(event));
 
         int structVersion = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 5],
@@ -509,7 +513,7 @@ public class DetectorParser {
     }
 
     static InternalEvent getInternalEvent(SomeEvent event) {
-        log.debug("INTERNAL_DATA EVENT : {}", getHexString(event));
+        log.debug("DetectorTime: {} - INTERNAL_DATA EVENT : {}", event.time, getHexString(event));
 
         int structVersion = Short.toUnsignedInt(ByteBuffer.wrap(new byte[]{
                         event.data[DATA.shift + 1],

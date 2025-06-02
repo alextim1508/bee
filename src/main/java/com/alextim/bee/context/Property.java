@@ -14,8 +14,8 @@ public class Property {
     public static String USER_APP;
     public static String SUPER_USER = "RTC";
     public static Integer QUEUE_CAPACITY;
-    public static String DATE_BUILD = "20 05 2025";
-    public static String SOFTWARE_VERSION = "Версия ПО: 3.1";
+    public static String DATE_BUILD = "02 06 2025";
+    public static String SOFTWARE_VERSION = "Версия ПО: 3.3";
     public static Integer TRANSFER_ID;
     public static String TRANSFER_IP;
     public static Integer TRANSFER_RCV_PORT;

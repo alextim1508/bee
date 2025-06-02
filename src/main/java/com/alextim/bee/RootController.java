@@ -9,6 +9,7 @@ import com.alextim.bee.client.protocol.DetectorCodes.AttentionFlags;
 import com.alextim.bee.context.AppState;
 import com.alextim.bee.frontend.MainWindow;
 import com.alextim.bee.frontend.dialog.progress.ProgressDialog;
+import com.alextim.bee.frontend.view.NodeController;
 import com.alextim.bee.frontend.view.data.DataController;
 import com.alextim.bee.frontend.view.magazine.MagazineController;
 import com.alextim.bee.frontend.view.management.ManagementController;
@@ -69,6 +70,7 @@ public class RootController extends RootControllerInitializer {
     private final Map<Long, StatisticMeasurement> statisticMsgMap = new HashMap<>();
 
     private final Map<Class<? extends SomeCommandAnswer>, List<SomeCommand>> waitingCommands = new HashMap<>();
+    private final Map<Class<? extends SomeCommandAnswer>, Class<? extends NodeController>> nodeControllerReceiver = new HashMap<>();
 
     protected final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -113,7 +115,7 @@ public class RootController extends RootControllerInitializer {
 
                 } else if (detectorMsg instanceof SomeCommandAnswer answer) {
                     try {
-                        handleCommandAnswer(managementController, settingController, answer);
+                        handleCommandAnswer(dataController, managementController, settingController, answer);
                     } catch (Exception e) {
                         log.error("handleCommandAnswer exception", e);
                     }
@@ -263,7 +265,8 @@ public class RootController extends RootControllerInitializer {
         return attentionFlags.equals(new AttentionFlags(Set.of(NO_ATTENTION)));
     }
 
-    private void handleCommandAnswer(ManagementController managementController,
+    private void handleCommandAnswer(DataController dataController,
+                                     ManagementController managementController,
                                      SettingController settingController,
                                      SomeCommandAnswer detectorMsg) {
         log.info("handleCommandAnswer: {}", detectorMsg);
@@ -291,18 +294,32 @@ public class RootController extends RootControllerInitializer {
             }
 
         } else if (detectorMsg instanceof SetDebugSettingAnswer answer) {
-            if (detectorMsg.commandStatusCode == SUCCESS) {
-                settingController.showDialogParamIsSet(DEBUG_SETTING);
+            Class<? extends NodeController> node = nodeControllerReceiver.remove(SetDebugSettingAnswer.class);
+            if(node == DataController.class) {
+                if (detectorMsg.commandStatusCode == SUCCESS) {
+                    dataController.showDialogModeIsSet();
+                } else {
+                    dataController.showAnswerErrorDialog(getErrorByCode(detectorMsg.data[0]));
+                }
             } else {
-                settingController.showAnswerErrorDialog(DEBUG_SETTING, getErrorByCode(detectorMsg.data[0]));
+                if (detectorMsg.commandStatusCode == SUCCESS) {
+                    settingController.showDialogParamIsSet(DEBUG_SETTING);
+                } else {
+                    settingController.showAnswerErrorDialog(DEBUG_SETTING, getErrorByCode(detectorMsg.data[0]));
+                }
             }
 
         } else if (detectorMsg instanceof GetDebugSettingAnswer answer) {
-            if (detectorMsg.commandStatusCode == SUCCESS) {
-                settingController.setDebugSetting(answer.debugSetting);
-                settingController.showDialogParamIsGot(DEBUG_SETTING);
+            Class<? extends NodeController> node = nodeControllerReceiver.remove(GetDebugSettingAnswer.class);
+            if(node == DataController.class) {
+                dataController.handleGetDebugSettings(answer);
             } else {
-                settingController.showAnswerErrorDialog(DEBUG_SETTING, getErrorByCode(detectorMsg.data[0]));
+                if (detectorMsg.commandStatusCode == SUCCESS) {
+                    settingController.setDebugSetting(answer.debugSetting);
+                    settingController.showDialogParamIsGot(DEBUG_SETTING);
+                } else {
+                    settingController.showAnswerErrorDialog(DEBUG_SETTING, getErrorByCode(detectorMsg.data[0]));
+                }
             }
 
         } else if (detectorMsg instanceof SetDeadTimeAnswer answer) {
@@ -448,6 +465,8 @@ public class RootController extends RootControllerInitializer {
                     long cur = System.currentTimeMillis();
                     if (cur - lastReceivedMsgTime.get() > 5000) {
                         dataController.setNoConnect();
+
+                        log.error("========== NO CONNECT ==========");
                     }
                 } while (!Thread.currentThread().isInterrupted());
                 log.info("timer canceled");
@@ -515,6 +534,11 @@ public class RootController extends RootControllerInitializer {
     public void addWaitingCommand(Class<? extends SomeCommandAnswer> cl, SomeCommand command) {
         waitingCommands.putIfAbsent(cl, new LinkedList<>());
         waitingCommands.get(cl).add(command);
+    }
+
+    public void addNodeControllerReceiver(Class<? extends SomeCommandAnswer> commandClass,
+                                          Class<? extends NodeController> receiverClass) {
+        nodeControllerReceiver.put(commandClass, receiverClass);
     }
 
     public void saveMeasurements(File file, String fileComment) {

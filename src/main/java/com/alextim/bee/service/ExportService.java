@@ -40,6 +40,7 @@ public class ExportService {
             StatisticMeasurement next = iterator.next();
 
             fileWriter
+                    .append("Дата:  " + (next.localDateTime != null ? DATE_TIME_FORMATTER.format(next.localDateTime) : "-")).append("\t")
                     .append(next.measDataTitle + ": " + next.currentMeasDataValue + " " + next.measDataUnit).append("\t")
                     .append(next.measDataTitle + " среднее значение: " + next.averageMeasDataValue + " " + next.measDataUnit).append("\t")
                     .append("Текущее значение счетчика 1: " + next.currentCount1).append("\t")
@@ -51,10 +52,9 @@ public class ExportService {
                     .append("Накопленное значение счетчика 1: " + next.getCount1()).append("\t")
                     .append("Накопленное значение счетчика 2: " + next.getCount2()).append("\t")
                     .append("Накопленное суммарное значение счетчиков: " + next.getCountSum()).append("\t")
-                    .append("Время после включения БД:  " + next.time).append(",\t")
-                    .append("Гео данные: " + next.geoData.lat() + ", " + next.geoData.lon()).append("\t")
                     .append("Режим работы счетчиков: " + next.mode.title).append("\t")
-                    .append("Дата:  " + (next.localDateTime != null ? DATE_TIME_FORMATTER.format(next.localDateTime) : "-"))
+                    .append("Время после включения БД:  " + MilliSecondFormatter.toString(next.time)).append(",\t")
+                    .append("Гео данные: " + next.geoData.lat() + ", " + next.geoData.lon())
                     .append(System.lineSeparator());
         }
         fileWriter.flush();

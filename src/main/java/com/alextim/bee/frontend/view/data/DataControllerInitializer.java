@@ -101,6 +101,9 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     private ProgressBar progressBar;
 
+    @FXML
+    private Button disableCounterModeBtn, enableCounterModeBtn;
+
     abstract void start(long measTime);
 
     abstract void stop();
@@ -112,6 +115,9 @@ public abstract class DataControllerInitializer extends NodeController {
     abstract void clear();
 
     abstract void startAccumulate(int accTime);
+
+    abstract void disableCounterMode();
+    abstract void enableCounterMode();
 
     private final String MEAS_TIME_STATE_APP_PARAM = "data.measTime";
     private final String ACC_MEAS_TIME_STATE_APP_PARAM = "data.accMeasTime";
@@ -498,6 +504,9 @@ public abstract class DataControllerInitializer extends NodeController {
         startBtn.setDisable(res);
         accBtn.setDisable(!res);
         stopBtn.setDisable(!res);
+
+        disableCounterModeBtn.setDisable(!res);
+        enableCounterModeBtn.setDisable(!res);
     }
 
     @FXML
@@ -539,6 +548,16 @@ public abstract class DataControllerInitializer extends NodeController {
     @FXML
     void onClear(ActionEvent event) {
         clear();
+    }
+
+    @FXML
+    void disableCounterModeOn(ActionEvent event) {
+        disableCounterMode();
+    }
+
+    @FXML
+    void enableCounterModeOn(ActionEvent event) {
+        enableCounterMode();
     }
 
     public void putStateParam() {
