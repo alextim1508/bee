@@ -1,7 +1,7 @@
 metrology.realMeasData:280
-data.accMeasTime:10
-data.comment:коммент
+data.accMeasTime:
 metrology.measAmount:5
+data.comment:sss
 metrology.realMeasDataUnitIndex:4
 data.measTime:SEC_10
 metrology.cycleAmount:4

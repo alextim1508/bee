@@ -6,6 +6,7 @@ import com.alextim.bee.client.dto.GeoData;
 import com.alextim.bee.client.messages.DetectorCommands.*;
 import com.alextim.bee.client.messages.DetectorMsg;
 import com.alextim.bee.client.protocol.DetectorCodes.AttentionFlags;
+import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
 import com.alextim.bee.context.AppState;
 import com.alextim.bee.frontend.MainWindow;
 import com.alextim.bee.frontend.dialog.progress.ProgressDialog;
@@ -27,6 +28,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +39,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.alextim.bee.client.messages.DetectorEvents.*;
 import static com.alextim.bee.client.protocol.DetectorCodes.AttentionFlag.NO_ATTENTION;
@@ -77,6 +83,10 @@ public class RootController extends RootControllerInitializer {
     private Future<?> connectTimer;
     private Future<?> geoDataSender;
     private final AtomicLong lastReceivedMsgTime = new AtomicLong();
+
+    private Future<?> secretCoefShowTimer;
+    private final AtomicLong secretCoefUpdatedTime = new AtomicLong();
+    private final AtomicReference<Float> secretCoef = new AtomicReference<>(1.0f);
 
     @SneakyThrows
     public void listenDetectorClient() {
@@ -172,7 +182,7 @@ public class RootController extends RootControllerInitializer {
         } else {
             dataController.setRedCircleExclamation();
         }
-        dataController.setImageViewLabel(String.format("0x%x", errorDetectorState.error.code), "", "");
+        dataController.setImageViewLabel(String.format("0x%x", errorDetectorState.error.code), "");
     }
 
     private void handleInitializationDetectorState(DataController dataController, InitializationDetectorState initStateDetector) {
@@ -181,7 +191,7 @@ public class RootController extends RootControllerInitializer {
         } else {
             dataController.setGrayCircleExclamation();
         }
-        dataController.setImageViewLabel("", "", "");
+        dataController.setImageViewLabel("", "");
     }
 
     private void handleAccumulationDetectorState(DataController dataController, AccumulationDetectorState accStateDetector) {
@@ -190,7 +200,7 @@ public class RootController extends RootControllerInitializer {
         } else {
             dataController.setYellowCircleExclamation();
         }
-        dataController.setImageViewLabel(100 * accStateDetector.curTime / accStateDetector.measTime + "%", "", "");
+        dataController.setImageViewLabel(100 * accStateDetector.curTime / accStateDetector.measTime + "%", "");
     }
 
     private void handleMeasDetectorState(DataController dataController,
@@ -203,12 +213,12 @@ public class RootController extends RootControllerInitializer {
         } else {
             dataController.setGreenCircleExclamation();
         }
-        dataController.setImageViewLabel("", "", "");
+        dataController.setImageViewLabel("", "");
 
         if (statisticMsgMap.containsKey(measStateDetector.time)) {
             StatisticMeasurement statMeas = statisticMsgMap.remove(measStateDetector.time);
 
-            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
+            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, secretCoef.get(), statMeas);
             dataController.showStatisticMeas(statMeas);
 
             handleMetrology(metrologyController, statMeas);
@@ -217,7 +227,7 @@ public class RootController extends RootControllerInitializer {
             addStatisticMsg(statMeas);
         } else {
             StatisticMeasurement statMeas = new StatisticMeasurement();
-            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, statMeas);
+            statisticMeasService.addMeasToStatistic(measStateDetector.time, measStateDetector.meas, secretCoef.get(), statMeas);
 
             statisticMsgMap.put(measStateDetector.time, statMeas);
         }
@@ -244,6 +254,12 @@ public class RootController extends RootControllerInitializer {
             statisticMeasService.addMeasToStatistic(internalEvent.time, internalEvent.internalData, statMeas);
 
             statisticMsgMap.put(internalEvent.time, statMeas);
+        }
+
+        if(internalEvent.internalData.mode == BDInternalMode.BD_MODE_COUNTERS_OFF) {
+            dataController.setVoltageIcon();
+        } else {
+            dataController.setEmptyCircle2();
         }
     }
 
@@ -295,9 +311,23 @@ public class RootController extends RootControllerInitializer {
 
         } else if (detectorMsg instanceof SetDebugSettingAnswer answer) {
             Class<? extends NodeController> node = nodeControllerReceiver.remove(SetDebugSettingAnswer.class);
+
+            List<SomeCommand> waitingCommand = waitingCommands.getOrDefault(SetDebugSettingAnswer.class, new LinkedList<>());
+
             if(node == DataController.class) {
                 if (detectorMsg.commandStatusCode == SUCCESS) {
-                    dataController.showDialogModeIsSet();
+                    if (waitingCommand.isEmpty()) {
+                        dataController.showDialogModeIsSet();
+                    } else {
+
+                        new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    nodeControllerReceiver.put(SetDebugSettingAnswer.class, DataController.class);
+                                    sendDetectorCommand(waitingCommand.remove(0));
+                                }
+                            }, 2000);
+                    }
                 } else {
                     dataController.showAnswerErrorDialog(getErrorByCode(detectorMsg.data[0]));
                 }
@@ -475,6 +505,25 @@ public class RootController extends RootControllerInitializer {
             }
         });
 
+        secretCoefShowTimer = executorService.submit(() -> {
+            DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
+            secretCoefUpdatedTime.set(System.currentTimeMillis());
+
+            try {
+                do {
+                    Thread.sleep(1000);
+
+                    long cur = System.currentTimeMillis();
+                    if (cur - secretCoefUpdatedTime.get() > 1000) {
+                        dataController.setSecret("");
+                    }
+                } while (!Thread.currentThread().isInterrupted());
+                log.info("timer2 canceled");
+            } catch (Exception e) {
+                log.error("timer2 connect exception", e);
+            }
+        });
+
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(false);
         ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(false);
         ((SettingController) getChild(SettingController.class.getSimpleName())).setDisableAllButtons(false);
@@ -487,9 +536,11 @@ public class RootController extends RootControllerInitializer {
             geoDataSender.cancel(true);
         }
 
+        secretCoefShowTimer.cancel(true);
+
         detectorClient.close();
 
-        ((DataController) getChild(DataController.class.getSimpleName())).setEmptyCircle();
+        ((DataController) getChild(DataController.class.getSimpleName())).setEmptyCircle1();
 
         ((ManagementController) getChild(ManagementController.class.getSimpleName())).setDisableAllButtons(true);
         ((MetrologyController) getChild(MetrologyController.class.getSimpleName())).setDisableAllButtons(true);
@@ -502,6 +553,46 @@ public class RootController extends RootControllerInitializer {
 
     public void startAccumulation(int measAmount) {
         accumulationMeasService.run(measAmount);
+    }
+
+    private final KeyCombination ctrlQ = new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.CONTROL_DOWN);
+    private final KeyCombination ctrlW = new KeyCodeCombination(KeyCode.W, KeyCodeCombination.CONTROL_DOWN);
+    private final KeyCombination ctrlE = new KeyCodeCombination(KeyCode.E, KeyCodeCombination.CONTROL_DOWN);
+    private final KeyCombination ctrlR = new KeyCodeCombination(KeyCode.R, KeyCodeCombination.CONTROL_DOWN);
+
+    public void onKeyEvent(KeyEvent event) {
+        DataController dataController = (DataController) getChild(DataController.class.getSimpleName());
+
+        if(ctrlQ.match(event)) {
+            secretCoefUpdatedTime.set(System.currentTimeMillis());
+
+            dataController.setSecret(String.format(Locale.US, "%.2f",
+                    secretCoef.accumulateAndGet(0.2f, Float::sum))
+            );
+        } else if(ctrlW.match(event)) {
+            secretCoefUpdatedTime.set(System.currentTimeMillis());
+
+            dataController.setSecret(String.format(Locale.US, "%.2f",
+                    secretCoef.updateAndGet(v -> {
+                        if(v > 1) {
+                            return v - 0.2f;
+                        } else {
+                            return v > 0.05f ? v - 0.05f : 0.0f;
+                        }
+                    }))
+            );
+        } else if(ctrlE.match(event)) {
+            secretCoefUpdatedTime.set(System.currentTimeMillis());
+
+            dataController.setSecret(String.format(Locale.US, "%.0f",
+                    secretCoef.updateAndGet(v -> 1.0f))
+            );
+        } else if(ctrlR.match(event)) {
+            secretCoefUpdatedTime.set(System.currentTimeMillis());
+
+            dataController.setSecret("");
+            clear();
+        }
     }
 
     public void sendDetectorCommand(SomeCommand command) {

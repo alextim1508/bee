@@ -82,13 +82,13 @@ public class StatisticMeasService {
         StatisticMeasurement.clear();
     }
 
-    public void addMeasToStatistic(long time, Measurement meas, StatisticMeasurement statMeas) {
+    public void addMeasToStatistic(long time, Measurement meas, float coef, StatisticMeasurement statMeas) {
         statMeas.currentCountSum = meas.bdData.getCurrentScore();
         statMeas.averageCountSum = meas.bdData.getAverageScore();
-        statMeas.currentMeasDataValue = meas.bdData.getCurrentMeasData();
-        statMeas.averageMeasDataValue = meas.bdData.getAverageMeasData();
-        statMeas.accumulatedMeasDataValue = meas.bdData.getAccumulatedMeasData();
-        statMeas.accumulatedPowerMeasDataValue = meas.bdData.getAccumulatedPowerMeasData();
+        statMeas.currentMeasDataValue = meas.bdData.getCurrentMeasData() * coef;
+        statMeas.averageMeasDataValue = meas.bdData.getAverageMeasData() * coef;
+        statMeas.accumulatedMeasDataValue = meas.bdData.getAccumulatedMeasData() * coef;
+        statMeas.accumulatedPowerMeasDataValue = meas.bdData.getAccumulatedPowerMeasData() * coef;
         statMeas.measDataTitle = meas.bdData.getTitle();
         statMeas.measDataUnit = meas.bdData.getMeasDataUnit();
         statMeas.accInterval = meas.bdData.getAccumulatedTime();

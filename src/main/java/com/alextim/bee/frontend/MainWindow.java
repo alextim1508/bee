@@ -54,7 +54,8 @@ public class MainWindow {
             yellowCircleImage, yellowCircleExclamationImage,
             greenCircleImage, greenCircleExclamationImage,
             redCircleImage, redCircleExclamationImage,
-            noConnectImage;
+            noConnectImage,
+            counterModeOffImage;
 
     @SneakyThrows
     private void loadIcons() {
@@ -93,6 +94,10 @@ public class MainWindow {
         @Cleanup
         InputStream noConnectAsStream = MainWindow.class.getResourceAsStream("icon/no-connect.png");
         noConnectImage = new Image(Objects.requireNonNull(noConnectAsStream));
+
+        @Cleanup
+        InputStream noCounterModeOffAsStream = MainWindow.class.getResourceAsStream("icon/voltmeter.png");
+        counterModeOffImage = new Image(Objects.requireNonNull(noCounterModeOffAsStream));
     }
 
     private ResourceBundle getBundle(RootController rootController, MainWindow mainWindow) {

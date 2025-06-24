@@ -77,7 +77,11 @@ public class Main extends Application {
                            RootController rootController) {
         stage.hide();
         stage.setMaximized(true);
-        stage.setScene(new Scene(rootPane));
+
+        Scene scene = new Scene(rootPane);
+        scene.setOnKeyPressed(rootController::onKeyEvent);
+
+        stage.setScene(scene);
         stage.setTitle(TITLE_APP);
         stage.getIcons().add(icon);
 

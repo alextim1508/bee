@@ -9,15 +9,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="752.0" prefWidth="2139.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alextim.bee.frontend.view.data.DataController">
+<AnchorPane fx:id="pane" prefHeight="752.0" prefWidth="2139.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.alextim.bee.frontend.view.data.DataController">
    <children>
       <SplitPane fx:id="splitPane" dividerPositions="0.7094594594594594" layoutX="155.0" layoutY="71.0" orientation="VERTICAL" prefHeight="742.0" prefWidth="2123.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
         <items>
           <AnchorPane fx:id="graphPane" minHeight="0.0" minWidth="0.0" prefHeight="522.0" prefWidth="1449.0">
                <children>
-                  <VBox alignment="CENTER" layoutX="1738.0" layoutY="10.0" prefHeight="122.0" prefWidth="60.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0">
+                  <VBox fx:id="infoBox" alignment="CENTER" layoutX="1738.0" layoutY="10.0" prefHeight="122.0" prefWidth="60.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0">
                      <children>
-                        <ImageView fx:id="imageView" fitHeight="32.0" fitWidth="32.0" layoutX="1399.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                        <ImageView fx:id="imageView1" fitHeight="32.0" fitWidth="32.0" layoutX="1399.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                            <VBox.margin>
                               <Insets />
                            </VBox.margin>
@@ -27,12 +27,8 @@
                               <Font size="20.0" />
                            </font>
                         </Label>
+                        <ImageView fx:id="imageView2" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
                         <Label fx:id="imageViewLabel2" alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="120.0">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="imageViewLabel3" alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="120.0">
                            <font>
                               <Font size="20.0" />
                            </font>
@@ -246,6 +242,7 @@
                         </HBox>
                      </children>
                   </AnchorPane>
+                  <Label fx:id="secretLabel" layoutX="2057.0" layoutY="190.0" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0" />
                </children>
             </AnchorPane>
         </items>

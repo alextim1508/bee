@@ -3,6 +3,8 @@ package com.alextim.bee.frontend.view.data;
 import com.alextim.bee.client.dto.DebugSetting;
 import com.alextim.bee.client.messages.DetectorCommands;
 import com.alextim.bee.client.messages.DetectorCommands.GetDebugSettingAnswer;
+import com.alextim.bee.client.messages.DetectorCommands.SetDebugSettingAnswer;
+import com.alextim.bee.client.messages.DetectorCommands.SetDebugSettingCommand;
 import com.alextim.bee.client.messages.DetectorCommands.SetMeasTimeCommand;
 import com.alextim.bee.client.protocol.DetectorCodes;
 import com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode;
@@ -18,6 +20,8 @@ import java.time.ZoneId;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode.BD_MODE_COUNTERS_OFF;
+import static com.alextim.bee.client.protocol.DetectorCodes.BDInternalMode.BD_MODE_PULSE;
 import static com.alextim.bee.context.Property.*;
 import static com.alextim.bee.frontend.view.management.ManagementControllerInitializer.*;
 import static com.alextim.bee.service.ValueFormatter.sigDigRounder;
@@ -139,6 +143,8 @@ public class DataController extends DataControllerInitializer {
 
     @Override
     void disableCounterMode() {
+        log.info("disableCounterMode");
+
         sender = "disableCounterMode";
 
         rootController.addNodeControllerReceiver(GetDebugSettingAnswer.class, DataController.class);
@@ -149,6 +155,8 @@ public class DataController extends DataControllerInitializer {
 
     @Override
     void enableCounterMode() {
+        log.info("enableCounterMode");
+
         sender = "enableCounterMode";
 
         rootController.addNodeControllerReceiver(GetDebugSettingAnswer.class, DataController.class);
@@ -158,28 +166,45 @@ public class DataController extends DataControllerInitializer {
     }
 
     public void handleGetDebugSettings(GetDebugSettingAnswer getDebugSettingAnswer) {
-        boolean isDebugEnable = false;
-        BDInternalMode mode = getDebugSettingAnswer.debugSetting.mode;
+        BDInternalMode mode;
 
-        if(sender.equals("disableCounterMode")) {
-            isDebugEnable = true;
-            mode = BDInternalMode.BD_MODE_COUNTERS_OFF;
+        if(sender.equals("enableCounterMode")) {
+            mode = BD_MODE_PULSE;
+        } else {
+            mode = BD_MODE_COUNTERS_OFF;
         }
 
         DebugSetting debugSetting = DebugSetting.builder()
                 .mode(mode)
-                .isDebugEnable(isDebugEnable)
+                .isDebugEnable(true)
                 .chmQuench(getDebugSettingAnswer.debugSetting.chmQuench)
                 .clmQuench(getDebugSettingAnswer.debugSetting.clmQuench)
                 .pmInterval(getDebugSettingAnswer.debugSetting.pmInterval)
                 .pmQuench(getDebugSettingAnswer.debugSetting.pmQuench)
                 .pmHiUp(getDebugSettingAnswer.debugSetting.pmHiUp)
                 .build();
-
         log.info("debugSetting: {}", debugSetting);
 
+        if(sender.equals("enableCounterMode")) {
+            DebugSetting disableDebugSettings = DebugSetting.builder()
+                    .mode(mode)
+                    .isDebugEnable(false)
+                    .chmQuench(getDebugSettingAnswer.debugSetting.chmQuench)
+                    .clmQuench(getDebugSettingAnswer.debugSetting.clmQuench)
+                    .pmInterval(getDebugSettingAnswer.debugSetting.pmInterval)
+                    .pmQuench(getDebugSettingAnswer.debugSetting.pmQuench)
+                    .pmHiUp(getDebugSettingAnswer.debugSetting.pmHiUp)
+                    .build();
+            log.info("disableDebugSettings: {}", disableDebugSettings);
+
+            rootController.addWaitingCommand(SetDebugSettingAnswer.class,
+                    new SetDebugSettingCommand(TRANSFER_ID, disableDebugSettings));
+        }
+
+        rootController.addNodeControllerReceiver(SetDebugSettingAnswer.class, DataController.class);
+
         rootController.sendDetectorCommand(
-                new DetectorCommands.SetDebugSettingCommand(TRANSFER_ID, debugSetting));
+                new SetDebugSettingCommand(TRANSFER_ID, debugSetting));
     }
 
 
@@ -187,7 +212,7 @@ public class DataController extends DataControllerInitializer {
         Platform.runLater(() -> {
             mainWindow.showDialog(INFORMATION, "Информация",
                     HEADER,
-                    String.format(PARAM_IS_SET, "Режим работы счетчиков"));
+                    sender.equals("enableCounterMode") ?  "Питание счетчиков включено" :  "Питание счетчиков отключено");
         });
     }
 
@@ -196,5 +221,4 @@ public class DataController extends DataControllerInitializer {
                 HEADER,
                 String.format(ERROR_ANSWER, "Режим работы счетчиков", error.title));
     }
-
 }

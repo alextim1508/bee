@@ -88,9 +88,10 @@ public abstract class DataControllerInitializer extends NodeController {
     protected SimpleGraph averageMeasDataGraph;
 
     @FXML
-    private ImageView imageView;
+    private ImageView imageView1, imageView2;
+
     @FXML
-    private Label imageViewLabel1, imageViewLabel2, imageViewLabel3;
+    private Label imageViewLabel1, imageViewLabel2;
 
     @FXML
     private Label accMeasDataTitle, accMeadDataValue;
@@ -103,6 +104,9 @@ public abstract class DataControllerInitializer extends NodeController {
 
     @FXML
     private Button disableCounterModeBtn, enableCounterModeBtn;
+
+    @FXML
+    private Label secretLabel;
 
     abstract void start(long measTime);
 
@@ -173,53 +177,61 @@ public abstract class DataControllerInitializer extends NodeController {
     }
 
     public void setGrayCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getGrayCircleImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getGrayCircleImage()));
     }
 
     public void setGrayCircleExclamation() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getGrayCircleExclamationImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getGrayCircleExclamationImage()));
     }
 
     public void setYellowCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getYellowCircleImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getYellowCircleImage()));
     }
 
     public void setYellowCircleExclamation() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getYellowCircleExclamationImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getYellowCircleExclamationImage()));
     }
 
     public void setGreenCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getGreenCircleImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getGreenCircleImage()));
     }
 
     public void setGreenCircleExclamation() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getGreenCircleExclamationImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getGreenCircleExclamationImage()));
     }
 
     public void setRedCircle() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getRedCircleImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getRedCircleImage()));
     }
 
     public void setRedCircleExclamation() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getRedCircleExclamationImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getRedCircleExclamationImage()));
     }
 
     public void setNoConnect() {
-        Platform.runLater(() -> imageView.setImage(mainWindow.getNoConnectImage()));
+        Platform.runLater(() -> imageView1.setImage(mainWindow.getNoConnectImage()));
     }
 
-    public void setEmptyCircle() {
-        Platform.runLater(() -> imageView.setImage(null));
+    public void setVoltageIcon() {
+        Platform.runLater(() -> {
+            imageView2.setImage(mainWindow.getCounterModeOffImage());
+        });
     }
 
-    public void setImageViewLabel(String text1, String text2, String text3) {
+    public void setEmptyCircle1() {
+        Platform.runLater(() -> imageView1.setImage(null));
+    }
+
+    public void setEmptyCircle2() {
+        Platform.runLater(() -> imageView2.setImage(null));
+    }
+
+    public void setImageViewLabel(String text1, String text2) {
         Platform.runLater(() -> {
             if (text1 != null)
                 imageViewLabel1.setText(text1);
             if (text2 != null)
                 imageViewLabel2.setText(text2);
-            if (text3 != null)
-                imageViewLabel3.setText(text3);
         });
     }
 
@@ -486,6 +498,10 @@ public abstract class DataControllerInitializer extends NodeController {
 
     public void setGeoData(String text) {
         Platform.runLater(() -> geoData.setText(text));
+    }
+
+    public void setSecret(String text) {
+        Platform.runLater(() -> secretLabel.setText(text));
     }
 
     public String getFileComment() {
